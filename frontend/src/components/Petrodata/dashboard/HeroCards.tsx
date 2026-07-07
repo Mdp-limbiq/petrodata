@@ -3,6 +3,8 @@
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import { AnimatedCounter } from './AnimatedCounter'
 import { MiniSparkline, type SparkPoint } from './Sparkline'
+import { useUnits } from '@/providers/Units'
+import { GAS_UNIT_LABEL, gasValue } from '@/utilities/units'
 
 export type StatCardData = {
   label: string
@@ -10,6 +12,8 @@ export type StatCardData = {
   /** "compact" → 174M, "integer" → 174,296,381, "percent" → 66.7%. */
   format: 'compact' | 'integer' | 'percent'
   unit?: string
+  /** `value` is a MMcf/d gas figure — convert/relabel to the user's unit. */
+  gas?: boolean
   /** Month-over-month change as a decimal (0.032 = +3.2%). null = no signal. */
   mom: number | null
   /** Translated suffix for the MoM badge (e.g. "MoM"). */
@@ -29,6 +33,9 @@ export function HeroCards({ cards }: { cards: StatCardData[] }) {
 }
 
 function HeroCard({ card }: { card: StatCardData }) {
+  const { gasUnit } = useUnits()
+  const value = card.gas ? gasValue(card.value, gasUnit) : card.value
+  const unit = card.gas ? GAS_UNIT_LABEL[gasUnit] : card.unit
   const momLabel = formatMoM(card.mom, card.momSuffix)
   const isUp = (card.mom ?? 0) > 0
   const isDown = (card.mom ?? 0) < 0
@@ -58,15 +65,15 @@ function HeroCard({ card }: { card: StatCardData }) {
       </div>
       <div className="flex items-baseline gap-1.5">
         <AnimatedCounter
-          to={card.value}
+          to={value}
           kind={card.format}
           className="text-nd-text-display text-3xl md:text-4xl leading-none tabular-nums font-display"
         />
-        {card.unit && (
+        {unit && (
           <span
             className="text-nd-text-disabled text-[10px] uppercase font-mono"
           >
-            {card.unit}
+            {unit}
           </span>
         )}
       </div>

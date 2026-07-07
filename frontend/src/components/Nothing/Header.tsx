@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { useTheme } from '../../providers/Theme'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { SettingsControl } from './SettingsControl'
 
 type NavItem = {
   href?: '/' | '/map' | '/companies' | '/provincias' | '/noticias' | '/indicadores'
@@ -212,6 +213,7 @@ export function NothingHeader() {
             >
               {resolvedTheme === 'dark' ? <SunIcon /> : <MoonIcon />}
             </button>
+            <SettingsControl />
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="p-1 text-nd-text-secondary transition-colors hover:text-nd-text-display md:hidden"
