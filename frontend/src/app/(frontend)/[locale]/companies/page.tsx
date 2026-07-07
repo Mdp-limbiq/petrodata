@@ -42,6 +42,7 @@ export default async function CompaniesPage() {
       isPublic: c.is_public,
       projectCount: c.project_count_oil_gas,
       commodities: c.commodities ?? [],
+      nationalShareBoe: typeof c.national_share_boe === 'number' ? c.national_share_boe : null,
     }))
 
   return (

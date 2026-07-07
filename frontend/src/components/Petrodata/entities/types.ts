@@ -18,7 +18,7 @@ export type StatItem = {
   label: string
   value: number
   /** "int" → 1,234 ; "compact" → 1.2K. Default "int". */
-  format?: 'int' | 'compact'
+  format?: 'int' | 'compact' | 'percent'
 }
 
 /** A plottable project point for the auto-fitting EntityMap. */

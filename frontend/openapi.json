@@ -272,6 +272,41 @@
         ]
       }
     },
+    "/api/v1/operators/contribution": {
+      "get": {
+        "description": "Trailing (up to) 12 months: per-operator production shares, gross production value in USD (oil at Brent minus a fixed discount, gas at the PIST weighted-average price), pro-rata attributed energy exports, statutory 12% royalties, and value as a share of GDP. Valuation assumptions are returned alongside the data.",
+        "operationId": "OperatorsController_contribution_v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/OperatorContributionDto"
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MetaDto"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Economic contribution per operator",
+        "tags": [
+          "operators"
+        ]
+      }
+    },
     "/api/v1/operators/{slug}": {
       "get": {
         "description": "Metadata, latest-month rank, latest-month totals and YTD totals for one operator.",
@@ -2870,13 +2905,84 @@
       "get": {
         "description": "Computed /inversiones payload: VM production, national share, active wells, operator leaderboard, production series, energy exports, breakeven headroom (live Brent from FactPrice vs. a cited breakeven reference), activity momentum (new VM wells/month), and INDEC energy trade — real energy exports, energy trade surplus (superávit) and the agro-vs-energy export crossover (cruce, with each year also as % of GDP from World Bank) — all derived from ingested data, source-cited, with as-of from the data.",
         "operationId": "InversionesController_get_v2",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "description": "Response language. Falls back to the Accept-Language header, then Spanish.",
+            "schema": {
+              "enum": [
+                "es",
+                "en"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-language",
+            "required": false,
+            "in": "header",
+            "description": "Language fallback when ?lang is omitted.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
           }
         },
         "summary": "Investment indicators (computed from official data)",
+        "tags": [
+          "inversiones"
+        ]
+      }
+    },
+    "/api/v2/inversiones/trimestre": {
+      "get": {
+        "description": "Full /inversiones payload anchored to a calendar quarter: everything (KPIs, series, operator leaderboard, exports) is computed as of the latest complete month within `?trimestre` (YYYY-Qn). Omit the param for the latest complete month. The response lists `trimestresDisponibles` — the valid quarter values.",
+        "operationId": "InversionesController_getByTrimestre_v2",
+        "parameters": [
+          {
+            "name": "trimestre",
+            "required": false,
+            "in": "query",
+            "description": "Quarter to filter by, e.g. 2026-Q1. Defaults to the latest complete month.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": false,
+            "in": "query",
+            "description": "Response language. Falls back to Accept-Language, then Spanish.",
+            "schema": {
+              "enum": [
+                "es",
+                "en"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "accept-language",
+            "required": false,
+            "in": "header",
+            "description": "Language fallback when ?lang is omitted.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Same investment page, filtered to a quarter",
         "tags": [
           "inversiones"
         ]
@@ -3447,6 +3553,237 @@
           "boe",
           "active_wells",
           "vm_share_boe"
+        ]
+      },
+      "ContributionWindowDto": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "example": "2025-05-01"
+          },
+          "to": {
+            "type": "string",
+            "example": "2026-04-01"
+          },
+          "months": {
+            "type": "number",
+            "example": 12
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "months"
+        ]
+      },
+      "ContributionTotalsDto": {
+        "type": "object",
+        "properties": {
+          "oil_bbl": {
+            "type": "number",
+            "example": 265386496.4
+          },
+          "gas_mcf": {
+            "type": "number",
+            "example": 2001528276.9
+          },
+          "boe": {
+            "type": "number",
+            "example": 611974108.9
+          },
+          "gross_value_usd": {
+            "type": "number",
+            "example": 24310098765.4
+          },
+          "gross_value_annualized_usd": {
+            "type": "number",
+            "example": 24310098765.4
+          },
+          "royalties_usd": {
+            "type": "number",
+            "example": 2917211851.8
+          },
+          "energy_exports_usd": {
+            "type": "number",
+            "example": 10874000000,
+            "nullable": true
+          },
+          "gdp_usd": {
+            "type": "number",
+            "example": 645511218799,
+            "nullable": true
+          },
+          "gdp_year": {
+            "type": "number",
+            "example": 2025,
+            "nullable": true
+          },
+          "value_share_of_gdp": {
+            "type": "number",
+            "example": 0.0377,
+            "nullable": true
+          }
+        },
+        "required": [
+          "oil_bbl",
+          "gas_mcf",
+          "boe",
+          "gross_value_usd",
+          "gross_value_annualized_usd",
+          "royalties_usd",
+          "energy_exports_usd",
+          "gdp_usd",
+          "gdp_year",
+          "value_share_of_gdp"
+        ]
+      },
+      "ContributionAssumptionsDto": {
+        "type": "object",
+        "properties": {
+          "brent_avg_usd_bbl": {
+            "type": "number",
+            "example": 72.4,
+            "nullable": true
+          },
+          "oil_discount_usd_bbl": {
+            "type": "number",
+            "example": 5
+          },
+          "gas_pist_avg_usd_mmbtu": {
+            "type": "number",
+            "example": 3.1,
+            "nullable": true
+          },
+          "mcf_to_mmbtu": {
+            "type": "number",
+            "example": 1.037
+          },
+          "royalty_rate": {
+            "type": "number",
+            "example": 0.12
+          }
+        },
+        "required": [
+          "brent_avg_usd_bbl",
+          "oil_discount_usd_bbl",
+          "gas_pist_avg_usd_mmbtu",
+          "mcf_to_mmbtu",
+          "royalty_rate"
+        ]
+      },
+      "OperatorContributionItemDto": {
+        "type": "object",
+        "properties": {
+          "operator_slug": {
+            "type": "string",
+            "example": "ypf"
+          },
+          "operator_name": {
+            "type": "string",
+            "example": "YPF S.A."
+          },
+          "oil_bbl": {
+            "type": "number",
+            "example": 132693248.2
+          },
+          "gas_mcf": {
+            "type": "number",
+            "example": 500382069.2
+          },
+          "boe": {
+            "type": "number",
+            "example": 219371053.4
+          },
+          "share_boe": {
+            "type": "number",
+            "example": 0.358,
+            "description": "Share of national BOE in the window."
+          },
+          "share_oil": {
+            "type": "number",
+            "example": 0.5
+          },
+          "share_gas": {
+            "type": "number",
+            "example": 0.25
+          },
+          "oil_value_usd": {
+            "type": "number",
+            "example": 8944000000
+          },
+          "gas_value_usd": {
+            "type": "number",
+            "example": 1609000000
+          },
+          "gross_value_usd": {
+            "type": "number",
+            "example": 10553000000
+          },
+          "gross_value_annualized_usd": {
+            "type": "number",
+            "example": 10553000000
+          },
+          "attributed_exports_usd": {
+            "type": "number",
+            "example": 3897000000,
+            "nullable": true,
+            "description": "Energy exports × BOE share."
+          },
+          "royalties_usd": {
+            "type": "number",
+            "example": 1266360000,
+            "description": "Statutory 12% of gross wellhead value."
+          },
+          "value_share_of_gdp": {
+            "type": "number",
+            "example": 0.0163,
+            "nullable": true,
+            "description": "Annualized gross value / GDP."
+          }
+        },
+        "required": [
+          "operator_slug",
+          "operator_name",
+          "oil_bbl",
+          "gas_mcf",
+          "boe",
+          "share_boe",
+          "share_oil",
+          "share_gas",
+          "oil_value_usd",
+          "gas_value_usd",
+          "gross_value_usd",
+          "gross_value_annualized_usd",
+          "attributed_exports_usd",
+          "royalties_usd",
+          "value_share_of_gdp"
+        ]
+      },
+      "OperatorContributionDto": {
+        "type": "object",
+        "properties": {
+          "window": {
+            "$ref": "#/components/schemas/ContributionWindowDto"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/ContributionTotalsDto"
+          },
+          "assumptions": {
+            "$ref": "#/components/schemas/ContributionAssumptionsDto"
+          },
+          "operators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperatorContributionItemDto"
+            }
+          }
+        },
+        "required": [
+          "window",
+          "totals",
+          "assumptions",
+          "operators"
         ]
       },
       "OperatorLatestDto": {
@@ -5550,6 +5887,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "national_share_boe": {
+            "type": "number",
+            "example": 0.327,
+            "nullable": true,
+            "description": "Share of national BOE production, trailing 12 months. Null for non-producers."
           }
         },
         "required": [
@@ -5566,7 +5909,8 @@
           "project_count_mining",
           "project_count",
           "commodities",
-          "provinces"
+          "provinces",
+          "national_share_boe"
         ]
       },
       "CompanyStockPriceRowDto": {
@@ -5826,6 +6170,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "national_share_boe": {
+            "type": "number",
+            "example": 0.327,
+            "nullable": true,
+            "description": "Share of national BOE production, trailing 12 months."
           }
         },
         "required": [
@@ -5833,7 +6183,8 @@
           "gas_production_m3",
           "boe_total",
           "well_count",
-          "provinces"
+          "provinces",
+          "national_share_boe"
         ]
       },
       "CompanyStockDto": {

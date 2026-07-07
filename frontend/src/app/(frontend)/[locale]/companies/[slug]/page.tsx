@@ -51,6 +51,24 @@ async function getCompany(slug: string): Promise<Detail | null> {
   }
 }
 
+type ContributionItem = ApiSchemas['OperatorContributionItemDto']
+
+// Company slugs equal operator slugs, so the company's economic figures come
+// straight out of the operators contribution endpoint.
+async function getContribution(slug: string): Promise<{
+  item: ContributionItem
+  window: ApiSchemas['ContributionWindowDto']
+} | null> {
+  try {
+    const { data, error } = await api.GET('/api/v1/operators/contribution', { next: { revalidate: 3600 } })
+    if (error || !data) return null
+    const item = data.data.operators.find((o) => o.operator_slug === slug)
+    return item ? { item, window: data.data.window } : null
+  } catch {
+    return null
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const company = await getCompany(slug)
@@ -59,7 +77,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [t, company] = await Promise.all([getTranslations('companies'), getCompany(slug)])
+  const [t, company, contribution] = await Promise.all([
+    getTranslations('companies'),
+    getCompany(slug),
+    getContribution(slug.toLowerCase()),
+  ])
   if (!company) notFound()
 
   const projects = company.projects ?? []
@@ -71,12 +93,16 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
     company.type === 'mining' ? t('typeMining') : company.type === 'oil_and_gas' ? t('typeOil') : t('typeBoth')
 
   // Type-aware counters: O&G companies surface production, miners surface portfolio.
+  const nationalShare = og ? num(og.national_share_boe) : null
   const stats: StatItem[] = og
     ? [
         { label: t('oilGasSummary.wells'), value: og.well_count },
         { label: t('oilGasSummary.oil'), value: num(og.oil_production_m3) ?? 0, format: 'compact' },
         { label: t('oilGasSummary.gas'), value: num(og.gas_production_m3) ?? 0, format: 'compact' },
         { label: t('oilGasSummary.boe'), value: num(og.boe_total) ?? 0, format: 'compact' },
+        ...(nationalShare != null
+          ? [{ label: t('oilGasSummary.nationalShare'), value: nationalShare, format: 'percent' as const }]
+          : []),
       ]
     : [
         { label: t('stats.projects'), value: company.project_count_mining || projects.length },
@@ -191,6 +217,42 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
         <section className="container pb-12">
           <StatCounters items={stats} />
         </section>
+
+        {/* Economic contribution — money figures from the operators contribution endpoint */}
+        {og && contribution && (
+          <section className="container pb-12">
+            <SectionHead eyebrow={t('contribution.eyebrow')} title={t('contribution.title')}>
+              {t('contribution.window', {
+                from: contribution.window.from.slice(0, 7),
+                to: contribution.window.to.slice(0, 7),
+              })}
+            </SectionHead>
+            <div className="grid grid-cols-2 gap-px bg-nd-border md:grid-cols-4">
+              {[
+                { label: t('contribution.grossValue'), value: `US$ ${formatCompact(contribution.item.gross_value_usd)}` },
+                { label: t('contribution.royalties'), value: `US$ ${formatCompact(contribution.item.royalties_usd)}` },
+                ...(contribution.item.attributed_exports_usd != null
+                  ? [{ label: t('contribution.exports'), value: `US$ ${formatCompact(contribution.item.attributed_exports_usd)}` }]
+                  : []),
+                ...(contribution.item.value_share_of_gdp != null
+                  ? [{ label: t('contribution.ofGdp'), value: `${(contribution.item.value_share_of_gdp * 100).toFixed(2)}%` }]
+                  : []),
+              ].map((tile) => (
+                <div key={tile.label} className="flex flex-col gap-2 bg-nd-surface p-5">
+                  <span className="text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled font-mono">
+                    {tile.label}
+                  </span>
+                  <span className="text-3xl md:text-4xl leading-none tabular-nums text-nd-text-display font-display">
+                    {tile.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 max-w-3xl text-[11px] leading-relaxed text-nd-text-disabled font-mono">
+              {t('contribution.note')}
+            </p>
+          </section>
+        )}
 
         {ticker && (
           <section className="container pb-12">

@@ -88,6 +88,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/operators/contribution": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Economic contribution per operator
+         * @description Trailing (up to) 12 months: per-operator production shares, gross production value in USD (oil at Brent minus a fixed discount, gas at the PIST weighted-average price), pro-rata attributed energy exports, statutory 12% royalties, and value as a share of GDP. Valuation assumptions are returned alongside the data.
+         */
+        get: operations["OperatorsController_contribution_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/operators/{slug}": {
         parameters: {
             query?: never;
@@ -1012,6 +1032,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v2/inversiones/trimestre": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Same investment page, filtered to a quarter
+         * @description Full /inversiones payload anchored to a calendar quarter: everything (KPIs, series, operator leaderboard, exports) is computed as of the latest complete month within `?trimestre` (YYYY-Qn). Omit the param for the latest complete month. The response lists `trimestresDisponibles` — the valid quarter values.
+         */
+        get: operations["InversionesController_getByTrimestre_v2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/newsletter": {
         parameters: {
             query?: never;
@@ -1213,6 +1253,98 @@ export interface components {
              * @example 0.811
              */
             vm_share_boe: number;
+        };
+        ContributionWindowDto: {
+            /** @example 2025-05-01 */
+            from: string;
+            /** @example 2026-04-01 */
+            to: string;
+            /** @example 12 */
+            months: number;
+        };
+        ContributionTotalsDto: {
+            /** @example 265386496.4 */
+            oil_bbl: number;
+            /** @example 2001528276.9 */
+            gas_mcf: number;
+            /** @example 611974108.9 */
+            boe: number;
+            /** @example 24310098765.4 */
+            gross_value_usd: number;
+            /** @example 24310098765.4 */
+            gross_value_annualized_usd: number;
+            /** @example 2917211851.8 */
+            royalties_usd: number;
+            /** @example 10874000000 */
+            energy_exports_usd: number | null;
+            /** @example 645511218799 */
+            gdp_usd: number | null;
+            /** @example 2025 */
+            gdp_year: number | null;
+            /** @example 0.0377 */
+            value_share_of_gdp: number | null;
+        };
+        ContributionAssumptionsDto: {
+            /** @example 72.4 */
+            brent_avg_usd_bbl: number | null;
+            /** @example 5 */
+            oil_discount_usd_bbl: number;
+            /** @example 3.1 */
+            gas_pist_avg_usd_mmbtu: number | null;
+            /** @example 1.037 */
+            mcf_to_mmbtu: number;
+            /** @example 0.12 */
+            royalty_rate: number;
+        };
+        OperatorContributionItemDto: {
+            /** @example ypf */
+            operator_slug: string;
+            /** @example YPF S.A. */
+            operator_name: string;
+            /** @example 132693248.2 */
+            oil_bbl: number;
+            /** @example 500382069.2 */
+            gas_mcf: number;
+            /** @example 219371053.4 */
+            boe: number;
+            /**
+             * @description Share of national BOE in the window.
+             * @example 0.358
+             */
+            share_boe: number;
+            /** @example 0.5 */
+            share_oil: number;
+            /** @example 0.25 */
+            share_gas: number;
+            /** @example 8944000000 */
+            oil_value_usd: number;
+            /** @example 1609000000 */
+            gas_value_usd: number;
+            /** @example 10553000000 */
+            gross_value_usd: number;
+            /** @example 10553000000 */
+            gross_value_annualized_usd: number;
+            /**
+             * @description Energy exports × BOE share.
+             * @example 3897000000
+             */
+            attributed_exports_usd: number | null;
+            /**
+             * @description Statutory 12% of gross wellhead value.
+             * @example 1266360000
+             */
+            royalties_usd: number;
+            /**
+             * @description Annualized gross value / GDP.
+             * @example 0.0163
+             */
+            value_share_of_gdp: number | null;
+        };
+        OperatorContributionDto: {
+            window: components["schemas"]["ContributionWindowDto"];
+            totals: components["schemas"]["ContributionTotalsDto"];
+            assumptions: components["schemas"]["ContributionAssumptionsDto"];
+            operators: components["schemas"]["OperatorContributionItemDto"][];
         };
         OperatorLatestDto: {
             /** @example 1757724.93 */
@@ -2055,6 +2187,11 @@ export interface components {
              *     ]
              */
             provinces: string[];
+            /**
+             * @description Share of national BOE production, trailing 12 months. Null for non-producers.
+             * @example 0.327
+             */
+            national_share_boe: number | null;
         };
         CompanyStockPriceRowDto: {
             /** @example ypf */
@@ -2148,6 +2285,11 @@ export interface components {
              *     ]
              */
             provinces: string[];
+            /**
+             * @description Share of national BOE production, trailing 12 months.
+             * @example 0.327
+             */
+            national_share_boe: number | null;
         };
         CompanyStockDto: {
             /** @example YPF */
@@ -2506,6 +2648,28 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["OperatorListItemDto"][];
+                        meta: components["schemas"]["MetaDto"];
+                    };
+                };
+            };
+        };
+    };
+    OperatorsController_contribution_v1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OperatorContributionDto"];
                         meta: components["schemas"]["MetaDto"];
                     };
                 };
@@ -3795,8 +3959,39 @@ export interface operations {
     };
     InversionesController_get_v2: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: {
+                /** @description Response language. Falls back to the Accept-Language header, then Spanish. */
+                lang?: "es" | "en";
+            };
+            header?: {
+                /** @description Language fallback when ?lang is omitted. */
+                "accept-language"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    InversionesController_getByTrimestre_v2: {
+        parameters: {
+            query?: {
+                /** @description Quarter to filter by, e.g. 2026-Q1. Defaults to the latest complete month. */
+                trimestre?: string;
+                /** @description Response language. Falls back to Accept-Language, then Spanish. */
+                lang?: "es" | "en";
+            };
+            header?: {
+                /** @description Language fallback when ?lang is omitted. */
+                "accept-language"?: string;
+            };
             path?: never;
             cookie?: never;
         };

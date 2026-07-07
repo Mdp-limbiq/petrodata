@@ -1,5 +1,5 @@
 import { BadRequestException, Controller, Get, Headers, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ResponseMeta } from '../../common/response-meta.decorator';
 import { InversionesService } from './inversiones.service';
 import { pickLang } from './inversiones.i18n';
@@ -26,6 +26,7 @@ export class InversionesController {
     enum: ['es', 'en'],
     description: 'Response language. Falls back to the Accept-Language header, then Spanish.',
   })
+  @ApiHeader({ name: 'accept-language', required: false, description: 'Language fallback when ?lang is omitted.' })
   get(@Query('lang') lang?: string, @Headers('accept-language') acceptLanguage?: string) {
     // Explicit ?lang wins; otherwise negotiate from Accept-Language; default es.
     return this.service.getPage(pickLang(lang ?? acceptLanguage));
@@ -39,6 +40,7 @@ export class InversionesController {
   })
   @ApiQuery({ name: 'trimestre', required: false, description: 'Quarter to filter by, e.g. 2026-Q1. Defaults to the latest complete month.' })
   @ApiQuery({ name: 'lang', required: false, enum: ['es', 'en'], description: 'Response language. Falls back to Accept-Language, then Spanish.' })
+  @ApiHeader({ name: 'accept-language', required: false, description: 'Language fallback when ?lang is omitted.' })
   getByTrimestre(
     @Query('trimestre') trimestre?: string,
     @Query('lang') lang?: string,

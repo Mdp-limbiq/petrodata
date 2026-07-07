@@ -20,9 +20,10 @@ export class CompaniesService {
     if (q.country) where.country = { equals: q.country, mode: 'insensitive' };
     if (q.q) where.name = { contains: q.q, mode: 'insensitive' };
 
-    const [companies, portfolios] = await Promise.all([
+    const [companies, portfolios, shares] = await Promise.all([
       this.prisma.company.findMany({ where, orderBy: { name: 'asc' } }),
       this.portfolioMap(),
+      this.nationalShareMap(),
     ]);
 
     let items = companies.map((c) => {
@@ -45,6 +46,7 @@ export class CompaniesService {
         project_count: c.projectCountOilGas + miningCount,
         commodities,
         provinces,
+        national_share_boe: shares.get(c.slug) ?? null,
       };
     });
 
@@ -127,7 +129,8 @@ export class CompaniesService {
       throw new NotFoundException({ code: 'NOT_FOUND', message: `Company not found: ${slug}` });
     }
 
-    const portfolio = (await this.portfolioMap()).get(company.slug) ?? [];
+    const [portfolios, shares] = await Promise.all([this.portfolioMap(), this.nationalShareMap()]);
+    const portfolio = portfolios.get(company.slug) ?? [];
     const sortedProjects = [...portfolio].sort(
       (a, b) => stageRank(b.status) - stageRank(a.status) || a.name.localeCompare(b.name),
     );
@@ -159,14 +162,14 @@ export class CompaniesService {
         resources_summary: p.resources_summary,
       })),
       project_timeline: buildTimeline(sortedProjects),
-      oil_gas_production_summary: this.oilGasSummary(company),
+      oil_gas_production_summary: this.oilGasSummary(company, shares.get(company.slug) ?? null),
       stock: company.isPublic && company.stockTicker
         ? { ...(await this.stocks.quote(yahooSymbol(company.stockTicker, company.stockExchange))), ticker: company.stockTicker }
         : null,
     };
   }
 
-  private oilGasSummary(c: Company) {
+  private oilGasSummary(c: Company, nationalShareBoe: number | null) {
     if (c.type !== 'oil_and_gas' && c.type !== 'both') return null;
     return {
       oil_production_m3: c.oilProductionM3,
@@ -174,7 +177,27 @@ export class CompaniesService {
       boe_total: c.boeTotal,
       well_count: c.projectCountOilGas,
       provinces: c.provinces,
+      national_share_boe: nationalShareBoe,
     };
+  }
+
+  /**
+   * operator_slug → share of national BOE over the trailing (up to) 12 months.
+   * Company slugs equal operator slugs for O&G companies. BOE is derived from
+   * raw volumes (oil_bbl + gas_mcf/5.8), matching /operators/contribution.
+   */
+  private async nationalShareMap(): Promise<Map<string, number>> {
+    const rows = await this.prisma.$queryRawUnsafe<Array<{ operator_slug: string; boe: number }>>(`
+      SELECT operator_slug, (SUM(oil_bbl) + SUM(gas_mcf) / 5.8)::float AS boe
+      FROM agg_monthly_by_operator
+      WHERE date_month >= (SELECT MAX(date_month) FROM agg_monthly_by_operator) - INTERVAL '11 months'
+      GROUP BY operator_slug
+    `);
+    const total = rows.reduce((a, r) => a + r.boe, 0);
+    const map = new Map<string, number>();
+    if (!total) return map;
+    for (const r of rows) if (r.boe > 0) map.set(r.operator_slug, r.boe / total);
+    return map;
   }
 
   /** slug → mineral projects controlled by that company. */
