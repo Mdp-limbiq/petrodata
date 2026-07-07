@@ -15,6 +15,13 @@ export class CompanyListItemDto {
   @ApiProperty({ example: 5725 }) project_count!: number;
   @ApiProperty({ type: [String], example: [] }) commodities!: string[];
   @ApiProperty({ type: [String], example: ['Chubut', 'Neuquén'] }) provinces!: string[];
+  @ApiProperty({
+    example: 0.327,
+    nullable: true,
+    type: 'number',
+    description: 'Share of national BOE production, trailing 12 months. Null for non-producers.',
+  })
+  national_share_boe!: number | null;
 }
 
 export class CompanyStockDto {
@@ -79,6 +86,13 @@ export class OilGasProductionSummaryDto {
   @ApiProperty({ example: 175295959.15, nullable: true }) boe_total!: number | null;
   @ApiProperty({ example: 5725 }) well_count!: number;
   @ApiProperty({ type: [String], example: ['Chubut', 'Neuquén'] }) provinces!: string[];
+  @ApiProperty({
+    example: 0.327,
+    nullable: true,
+    type: 'number',
+    description: 'Share of national BOE production, trailing 12 months.',
+  })
+  national_share_boe!: number | null;
 }
 
 export class TimelineStageDto {

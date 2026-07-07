@@ -5,6 +5,8 @@ import { NothingFooter } from '@/components/Nothing/Footer'
 import { FooterNewsletterForm } from '@/components/Nothing/FooterNewsletterForm'
 import { buildAlternates } from '@/i18n/alternates'
 import { fetchInversiones } from '@/api/inversiones'
+import { api, type ApiSchemas } from '@/api/client'
+import { ContributionTable } from '@/components/Petrodata/indicadores/ContributionTable'
 import { KpiGrid } from '@/components/Petrodata/indicadores/KpiGrid'
 import { RampChart } from '@/components/Petrodata/indicadores/RampChart'
 import { OperatorLeaderboard } from '@/components/Petrodata/indicadores/OperatorLeaderboard'
@@ -25,10 +27,26 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t('title'), description: t('blurb'), alternates: buildAlternates('/indicadores') }
 }
 
+async function fetchContribution(): Promise<ApiSchemas['OperatorContributionDto'] | null> {
+  try {
+    const { data, error } = await api.GET('/api/v1/operators/contribution', {
+      next: { revalidate: 3600 },
+    })
+    if (error || !data) return null
+    return data.data
+  } catch {
+    return null
+  }
+}
+
 export default async function IndicadoresPage() {
   const locale = await getLocale()
   const lang = locale === 'en' ? 'en' : 'es'
-  const [t, data] = await Promise.all([getTranslations('indicadores'), fetchInversiones(lang)])
+  const [t, data, contribution] = await Promise.all([
+    getTranslations('indicadores'),
+    fetchInversiones(lang),
+    fetchContribution(),
+  ])
 
   if (!data) {
     return (
@@ -185,10 +203,24 @@ export default async function IndicadoresPage() {
           </section>
         ) : null}
 
+        {/* Economic contribution per operator */}
+        {contribution && contribution.operators.length ? (
+          <section className="container pb-16">
+            <h2 className="mb-2 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
+              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">06</span>
+              <span>{t('contribution.title')}</span>
+            </h2>
+            <p className="mb-8 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+              {t('contribution.blurb')}
+            </p>
+            <ContributionTable data={contribution} />
+          </section>
+        ) : null}
+
         {/* Transport infrastructure — the trunk pipeline network */}
         <section className="container pb-16">
           <h2 className="mb-2 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-            <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">06</span>
+            <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">07</span>
             <span>{t('transportTitle')}</span>
           </h2>
           <p className="mb-8 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
@@ -201,7 +233,7 @@ export default async function IndicadoresPage() {
         {data.mundo && data.mundo.rankings.length ? (
           <section className="container pb-16">
             <h2 className="mb-2 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">07</span>
+              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">08</span>
               <span>{t('worldTitle')}</span>
             </h2>
             <p className="mb-8 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">

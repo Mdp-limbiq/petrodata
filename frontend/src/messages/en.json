@@ -179,7 +179,9 @@
     }
   },
   "mineralsCharts": {
-    "common": { "noData": "No data" },
+    "common": {
+      "noData": "No data"
+    },
     "provinces": {
       "eyebrow": "PROJECTS BY PROVINCE",
       "title": "Top provinces"
@@ -464,7 +466,11 @@
       "provinces": "Provinces",
       "commodities": "Minerals"
     },
-    "portfolio": { "eyebrow": "PORTFOLIO", "title": "Projects map", "mapped": "{n} projects" },
+    "portfolio": {
+      "eyebrow": "PORTFOLIO",
+      "title": "Projects map",
+      "mapped": "{n} projects"
+    },
     "table": {
       "eyebrow": "PROJECTS",
       "title": "Project portfolio",
@@ -478,7 +484,10 @@
         "resource": "Resource"
       }
     },
-    "timeline": { "eyebrow": "PROGRESSION", "title": "Project stages" },
+    "timeline": {
+      "eyebrow": "PROGRESSION",
+      "title": "Project stages"
+    },
     "origin": "Origin",
     "sector": "Sector",
     "stock": "Stock",
@@ -498,9 +507,25 @@
       "wells": "Wells",
       "oil": "Oil · m³",
       "gas": "Gas · m³",
-      "boe": "BOE"
+      "boe": "BOE",
+      "nationalShare": "% national output"
     },
-    "priceChart": { "eyebrow": "STOCK PRICE", "high52w": "52w high", "low52w": "52w low" }
+    "priceChart": {
+      "eyebrow": "STOCK PRICE",
+      "high52w": "52w high",
+      "low52w": "52w low"
+    },
+    "nationalShare": "% National",
+    "contribution": {
+      "eyebrow": "ECONOMIC CONTRIBUTION",
+      "title": "Contribution to the country",
+      "window": "{from} – {to}",
+      "grossValue": "Gross production value",
+      "royalties": "Royalties (12%)",
+      "exports": "Attributed energy exports",
+      "ofGdp": "% of GDP",
+      "note": "Market-price estimate: oil at Brent minus a quality discount, gas at the PIST price; royalties at the statutory 12%; energy exports (INDEC) attributed by production share. These are not company accounting figures — see methodology on Indicadores."
+    }
   },
   "provinces": {
     "listEyebrow": "PROVINCES",
@@ -519,8 +544,15 @@
       "companies": "Companies",
       "exploration": "Exploration"
     },
-    "map": { "eyebrow": "MAP", "title": "Province projects", "mapped": "{n} projects" },
-    "breakdown": { "eyebrow": "MINERALS", "title": "Breakdown by mineral" },
+    "map": {
+      "eyebrow": "MAP",
+      "title": "Province projects",
+      "mapped": "{n} projects"
+    },
+    "breakdown": {
+      "eyebrow": "MINERALS",
+      "title": "Breakdown by mineral"
+    },
     "table": {
       "eyebrow": "PROJECTS",
       "title": "Projects",
@@ -533,13 +565,25 @@
         "company": "Company"
       }
     },
-    "tradeStats": { "eyebrow": "TRADE", "title": "Top exports", "employment": "Employment" },
-    "operators": { "eyebrow": "COMPANIES", "title": "Operating companies" },
+    "tradeStats": {
+      "eyebrow": "TRADE",
+      "title": "Top exports",
+      "employment": "Employment"
+    },
+    "operators": {
+      "eyebrow": "COMPANIES",
+      "title": "Operating companies"
+    },
     "navAll": "See all provinces",
     "exportValue": "Exports · USD/yr",
     "wells": "Wells",
     "oilGas": "Oil & Gas",
-    "tabs": { "oil": "Oil", "gas": "Gas", "mining": "Mining", "exports": "Exports" },
+    "tabs": {
+      "oil": "Oil",
+      "gas": "Gas",
+      "mining": "Mining",
+      "exports": "Exports"
+    },
     "oilProduction": "Oil production",
     "gasProduction": "Gas production",
     "vmShare": "Vaca Muerta share",
@@ -548,7 +592,12 @@
     "activeWells": "Active wells",
     "topOperators": "Top operators",
     "exportProfile": "Export profile",
-    "exportColumns": { "sector": "Sector", "product": "Product", "value": "Annual value", "share": "%" },
+    "exportColumns": {
+      "sector": "Sector",
+      "product": "Product",
+      "value": "Annual value",
+      "share": "%"
+    },
     "productionHistory": "Production history",
     "noSectorData": "No data for this sector."
   },
@@ -559,8 +608,17 @@
     "total": "Total exports",
     "bySector": "By sector",
     "byProvince": "By province",
-    "tabs": { "all": "All", "oil": "Oil", "gas": "Gas", "mining": "Mining" },
-    "columns": { "province": "Province", "value": "Annual value", "share": "%" },
+    "tabs": {
+      "all": "All",
+      "oil": "Oil",
+      "gas": "Gas",
+      "mining": "Mining"
+    },
+    "columns": {
+      "province": "Province",
+      "value": "Annual value",
+      "share": "%"
+    },
     "noData": "No export data."
   },
   "metadata": {
@@ -576,6 +634,22 @@
     "computedBy": "Computed by vacamuerta.io from {source}",
     "sourceLatest": "Computed by vacamuerta.io · latest data available {date}",
     "operatorsTitle": "Leading operators",
+    "contribution": {
+      "title": "Economic contribution by operator",
+      "blurb": "How much each company's operation contributes to the country: gross production value in dollars, provincial royalties, and energy exports attributed by production share.",
+      "grossValue": "Gross production value",
+      "annualizedNote": "annualized",
+      "windowNote": "last {months} months",
+      "ofGdp": "% of GDP ({year})",
+      "royalties": "Royalties (12%)",
+      "exports": "Energy exports",
+      "colOperator": "Operator",
+      "colShare": "BOE share",
+      "colGross": "Gross value",
+      "colRoyalties": "Royalties",
+      "colExports": "Attrib. exports",
+      "methodology": "Methodology: official volumes (Secretaría de Energía) per operator, {from} to {to} window. Oil valued at Brent (avg US$ {brent}/bbl) minus a US$ {discount}/bbl quality discount; gas at the weighted-average PIST price (US$ {pist}/MMBtu). Royalties at the statutory {royalty}% of wellhead value. Energy exports (INDEC) attributed pro-rata by BOE share: these are estimates, not company accounting figures."
+    },
     "transportTitle": "Transport infrastructure",
     "transportBlurb": "The trunk network that evacuates production: gas transport pipelines by operator and oil trunk lines. Official geometry and routes — no flow data in the source.",
     "transportNetwork": "Trunk network",

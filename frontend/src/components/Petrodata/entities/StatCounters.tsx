@@ -18,7 +18,12 @@ export function StatCounters({ items }: { items: StatItem[] }) {
     const anims = items.map((it, i) => {
       const el = valueRefs.current[i]
       if (!el) return undefined
-      const fmt = it.format === 'compact' ? (v: number) => formatCompact(v) : (v: number) => nf.format(Math.round(v))
+      const fmt =
+        it.format === 'compact'
+          ? (v: number) => formatCompact(v)
+          : it.format === 'percent'
+            ? (v: number) => `${(v * 100).toFixed(1)}%`
+            : (v: number) => nf.format(Math.round(v))
       return animateCounter(el, it.value, { duration: 2000, delay: i * 180, format: fmt })
     })
     return () => anims.forEach((a) => a?.pause?.())
@@ -26,7 +31,11 @@ export function StatCounters({ items }: { items: StatItem[] }) {
   }, [inView])
 
   const fmtStatic = (it: StatItem) =>
-    it.format === 'compact' ? formatCompact(it.value) : nf.format(Math.round(it.value))
+    it.format === 'compact'
+      ? formatCompact(it.value)
+      : it.format === 'percent'
+        ? `${(it.value * 100).toFixed(1)}%`
+        : nf.format(Math.round(it.value))
 
   return (
     <div
