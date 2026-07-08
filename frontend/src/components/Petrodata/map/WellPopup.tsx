@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { api, type ApiSchemas } from '@/api/client'
 import { formatCompact, formatMonth } from '@/utilities/formatNumber'
+import { useUnits } from '@/providers/Units'
+import { GAS_UNIT_LABEL, formatGas } from '@/utilities/units'
 import { OperatorAvatar } from './OperatorAvatar'
 import { classifyWellStatus, type WellStatusKind } from './wellStatus'
 
@@ -144,6 +146,7 @@ function MetaRow({ label, value }: { label: string; value: string | null | undef
 
 export function WellPopup({ well }: { well: WellProps }) {
   const t = useTranslations('wellPopup')
+  const { gasUnit } = useUnits()
   const { detail, loading } = useWellDetail(well.well_id)
   const isVm =
     well.formation_slug === 'vaca_muerta' || detail?.latest_production?.vm_combined === true
@@ -208,8 +211,8 @@ export function WellPopup({ well }: { well: WellProps }) {
               />
               <ProductionTile
                 label={t('tiles.gas')}
-                value={formatCompact(latest.gas_mmcf_d)}
-                unit="MMcf/d"
+                value={formatGas(latest.gas_mmcf_d, gasUnit)}
+                unit={GAS_UNIT_LABEL[gasUnit]}
               />
               <ProductionTile label={t('tiles.boe')} value={formatCompact(latest.boe)} unit="" />
             </div>

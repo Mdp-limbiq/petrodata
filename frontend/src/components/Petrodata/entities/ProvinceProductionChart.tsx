@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { formatMonth } from '@/utilities/formatNumber'
+import { useUnits } from '@/providers/Units'
+import { GAS_UNIT_LABEL, gasValue } from '@/utilities/units'
 import { drawPath, useInView } from '@/components/Petrodata/uranium/anim'
 
 type Point = { date: string; oilBblD: number; gasMmcfD: number }
@@ -17,6 +19,7 @@ type Scaled = { x: number; oilY: number; gasY: number; point: Point; t: number }
 
 export function ProvinceProductionChart({ points }: { points: Point[] }) {
   const t = useTranslations('provinces')
+  const { gasUnit } = useUnits()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
@@ -125,7 +128,7 @@ export function ProvinceProductionChart({ points }: { points: Point[] }) {
         </span>
         <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-secondary">
           <span className="inline-block h-[2px] w-4" style={{ backgroundColor: GAS_COLOR }} aria-hidden />
-          {`${t('gasProduction')} · MMcf/d`}
+          {`${t('gasProduction')} · ${GAS_UNIT_LABEL[gasUnit]}`}
         </span>
       </div>
 
@@ -222,7 +225,7 @@ export function ProvinceProductionChart({ points }: { points: Point[] }) {
               {`${hover.point.oilBblD.toLocaleString()} bbl/d`}
             </div>
             <div className="text-xs" style={{ color: GAS_COLOR }}>
-              {`${hover.point.gasMmcfD.toLocaleString()} MMcf/d`}
+              {`${gasValue(hover.point.gasMmcfD, gasUnit).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${GAS_UNIT_LABEL[gasUnit]}`}
             </div>
           </div>
         )}

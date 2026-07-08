@@ -25,6 +25,16 @@
     "switchTheme": "Switch theme",
     "switchLanguage": "Switch language"
   },
+  "settings": {
+    "open": "Settings",
+    "title": "Settings",
+    "close": "Close",
+    "gasUnits": "Gas units",
+    "metricLabel": "MMm³/d",
+    "metricNote": "Metric · Argentina",
+    "imperialLabel": "MMcf/d",
+    "imperialNote": "Imperial · US"
+  },
   "common": {
     "live": "LIVE",
     "loading": "loading…",
@@ -54,7 +64,7 @@
     "tagline": "Real-time intelligence for Argentina's oil & gas, refreshed monthly.",
     "kpi": {
       "oilLatest": "BBL/D OIL · LATEST",
-      "gasLatest": "MMCF/D GAS · LATEST",
+      "gasLatest": "GAS · LATEST",
       "vmShare": "VM SHARE · BOE",
       "activeWells": "ACTIVE WELLS",
       "momSuffix": "MoM"
@@ -133,7 +143,7 @@
     "overview": {
       "latestMonth": "Latest month · {month}",
       "oilUnit": "{value} bbl/d oil",
-      "gasUnit": "{value} MMcf/d gas",
+      "gasUnit": "{value} {unit} gas",
       "vmShareOfBoe": "{pct} of BOE",
       "operatorOilBblD": "{operator} · oil bbl/d",
       "boeTooltip": "Barrels of Oil Equivalent — energy-equivalent unit combining oil and gas at 6 Mcf gas ≈ 1 bbl oil"

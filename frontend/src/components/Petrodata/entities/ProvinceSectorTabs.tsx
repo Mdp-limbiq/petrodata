@@ -7,6 +7,8 @@ import { OperatorAvatar } from '@/components/Petrodata/map/OperatorAvatar'
 import { CompanyLink } from '@/components/Petrodata/entities/CompanyLink'
 import { commodityColor } from '@/components/Petrodata/minerals/commodityColors'
 import { formatCompact } from '@/utilities/formatNumber'
+import { useUnits } from '@/providers/Units'
+import { GAS_UNIT_LABEL, gasValue } from '@/utilities/units'
 import { track } from '@/utilities/analytics'
 import { staggerIn, useInView } from '@/components/Petrodata/uranium/anim'
 
@@ -262,10 +264,15 @@ function OilPanel({ data }: { data: OilGas }) {
 
 function GasPanel({ data }: { data: OilGas }) {
   const t = useTranslations('provinces')
+  const { gasUnit } = useUnits()
   return (
     <div className="flex flex-col gap-6">
       <div data-stagger>
-        <BigNumber label={t('gasProduction')} value={data.gasMmcfD} unit="MMcf/d" />
+        <BigNumber
+          label={t('gasProduction')}
+          value={gasValue(data.gasMmcfD, gasUnit)}
+          unit={GAS_UNIT_LABEL[gasUnit]}
+        />
       </div>
       <TopOperators operators={data.topOperators} />
     </div>

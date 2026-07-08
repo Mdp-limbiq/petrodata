@@ -25,6 +25,16 @@
     "switchTheme": "Cambiar tema",
     "switchLanguage": "Cambiar idioma"
   },
+  "settings": {
+    "open": "Ajustes",
+    "title": "Ajustes",
+    "close": "Cerrar",
+    "gasUnits": "Unidades de gas",
+    "metricLabel": "MMm³/d",
+    "metricNote": "Métrico · Argentina",
+    "imperialLabel": "MMcf/d",
+    "imperialNote": "Imperial · EE.UU."
+  },
   "common": {
     "live": "EN VIVO",
     "loading": "cargando…",
@@ -54,7 +64,7 @@
     "tagline": "Inteligencia en tiempo real para el petróleo y el gas de Argentina, actualizada mensualmente.",
     "kpi": {
       "oilLatest": "BBL/D PETRÓLEO · ÚLTIMO",
-      "gasLatest": "MMCF/D GAS · ÚLTIMO",
+      "gasLatest": "GAS · ÚLTIMO",
       "vmShare": "PARTICIPACIÓN VM · BOE",
       "activeWells": "POZOS ACTIVOS",
       "momSuffix": "MoM"
@@ -133,7 +143,7 @@
     "overview": {
       "latestMonth": "Último mes · {month}",
       "oilUnit": "{value} bbl/d petróleo",
-      "gasUnit": "{value} MMcf/d gas",
+      "gasUnit": "{value} {unit} gas",
       "vmShareOfBoe": "{pct} del BOE",
       "operatorOilBblD": "{operator} · bbl/d petróleo",
       "boeTooltip": "Barriles equivalentes de petróleo — unidad que combina petróleo y gas con 6 Mcf de gas ≈ 1 bbl de petróleo"

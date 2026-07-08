@@ -4,6 +4,8 @@ import { memo } from 'react'
 import { useTranslations } from 'next-intl'
 import type { ApiSchemas } from '@/api/client'
 import { formatCompact, formatPercent, formatMonth } from '@/utilities/formatNumber'
+import { useUnits } from '@/providers/Units'
+import { GAS_UNIT_LABEL, formatGas } from '@/utilities/units'
 import { OverlayCard, OverlayLabel } from './OverlayCard'
 import { OperatorAvatar } from './OperatorAvatar'
 import { Sparkline, type SparkPoint } from './Sparkline'
@@ -23,6 +25,7 @@ function OverviewCardImpl({
   timeSeries: OperatorPoint[]
 }) {
   const t = useTranslations('mapPage.overview')
+  const { gasUnit } = useUnits()
   const sparkData: SparkPoint[] = timeSeries.map((p) => ({
     x: p.date_month,
     y: p.oil_bbl_d,
@@ -54,7 +57,7 @@ function OverviewCardImpl({
           </span>
           <span className="text-nd-text-disabled">·</span>
           <span className="tabular-nums font-mono">
-            {t('gasUnit', { value: formatCompact(latest.gas_mmcf_d) })}
+            {t('gasUnit', { value: formatGas(latest.gas_mmcf_d, gasUnit), unit: GAS_UNIT_LABEL[gasUnit] })}
           </span>
         </div>
         <div className="mt-3 flex items-center gap-2">
