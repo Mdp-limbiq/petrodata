@@ -253,7 +253,7 @@ export default async function DashboardPage() {
       label: t('kpi.gasLatest'),
       value: latest.gas_mmcf_d,
       format: 'compact',
-      unit: 'MMcf/d',
+      gas: true,
       mom: gasMoM,
       momSuffix: t('kpi.momSuffix'),
       sparkline: toSparkPoints(gasSeries.slice(-4)),

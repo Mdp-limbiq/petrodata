@@ -18,6 +18,7 @@ export type CompanyCard = {
   isPublic: boolean
   projectCount: number
   commodities: string[]
+  nationalShareBoe: number | null
 }
 
 type Price = { price: number | null; changePct: number | null; exchange: string | null }
@@ -110,6 +111,7 @@ export function CompanyList({ companies }: { companies: CompanyCard[] }) {
                 <th className="w-px px-5 py-3 text-left">#</th>
                 <th className="px-5 py-3 text-left">{t('listEyebrow')}</th>
                 <th className="px-5 py-3 text-left">{t('sector')}</th>
+                <th className="px-5 py-3 text-right">{t('nationalShare')}</th>
                 <th className="px-5 py-3 text-right">{t('stats.projects')}</th>
               </tr>
             </thead>
@@ -129,6 +131,9 @@ export function CompanyList({ companies }: { companies: CompanyCard[] }) {
                     </div>
                   </td>
                   <td className="px-5 py-3 text-nd-text-secondary">{typeLabel(c.type, t)}</td>
+                  <td className="px-5 py-3 text-right text-nd-text-secondary tabular-nums">
+                    {c.nationalShareBoe != null ? `${(c.nationalShareBoe * 100).toFixed(1)}%` : '—'}
+                  </td>
                   <td className="px-5 py-3 text-right text-nd-text-secondary tabular-nums">{c.projectCount}</td>
                 </tr>
               ))}
