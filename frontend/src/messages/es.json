@@ -523,9 +523,14 @@
     "priceChart": {
       "eyebrow": "COTIZACIÓN",
       "high52w": "Máx. 52s",
-      "low52w": "Mín. 52s"
+      "low52w": "Mín. 52s",
+      "loading": "Cargando historial de cotización…",
+      "unavailable": "El historial de cotización no está disponible.",
+      "rangeLabel": "Período del historial de cotización",
+      "chartLabel": "Historial de cotización de {ticker}. Usá las flechas izquierda y derecha para explorar los valores."
     },
     "nationalShare": "% Nacional",
+    "valueShare": "% Valor (US$)",
     "contribution": {
       "eyebrow": "CONTRIBUCIÓN ECONÓMICA",
       "title": "Aporte al país",
@@ -533,6 +538,8 @@
       "grossValue": "Valor bruto de producción",
       "royalties": "Regalías (12%)",
       "exports": "Expo. energía atribuidas",
+      "shareOfValue": "del valor bruto del sector",
+      "shareOfExports": "de los dólares de expo. de energía",
       "ofGdp": "% del PBI",
       "note": "Estimación a precios de mercado: petróleo a Brent menos descuento por calidad, gas a precio PIST; regalías a la alícuota legal del 12%; exportaciones de energía (INDEC) atribuidas por participación en la producción. No son cifras contables de la empresa — ver metodología en Indicadores."
     }
@@ -655,6 +662,7 @@
       "exports": "Exportaciones de energía",
       "colOperator": "Operadora",
       "colShare": "Part. BOE",
+      "colValueShare": "Part. US$",
       "colGross": "Valor bruto",
       "colRoyalties": "Regalías",
       "colExports": "Expo. atribuidas",
