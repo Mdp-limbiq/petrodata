@@ -26,8 +26,27 @@ async function getCompanies() {
   }
 }
 
+// operator_slug → share of the sector's gross production value in US$ (company
+// slugs equal operator slugs for O&G companies).
+async function getValueShares(): Promise<Map<string, number>> {
+  const map = new Map<string, number>()
+  try {
+    const { data, error } = await api.GET('/api/v1/operators/contribution', { next: { revalidate: 3600 } })
+    const total = data?.data.totals.gross_value_usd
+    if (error || !total) return map
+    for (const o of data.data.operators) map.set(o.operator_slug, o.gross_value_usd / total)
+    return map
+  } catch {
+    return map
+  }
+}
+
 export default async function CompaniesPage() {
-  const [t, companies] = await Promise.all([getTranslations('companies'), getCompanies()])
+  const [t, companies, valueShares] = await Promise.all([
+    getTranslations('companies'),
+    getCompanies(),
+    getValueShares(),
+  ])
   // Oil & gas focus: drop pure-mining companies (keep oil_and_gas and mixed).
   const cards: CompanyCard[] = companies
     .filter((c) => c.type !== 'mining')
@@ -43,6 +62,7 @@ export default async function CompaniesPage() {
       projectCount: c.project_count_oil_gas,
       commodities: c.commodities ?? [],
       nationalShareBoe: typeof c.national_share_boe === 'number' ? c.national_share_boe : null,
+      valueShare: valueShares.get(c.slug) ?? null,
     }))
 
   return (

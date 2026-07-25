@@ -523,9 +523,14 @@
     "priceChart": {
       "eyebrow": "STOCK PRICE",
       "high52w": "52w high",
-      "low52w": "52w low"
+      "low52w": "52w low",
+      "loading": "Loading price history…",
+      "unavailable": "Price history is unavailable.",
+      "rangeLabel": "Price history range",
+      "chartLabel": "{ticker} stock price history. Use the left and right arrow keys to inspect values."
     },
     "nationalShare": "% National",
+    "valueShare": "% Value (US$)",
     "contribution": {
       "eyebrow": "ECONOMIC CONTRIBUTION",
       "title": "Contribution to the country",
@@ -533,6 +538,8 @@
       "grossValue": "Gross production value",
       "royalties": "Royalties (12%)",
       "exports": "Attributed energy exports",
+      "shareOfValue": "of the sector's gross value",
+      "shareOfExports": "of energy export dollars",
       "ofGdp": "% of GDP",
       "note": "Market-price estimate: oil at Brent minus a quality discount, gas at the PIST price; royalties at the statutory 12%; energy exports (INDEC) attributed by production share. These are not company accounting figures — see methodology on Indicadores."
     }
@@ -655,6 +662,7 @@
       "exports": "Energy exports",
       "colOperator": "Operator",
       "colShare": "BOE share",
+      "colValueShare": "US$ share",
       "colGross": "Gross value",
       "colRoyalties": "Royalties",
       "colExports": "Attrib. exports",
