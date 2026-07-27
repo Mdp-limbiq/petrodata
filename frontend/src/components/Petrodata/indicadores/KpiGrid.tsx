@@ -36,7 +36,7 @@ function KpiCard({
 }) {
   const accent = tierColor(kpi.tier)
   return (
-    <div className="group relative flex flex-col gap-3 bg-nd-surface p-5 transition-colors duration-300 hover:bg-nd-surface-raised">
+    <div className="group relative flex flex-col gap-3 overflow-hidden rounded-[10px] border border-nd-border bg-nd-surface p-5 transition-colors duration-300 hover:bg-nd-surface-raised">
       {/* tier accent stripe — grows across the top on hover */}
       <span
         className="absolute inset-x-0 top-0 h-px origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100"
@@ -44,7 +44,12 @@ function KpiCard({
         aria-hidden
       />
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+        <span className="flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.15em] text-nd-text-disabled">
+          <span
+            className="size-1.5 shrink-0 rounded-full"
+            style={{ background: accent, boxShadow: `0 0 6px 1px ${accent}` }}
+            aria-hidden
+          />
           {kpi.label}
         </span>
         <span
@@ -60,7 +65,7 @@ function KpiCard({
 
       <span
         ref={figureRef}
-        className="text-3xl md:text-4xl leading-none tabular-nums text-nd-text-display font-display"
+        className="text-3xl font-semibold md:text-4xl leading-none tracking-[-0.02em] tabular-nums text-nd-text-display font-display"
       >
         {formatFigure(kpi.figure.value, kpi.format)}
       </span>
@@ -95,7 +100,7 @@ export function KpiGrid({ kpis }: { kpis: InvKpi[] }) {
 
   if (!kpis.length) return null
   return (
-    <div ref={ref} className="grid grid-cols-1 gap-px bg-nd-border sm:grid-cols-2 lg:grid-cols-3">
+    <div ref={ref} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {kpis.map((kpi, i) => (
         <KpiCard
           key={kpi.id}

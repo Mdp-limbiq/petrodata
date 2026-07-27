@@ -49,9 +49,10 @@
   --breakpoint-lg: 64rem;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 86rem;
-  --font-mono: var(--font-space-mono), monospace;
-  --font-sans: var(--font-plus-jakarta), system-ui, sans-serif;
-  --font-display: var(--font-plus-jakarta), system-ui, sans-serif;
+  /* Technical (labels, figures) vs editorial (copy, headlines). */
+  --font-mono: var(--font-schibsted), system-ui, sans-serif;
+  --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-display: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 @layer utilities {
@@ -216,7 +217,13 @@
   }
   body {
     @apply bg-background text-foreground min-h-dvh flex flex-col;
-    font-family: var(--font-plus-jakarta), system-ui, sans-serif;
+    font-family: var(--font-sans);
+  }
+  /* Technical type rule: extra tracking + aligned figures. Explicit
+     tracking-* utilities still win over this. */
+  .font-mono {
+    letter-spacing: 0.03em;
+    font-variant-numeric: tabular-nums;
   }
 }
 

@@ -13,22 +13,18 @@ import { Providers } from '@/providers'
 import { defaultTheme, themeLocalStorageKey } from '@/providers/Theme/shared'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
-import { Plus_Jakarta_Sans, Space_Mono } from 'next/font/google'
+import { Schibsted_Grotesk } from 'next/font/google'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 import { getSocialImageURL } from '@/utilities/getSocialImageURL'
 
-const plusJakarta = Plus_Jakarta_Sans({
+// Technical type per the design system: Schibsted Grotesk for labels and
+// figures, Helvetica Neue (system stack, see globals.css) for editorial copy.
+const schibsted = Schibsted_Grotesk({
   subsets: ['latin'],
-  variable: '--font-plus-jakarta',
-  display: 'swap',
-})
-
-const spaceMono = Space_Mono({
-  subsets: ['latin'],
-  variable: '--font-space-mono',
-  weight: ['400', '700'],
+  variable: '--font-schibsted',
+  weight: ['400', '500', '600'],
   display: 'swap',
 })
 
@@ -39,7 +35,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html
-      className={cn(plusJakarta.variable, spaceMono.variable)}
+      className={cn(schibsted.variable)}
       lang={locale}
       suppressHydrationWarning={true}
     >
