@@ -116,7 +116,7 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
                 <XAxis
                   dataKey="date"
                   tickFormatter={fmtDate}
-                  tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' }}
+                  tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--nd-border)' }}
                   minTickGap={36}
@@ -124,7 +124,7 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
                 <YAxis
                   domain={[Math.floor(dataMin * 0.96), Math.ceil(dataMax * 1.04)]}
                   tickFormatter={(v) => `US$${nf0.format(v as number)}`}
-                  tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' }}
+                  tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                   tickLine={false}
                   axisLine={false}
                   width={56}
@@ -143,7 +143,7 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
                     position: 'insideTopLeft',
                     fill: 'var(--nd-text-secondary)',
                     fontSize: 10,
-                    fontFamily: 'var(--font-space-mono)',
+                    fontFamily: 'var(--font-mono)',
                   }}
                 />
                 <Area

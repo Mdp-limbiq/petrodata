@@ -616,7 +616,39 @@
       "share": "%"
     },
     "productionHistory": "Historia de producción",
-    "noSectorData": "Sin datos para este sector."
+    "noSectorData": "Sin datos para este sector.",
+    "exports": "Exportaciones",
+    "exportShare": "Part. export.",
+    "viewProvince": "Ver provincia",
+    "shareNote": "Participación = exportaciones de petróleo y gas de la provincia sobre el total exportado del país ({total} anuales, incluye minería).",
+    "basins": {
+      "neuquina": "Cuenca Neuquina",
+      "golfoSanJorge": "Golfo San Jorge",
+      "cuyana": "Cuenca Cuyana",
+      "austral": "Cuenca Austral",
+      "noroeste": "Cuenca Noroeste",
+      "pais": "Total país"
+    },
+    "productionActivity": "Producción y actividad",
+    "companiesCount": "{n} empresas",
+    "operatorsNote": "Producción mensual en BOE · {month}",
+    "ofFormation": "del total de la formación",
+    "yoy": "Variación interanual",
+    "perMonth": "/mes",
+    "perYear": "USD/año",
+    "descriptions": {
+      "neuquen": "Provincia núcleo de Vaca Muerta: concentra la mayor parte de la producción de la formación y el mayor volumen exportador de hidrocarburos del país.",
+      "chubut": "Corazón del Golfo San Jorge: campos maduros de crudo pesado en torno a Comodoro Rivadavia, con recuperación secundaria y una fuerte tradición petrolera convencional.",
+      "santa-cruz": "Flanco sur del Golfo San Jorge: producción convencional madura, con proyectos de recuperación terciaria y áreas en proceso de reconversión.",
+      "mendoza": "Cuenca Cuyana: producción convencional madura en el norte y el borde sur de Vaca Muerta, que aporta desde el sur provincial.",
+      "rio-negro": "Flanco este de la Cuenca Neuquina: aporta producción de Vaca Muerta y concentra la nueva logística exportadora de crudo hacia Punta Colorada.",
+      "estado-nacional": "Áreas bajo jurisdicción nacional: bloques costa afuera del Mar Argentino y concesiones administradas directamente por el Estado.",
+      "la-pampa": "Margen noreste de la Cuenca Neuquina: campos convencionales sobre el río Colorado y una porción menor de la producción de Vaca Muerta.",
+      "tierra-del-fuego": "Cuenca Austral: gas onshore y costa afuera en la isla, con producción madura orientada al abastecimiento del mercado interno.",
+      "salta": "Cuenca Noroeste: gas convencional de la sierra subandina, con campos en declinación y actividad muy acotada.",
+      "formosa": "Extremo oriental de la Cuenca Noroeste: producción marginal de crudo en Palmar Largo y áreas fronterizas de baja actividad.",
+      "jujuy": "Cuenca Noroeste: actividad convencional marginal en torno a Caimancito; la provincia de menor producción de hidrocarburos del país."
+    }
   },
   "exportaciones": {
     "eyebrow": "EXPORTACIONES",
@@ -742,7 +774,28 @@
     "ctaBody": "Trabajamos con inversores y operadores que buscan exposición al shale argentino. Escribinos para coordinar una conversación.",
     "ctaContact": "Contacto",
     "ctaNewsletter": "O recibí actualizaciones",
-    "noData": "Los indicadores de inversión no están disponibles en este momento."
+    "noData": "Los indicadores de inversión no están disponibles en este momento.",
+    "thesisLabel": "La tesis en seis datos",
+    "dayValue": {
+      "label": "Valor de un día de Vaca Muerta",
+      "perDay": "por día",
+      "perYear": "al año",
+      "ofGdp": "del PBI",
+      "anchorBasis": "Valor bruto de producción · últimos {months} meses · petróleo a Brent menos calidad + gas a PIST",
+      "sliderLabel": "Escenario: precio del petróleo (Brent)",
+      "scenarioLabel": "A ese precio, sólo el petróleo:",
+      "margin": "Margen sobre el breakeven:",
+      "avgChip": "Promedio del período US$ {price}",
+      "spotChip": "Brent hoy US$ {price}",
+      "note": "El escenario valúa sólo el petróleo a Brent menos US$ {discount}/bbl por calidad, sobre el volumen del período; no incluye gas ni descuenta costos o impuestos. Breakeven de referencia: US$ {breakeven}/bbl (YPF)."
+    },
+    "vmCard": {
+      "label": "Formación",
+      "title": "Vaca Muerta",
+      "oilShare": "del petróleo nacional",
+      "gasShare": "del gas nacional",
+      "wells": "pozos activos"
+    }
   },
   "noticias": {
     "eyebrow": "Monitor de noticias",

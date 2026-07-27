@@ -46,7 +46,7 @@ function MermaidChart({ source, instanceId }: { source: string; instanceId: stri
           theme: 'dark',
           themeVariables: MERMAID_THEME_VARIABLES,
           securityLevel: 'strict',
-          fontFamily: 'var(--font-plus-jakarta), system-ui, sans-serif',
+          fontFamily: 'var(--font-sans), system-ui, sans-serif',
         })
         const { svg } = await mermaid.render(`mermaid-${instanceId}`, source.trim())
         if (!cancelled && containerRef.current) {
@@ -128,7 +128,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
                 tick={{
                   fill: 'var(--nd-text-secondary)',
                   fontSize: 11,
-                  fontFamily: 'var(--font-space-mono)',
+                  fontFamily: 'var(--font-mono)',
                 }}
                 tickLine={{ stroke: 'var(--nd-border)' }}
                 axisLine={{ stroke: 'var(--nd-border)' }}
@@ -140,7 +140,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
                 tick={{
                   fill: 'var(--nd-text-secondary)',
                   fontSize: 11,
-                  fontFamily: 'var(--font-space-mono)',
+                  fontFamily: 'var(--font-mono)',
                 }}
                 tickLine={false}
                 axisLine={false}
@@ -153,7 +153,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
                 tick={{
                   fill: 'var(--nd-text-secondary)',
                   fontSize: 11,
-                  fontFamily: 'var(--font-space-mono)',
+                  fontFamily: 'var(--font-mono)',
                 }}
                 tickLine={{ stroke: 'var(--nd-border)' }}
                 axisLine={{ stroke: 'var(--nd-border)' }}
@@ -167,7 +167,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
                 tick={{
                   fill: 'var(--nd-text-secondary)',
                   fontSize: 11,
-                  fontFamily: 'var(--font-space-mono)',
+                  fontFamily: 'var(--font-mono)',
                 }}
                 tickLine={{ stroke: 'var(--nd-border)' }}
                 axisLine={{ stroke: 'var(--nd-border)' }}
@@ -179,7 +179,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
                         position: 'insideLeft',
                         fill: 'var(--nd-text-secondary)',
                         fontSize: 11,
-                        fontFamily: 'var(--font-space-mono)',
+                        fontFamily: 'var(--font-mono)',
                       }
                     : undefined
                 }
@@ -192,7 +192,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
               background: 'var(--nd-surface-raised)',
               border: '1px solid var(--nd-border-visible)',
               borderRadius: 8,
-              fontFamily: 'var(--font-space-mono)',
+              fontFamily: 'var(--font-mono)',
               fontSize: 12,
               color: 'var(--nd-text-display)',
             }}
@@ -210,7 +210,7 @@ function BarChartView({ data, yLabel }: { data: BarRow[]; yLabel?: string | null
               style={{
                 fill: 'var(--nd-text-secondary)',
                 fontSize: 10,
-                fontFamily: 'var(--font-space-mono)',
+                fontFamily: 'var(--font-mono)',
               }}
             />
           </Bar>
