@@ -33,6 +33,14 @@ export class ResponseInterceptor implements NestInterceptor {
       RESPONSE_META_KEY,
       [ctx.getHandler(), ctx.getClass()],
     );
+    // Read-mostly API on monthly-ingested data: let proxies/browsers cache GETs briefly.
+    const req = ctx.switchToHttp().getRequest<{ method?: string }>();
+    if (req.method === 'GET') {
+      ctx
+        .switchToHttp()
+        .getResponse<{ setHeader: (name: string, value: string) => void }>()
+        .setHeader('Cache-Control', 'public, max-age=60');
+    }
     return next.handle().pipe(
       switchMap((value) =>
         from(

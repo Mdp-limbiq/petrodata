@@ -2,6 +2,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule } from '@nestjs/swagger';
+import compression = require('compression');
 import type { IncomingMessage, ServerResponse } from 'http';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/http-exception.filter';
@@ -15,6 +16,7 @@ async function createApp(): Promise<NestExpressApplication> {
   // Behind Coolify's Traefik proxy: trust X-Forwarded-For so req.ip is the real
   // client (per-IP rate limiting buckets everyone together otherwise).
   app.set('trust proxy', 1);
+  app.use(compression());
   app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,

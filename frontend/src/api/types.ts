@@ -108,6 +108,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/operators/production": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Monthly time series for several operators in one call
+         * @description One `groupBy` query for up to 10 operators. Returns one entry per requested slug with its monthly points. Use `months` to bound to the trailing N months.
+         */
+        get: operations["OperatorsController_productionBatch_v1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/operators/{slug}": {
         parameters: {
             query?: never;
@@ -1346,6 +1366,27 @@ export interface components {
             assumptions: components["schemas"]["ContributionAssumptionsDto"];
             operators: components["schemas"]["OperatorContributionItemDto"][];
         };
+        OperatorTimeSeriesPointDto: {
+            /** @example 2026-01-01 */
+            date_month: string;
+            /** @example 1927666.93 */
+            oil_m3: number;
+            /** @example 404155.15 */
+            oil_bbl_d: number;
+            /** @example 836299.35 */
+            gas_thousand_m3: number;
+            /** @example 984.46 */
+            gas_mmcf_d: number;
+            /** @example 42633610.05 */
+            boe: number;
+            /** @example 5087 */
+            active_wells: number;
+        };
+        OperatorSeriesDto: {
+            /** @example ypf */
+            operator_slug: string;
+            points: components["schemas"]["OperatorTimeSeriesPointDto"][];
+        };
         OperatorLatestDto: {
             /** @example 1757724.93 */
             oil_m3: number;
@@ -1400,22 +1441,6 @@ export interface components {
         };
         ApiErrorDto: {
             error: components["schemas"]["ApiErrorPayloadDto"];
-        };
-        OperatorTimeSeriesPointDto: {
-            /** @example 2026-01-01 */
-            date_month: string;
-            /** @example 1927666.93 */
-            oil_m3: number;
-            /** @example 404155.15 */
-            oil_bbl_d: number;
-            /** @example 836299.35 */
-            gas_thousand_m3: number;
-            /** @example 984.46 */
-            gas_mmcf_d: number;
-            /** @example 42633610.05 */
-            boe: number;
-            /** @example 5087 */
-            active_wells: number;
         };
         WellDto: {
             /** @example 93863 */
@@ -2676,6 +2701,33 @@ export interface operations {
             };
         };
     };
+    OperatorsController_productionBatch_v1: {
+        parameters: {
+            query: {
+                /** @description Comma-separated operator slugs (max 10). */
+                slugs: string;
+                /** @description Trailing N months relative to the latest data month. */
+                months?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OperatorSeriesDto"][];
+                        meta: components["schemas"]["MetaDto"];
+                    };
+                };
+            };
+        };
+    };
     OperatorsController_detail_v1: {
         parameters: {
             query?: never;
@@ -2716,6 +2768,8 @@ export interface operations {
                 from?: string;
                 /** @description Inclusive upper bound (YYYY-MM or YYYY-MM-DD). */
                 to?: string;
+                /** @description Trailing N months relative to the latest data month. Ignored when `from` is set. */
+                months?: number;
             };
             header?: never;
             path: {

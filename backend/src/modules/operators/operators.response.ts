@@ -110,3 +110,8 @@ export class OperatorTimeSeriesPointDto {
   @ApiProperty({ example: 42633610.05 }) boe!: number;
   @ApiProperty({ example: 5087 }) active_wells!: number;
 }
+
+export class OperatorSeriesDto {
+  @ApiProperty({ example: 'ypf' }) operator_slug!: string;
+  @ApiProperty({ type: [OperatorTimeSeriesPointDto] }) points!: OperatorTimeSeriesPointDto[];
+}

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { paginated, skipTake } from '../../common/pagination.dto';
+import { cached, TTL } from '../../common/cache';
 import { GroupBy, MonthlyQueryDto, parseMonthInput, parseVmFlag } from './production.dto';
 
 const GROUP_BY_COLUMN: Record<GroupBy, string> = {
@@ -123,6 +124,10 @@ export class ProductionService {
   }
 
   async latest() {
+    return cached('production:latest', TTL.SHORT, () => this.computeLatest());
+  }
+
+  private async computeLatest() {
     const latestRow = await this.prisma.factProductionMonthly.findFirst({
       orderBy: { dateMonth: 'desc' },
       select: { dateMonth: true },
@@ -143,28 +148,28 @@ export class ProductionService {
 
     const month = latestRow.dateMonth;
 
-    const totalsAgg = await this.prisma.factProductionMonthly.aggregate({
-      where: { dateMonth: month },
-      _sum: { oilM3: true, oilBblD: true, gasThousandM3: true, gasMmcfD: true, boe: true },
-    });
-    const activeWells = await this.prisma.factProductionMonthly.findMany({
-      where: { dateMonth: month, boe: { gt: 0 } },
-      select: { wellId: true },
-      distinct: ['wellId'],
-    });
-
-    const vmAgg = await this.prisma.factProductionMonthly.aggregate({
-      where: { dateMonth: month, vmCombined: true },
-      _sum: { oilM3: true, gasThousandM3: true, boe: true },
-    });
-
-    const topRows = await this.prisma.factProductionMonthly.groupBy({
-      by: ['operatorSlug'],
-      where: { dateMonth: month },
-      _sum: { boe: true, oilM3: true, gasThousandM3: true },
-      orderBy: { _sum: { boe: 'desc' } },
-      take: 5,
-    });
+    const [totalsAgg, activeWellsRows, vmAgg, topRows] = await Promise.all([
+      this.prisma.factProductionMonthly.aggregate({
+        where: { dateMonth: month },
+        _sum: { oilM3: true, oilBblD: true, gasThousandM3: true, gasMmcfD: true, boe: true },
+      }),
+      this.prisma.$queryRaw<{ active_wells: number }[]>`
+        SELECT COUNT(DISTINCT well_id)::int AS active_wells
+        FROM fact_production_monthly
+        WHERE date_month = ${month} AND boe > 0
+      `,
+      this.prisma.factProductionMonthly.aggregate({
+        where: { dateMonth: month, vmCombined: true },
+        _sum: { oilM3: true, gasThousandM3: true, boe: true },
+      }),
+      this.prisma.factProductionMonthly.groupBy({
+        by: ['operatorSlug'],
+        where: { dateMonth: month },
+        _sum: { boe: true, oilM3: true, gasThousandM3: true },
+        orderBy: { _sum: { boe: 'desc' } },
+        take: 5,
+      }),
+    ]);
     const operatorNames = await this.prisma.dimOperator.findMany({
       where: { operatorSlug: { in: topRows.map((r) => r.operatorSlug) } },
       select: { operatorSlug: true, operatorName: true },
@@ -182,7 +187,7 @@ export class ProductionService {
       gas_thousand_m3: totalGas,
       gas_mmcf_d: totalsAgg._sum.gasMmcfD ?? 0,
       boe: totalBoe,
-      active_wells: activeWells.length,
+      active_wells: activeWellsRows[0]?.active_wells ?? 0,
       vm_share: {
         oil: totalOil ? (vmAgg._sum.oilM3 ?? 0) / totalOil : 0,
         gas: totalGas ? (vmAgg._sum.gasThousandM3 ?? 0) / totalGas : 0,

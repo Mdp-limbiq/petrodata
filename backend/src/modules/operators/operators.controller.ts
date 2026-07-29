@@ -2,11 +2,12 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiNotFoundResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiErrorDto } from '../../common/swagger';
 import { ApiOkEnvelope } from '../../common/swagger';
-import { ListOperatorsQueryDto, OperatorProductionQueryDto } from './operators.dto';
+import { ListOperatorsQueryDto, OperatorProductionQueryDto, OperatorsProductionBatchQueryDto } from './operators.dto';
 import {
   OperatorContributionDto,
   OperatorDetailDto,
   OperatorListItemDto,
+  OperatorSeriesDto,
   OperatorTimeSeriesPointDto,
 } from './operators.response';
 import { OperatorsService } from './operators.service';
@@ -36,6 +37,18 @@ export class OperatorsController {
   @ApiOkEnvelope(OperatorContributionDto)
   contribution() {
     return this.service.contribution();
+  }
+
+  @Get('production')
+  @ApiOperation({
+    summary: 'Monthly time series for several operators in one call',
+    description:
+      'One `groupBy` query for up to 10 operators. Returns one entry per requested slug with its monthly points. Use `months` to bound to the trailing N months.',
+  })
+  @ApiOkEnvelope(OperatorSeriesDto, { isArray: true })
+  productionBatch(@Query() q: OperatorsProductionBatchQueryDto) {
+    const slugs = q.slugs.split(',').map((s) => s.trim()).filter(Boolean);
+    return this.service.batchSeries(slugs, q.months);
   }
 
   @Get(':slug')

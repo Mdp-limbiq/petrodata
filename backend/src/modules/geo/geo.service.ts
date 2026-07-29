@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { cached, TTL } from '../../common/cache';
 import { GeoWellsQueryDto, parseBbox } from './geo.dto';
 
 export interface WellFeature {
@@ -14,6 +15,11 @@ export class GeoService {
   constructor(private readonly prisma: PrismaService) {}
 
   async wells(q: GeoWellsQueryDto) {
+    const key = `geo:wells:${q.operator ?? ''}:${q.formation ?? ''}:${q.basin ?? ''}:${q.province ?? ''}:${q.bbox ?? ''}:${q.limit ?? 1000}`;
+    return cached(key, TTL.LONG, () => this.computeWells(q));
+  }
+
+  private async computeWells(q: GeoWellsQueryDto) {
     const limit = q.limit ?? 1000;
     const where: Prisma.DimWellWhereInput = {
       latitude: { not: null },
@@ -31,7 +37,26 @@ export class GeoService {
       where.longitude = { gte: bbox.west, lte: bbox.east };
     }
 
-    const rows = await this.prisma.dimWell.findMany({ where, take: limit });
+    const rows = await this.prisma.dimWell.findMany({
+      where,
+      take: limit,
+      select: {
+        wellId: true,
+        sigla: true,
+        operatorSlug: true,
+        operatorName: true,
+        formationSlug: true,
+        basin: true,
+        province: true,
+        concession: true,
+        yacimiento: true,
+        wellType: true,
+        statusCode: true,
+        depthM: true,
+        latitude: true,
+        longitude: true,
+      },
+    });
 
     const features: WellFeature[] = rows.map((w) => ({
       type: 'Feature',
