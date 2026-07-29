@@ -33,8 +33,7 @@ const MapPreview = nextDynamic(
   { loading: () => <div className="h-[280px] w-full animate-pulse bg-nd-surface-raised" /> },
 )
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export const revalidate = 300
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('metadata')
@@ -59,7 +58,7 @@ const TOP_N_OPERATORS = 5
 
 async function getLatest(): Promise<LatestSummary | null> {
   try {
-    const { data, error } = await api.GET('/api/v1/production/latest', { cache: 'no-store' })
+    const { data, error } = await api.GET('/api/v1/production/latest', { next: { revalidate: 300 } })
     if (error || !data) return null
     return data.data
   } catch {
@@ -71,7 +70,7 @@ async function getOperators(): Promise<OperatorListItem[]> {
   try {
     const { data, error } = await api.GET('/api/v1/operators', {
       params: { query: { sort: 'boe', order: 'desc' } },
-      cache: 'no-store',
+      next: { revalidate: 300 },
     })
     if (error || !data) return []
     return data.data
@@ -80,14 +79,22 @@ async function getOperators(): Promise<OperatorListItem[]> {
   }
 }
 
-async function getOperatorSeries(slug: string): Promise<OperatorPoint[]> {
+async function getTopOperatorSeries(
+  topOperators: OperatorListItem[],
+): Promise<{ slug: string; name: string; points: OperatorPoint[] }[]> {
   try {
-    const { data, error } = await api.GET('/api/v1/operators/{slug}/production', {
-      params: { path: { slug } },
-      cache: 'no-store',
+    const slugs = topOperators.map((op) => op.operator_slug).join(',')
+    const { data, error } = await api.GET('/api/v1/operators/production', {
+      params: { query: { slugs, months: 12 } },
+      next: { revalidate: 300 },
     })
     if (error || !data) return []
-    return data.data
+    const nameBy = new Map(topOperators.map((op) => [op.operator_slug, op.operator_name]))
+    return data.data.map((s) => ({
+      slug: s.operator_slug,
+      name: nameBy.get(s.operator_slug) ?? s.operator_slug,
+      points: s.points,
+    }))
   } catch {
     return []
   }
@@ -97,7 +104,7 @@ async function getWells(): Promise<WellFC> {
   try {
     const { data, error } = await api.GET('/api/v1/geo/wells', {
       params: { query: { formation: 'vaca_muerta', limit: 1000 } },
-      cache: 'no-store',
+      next: { revalidate: 300 },
     })
     if (error || !data) return EMPTY_FC
     return data
@@ -108,7 +115,7 @@ async function getWells(): Promise<WellFC> {
 
 async function getFreshness(): Promise<DataFreshness | null> {
   try {
-    const { data, error } = await api.GET('/api/v1/data-freshness', { cache: 'no-store' })
+    const { data, error } = await api.GET('/api/v1/data-freshness', { next: { revalidate: 300 } })
     if (error || !data) return null
     return data.data
   } catch {
@@ -173,13 +180,7 @@ export default async function DashboardPage() {
   ])
 
   const topOperators = operators.slice(0, TOP_N_OPERATORS)
-  const series = await Promise.all(
-    topOperators.map(async (op) => ({
-      slug: op.operator_slug,
-      name: op.operator_name,
-      points: await getOperatorSeries(op.operator_slug),
-    })),
-  )
+  const series = await getTopOperatorSeries(topOperators)
 
   const chartRows = buildChartRows(series)
   const slugs = topOperators.map((op) => op.operator_slug)

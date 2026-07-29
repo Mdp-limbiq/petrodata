@@ -307,6 +307,65 @@
         ]
       }
     },
+    "/api/v1/operators/production": {
+      "get": {
+        "description": "One `groupBy` query for up to 10 operators. Returns one entry per requested slug with its monthly points. Use `months` to bound to the trailing N months.",
+        "operationId": "OperatorsController_productionBatch_v1",
+        "parameters": [
+          {
+            "name": "slugs",
+            "required": true,
+            "in": "query",
+            "description": "Comma-separated operator slugs (max 10).",
+            "schema": {
+              "example": "ypf,vista-energy",
+              "type": "string"
+            }
+          },
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "description": "Trailing N months relative to the latest data month.",
+            "schema": {
+              "example": 12,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OperatorSeriesDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MetaDto"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Monthly time series for several operators in one call",
+        "tags": [
+          "operators"
+        ]
+      }
+    },
     "/api/v1/operators/{slug}": {
       "get": {
         "description": "Metadata, latest-month rank, latest-month totals and YTD totals for one operator.",
@@ -394,6 +453,16 @@
             "schema": {
               "example": "2026-04",
               "type": "string"
+            }
+          },
+          {
+            "name": "months",
+            "required": false,
+            "in": "query",
+            "description": "Trailing N months relative to the latest data month. Ignored when `from` is set.",
+            "schema": {
+              "example": 12,
+              "type": "number"
             }
           }
         ],
@@ -3786,6 +3855,67 @@
           "operators"
         ]
       },
+      "OperatorTimeSeriesPointDto": {
+        "type": "object",
+        "properties": {
+          "date_month": {
+            "type": "string",
+            "example": "2026-01-01"
+          },
+          "oil_m3": {
+            "type": "number",
+            "example": 1927666.93
+          },
+          "oil_bbl_d": {
+            "type": "number",
+            "example": 404155.15
+          },
+          "gas_thousand_m3": {
+            "type": "number",
+            "example": 836299.35
+          },
+          "gas_mmcf_d": {
+            "type": "number",
+            "example": 984.46
+          },
+          "boe": {
+            "type": "number",
+            "example": 42633610.05
+          },
+          "active_wells": {
+            "type": "number",
+            "example": 5087
+          }
+        },
+        "required": [
+          "date_month",
+          "oil_m3",
+          "oil_bbl_d",
+          "gas_thousand_m3",
+          "gas_mmcf_d",
+          "boe",
+          "active_wells"
+        ]
+      },
+      "OperatorSeriesDto": {
+        "type": "object",
+        "properties": {
+          "operator_slug": {
+            "type": "string",
+            "example": "ypf"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OperatorTimeSeriesPointDto"
+            }
+          }
+        },
+        "required": [
+          "operator_slug",
+          "points"
+        ]
+      },
       "OperatorLatestDto": {
         "type": "object",
         "properties": {
@@ -3939,48 +4069,6 @@
         },
         "required": [
           "error"
-        ]
-      },
-      "OperatorTimeSeriesPointDto": {
-        "type": "object",
-        "properties": {
-          "date_month": {
-            "type": "string",
-            "example": "2026-01-01"
-          },
-          "oil_m3": {
-            "type": "number",
-            "example": 1927666.93
-          },
-          "oil_bbl_d": {
-            "type": "number",
-            "example": 404155.15
-          },
-          "gas_thousand_m3": {
-            "type": "number",
-            "example": 836299.35
-          },
-          "gas_mmcf_d": {
-            "type": "number",
-            "example": 984.46
-          },
-          "boe": {
-            "type": "number",
-            "example": 42633610.05
-          },
-          "active_wells": {
-            "type": "number",
-            "example": 5087
-          }
-        },
-        "required": [
-          "date_month",
-          "oil_m3",
-          "oil_bbl_d",
-          "gas_thousand_m3",
-          "gas_mmcf_d",
-          "boe",
-          "active_wells"
         ]
       },
       "WellDto": {

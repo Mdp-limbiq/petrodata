@@ -40,6 +40,15 @@ export class WellsService {
     const latest = await this.prisma.factProductionMonthly.findFirst({
       where: { wellId },
       orderBy: { dateMonth: 'desc' },
+      select: {
+        dateMonth: true,
+        oilM3: true,
+        oilBblD: true,
+        gasThousandM3: true,
+        gasMmcfD: true,
+        boe: true,
+        vmCombined: true,
+      },
     });
 
     return {
