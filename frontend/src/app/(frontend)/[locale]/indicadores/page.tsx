@@ -16,6 +16,9 @@ import { CruceChart } from '@/components/Petrodata/indicadores/CruceChart'
 import { TransportInfra } from '@/components/Petrodata/indicadores/TransportInfra'
 import { WorldStage } from '@/components/Petrodata/indicadores/WorldStage'
 import { SourceChip } from '@/components/Petrodata/indicadores/SourceChip'
+import { SectionLabel } from '@/components/Petrodata/SectionLabel'
+import { DayValueCard } from '@/components/Petrodata/indicadores/DayValueCard'
+import { VmHighlightCard } from '@/components/Petrodata/indicadores/VmHighlightCard'
 
 // ISR: investment figures update ~monthly, so a 1h revalidate makes the page
 // near-instant while staying fresh (the fetch is also tagged 'inversiones' for
@@ -48,6 +51,10 @@ export default async function IndicadoresPage() {
     fetchContribution(),
   ])
 
+  // KPI figures feed the day-value + highlight cards above the fold.
+  const kpiValue = (id: string): number | null =>
+    data?.kpis.find((k) => k.id === id)?.figure.value ?? null
+
   if (!data) {
     return (
       <>
@@ -73,8 +80,8 @@ export default async function IndicadoresPage() {
       <NothingHeader />
       <main className="flex-1 w-full overflow-x-clip">
         {/* Hero */}
-        <section className="container pt-12 pb-8 md:pt-20">
-          <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.08em] text-nd-text-secondary">
+        <section className="container border-b border-nd-border pt-8 pb-6 md:pt-12">
+          <span className="flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-nd-text-disabled">
             <span
               className="nd-live-dot inline-block size-1.5 rounded-full"
               style={{ background: 'var(--nd-accent)' }}
@@ -82,15 +89,38 @@ export default async function IndicadoresPage() {
             />
             {t('eyebrow')}
           </span>
-          <h1 className="mt-4 text-balance text-4xl leading-none text-nd-text-display sm:text-5xl md:text-7xl font-display break-words">
+          <h1 className="mt-3 text-balance text-3xl font-semibold leading-tight tracking-[-0.02em] text-nd-text-display sm:text-4xl font-display break-words">
             {t('title')}
           </h1>
-          <p className="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-nd-text-secondary font-sans">
+          <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
             {t('blurb')}
           </p>
-          {/* accent rule */}
-          <div className="relative mt-8 h-px w-full bg-nd-border">
-            <div className="absolute inset-y-0 left-0 bg-nd-accent" style={{ width: '6rem' }} aria-hidden />
+        </section>
+
+        {/* What a day is worth + what Vaca Muerta is inside the country */}
+        <section className="container pt-8 pb-12">
+          <div className="grid gap-4 lg:grid-cols-[1.55fr_1fr]">
+            {contribution && data.breakeven ? (
+              <DayValueCard
+                inputs={{
+                  oilBbl: contribution.totals.oil_bbl,
+                  grossValueUsd: contribution.totals.gross_value_usd,
+                  brentAvgUsd:
+                    contribution.assumptions.brent_avg_usd_bbl ?? data.breakeven.brentUsd,
+                  oilDiscountUsd: contribution.assumptions.oil_discount_usd_bbl,
+                  months: contribution.window.months,
+                  gdpUsd: contribution.totals.gdp_usd,
+                  gdpYear: contribution.totals.gdp_year,
+                  brentSpotUsd: data.breakeven.brentUsd,
+                  breakevenUsd: data.breakeven.referenceUsd,
+                }}
+              />
+            ) : null}
+            <VmHighlightCard
+              oilSharePct={kpiValue('participacion_petroleo')}
+              gasSharePct={kpiValue('participacion_gas')}
+              wells={kpiValue('pozos_activos')}
+            />
           </div>
         </section>
 
@@ -104,42 +134,35 @@ export default async function IndicadoresPage() {
               {data.note}
             </p>
           ) : null}
-          {data.asOf ? (
-            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
-              {t('asOf', { month: data.asOf })}
-            </p>
-          ) : null}
         </section>
 
-        {/* KPI grid — national oil production is intentionally hidden (VM-focused page) */}
+        {/* Thesis in six figures — national oil production is intentionally
+            hidden (VM-focused page) */}
         <section className="container pb-16">
+          <SectionLabel
+            title={t('thesisLabel')}
+            note={data.asOf ? t('asOf', { month: data.asOf }) : null}
+          />
           <KpiGrid kpis={data.kpis.filter((k) => k.id !== 'produccion_nacional')} />
         </section>
 
         {/* Breakeven headroom trend */}
         {data.breakeven ? (
           <section className="container pb-16">
-            <h2 className="mb-5 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">01</span>
-              <span>{t('breakevenTitle')}</span>
-            </h2>
-            <BreakevenTrend breakeven={data.breakeven} />
+            <SectionLabel index="01" title={t('breakevenTitle')} note="US$/BBL" />
+            <div className="overflow-hidden rounded-[10px] border border-nd-border">
+              <BreakevenTrend breakeven={data.breakeven} />
+            </div>
           </section>
         ) : null}
 
         {/* Production ramp chart */}
         {data.serie && data.serie.points.length ? (
           <section className="container pb-16">
-            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-                <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">02</span>
-                <span>{data.serie.title}</span>
-              </h2>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
-                {data.serie.unit}
-              </span>
+            <SectionLabel index="02" title={data.serie.title} note={data.serie.unit} />
+            <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+              <RampChart points={data.serie.points} />
             </div>
-            <RampChart points={data.serie.points} />
             <span className="mt-3 inline-block">
               <SourceChip source={data.serie.source} />
             </span>
@@ -149,16 +172,10 @@ export default async function IndicadoresPage() {
         {/* Activity momentum — new wells per month */}
         {data.actividad && data.actividad.points.length ? (
           <section className="container pb-16">
-            <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-                <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">03</span>
-                <span>{t('actividadTitle')}</span>
-              </h2>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
-                {data.actividad.unit}
-              </span>
+            <SectionLabel index="03" title={t('actividadTitle')} note={data.actividad.unit} />
+            <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+              <ActividadChart actividad={data.actividad} />
             </div>
-            <ActividadChart actividad={data.actividad} />
             <span className="mt-3 inline-block">
               <SourceChip source={data.actividad.source} />
             </span>
@@ -168,19 +185,13 @@ export default async function IndicadoresPage() {
         {/* Agro vs energy export crossover */}
         {data.cruce && data.cruce.points.length ? (
           <section className="container pb-16">
-            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-                <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">04</span>
-                <span>{data.cruce.title}</span>
-              </h2>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
-                {data.cruce.unit}
-              </span>
-            </div>
+            <SectionLabel index="04" title={data.cruce.title} note={data.cruce.unit} />
             <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
               {t('cruceBlurb')}
             </p>
-            <CruceChart cruce={data.cruce} />
+            <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+              <CruceChart cruce={data.cruce} />
+            </div>
             <span className="mt-3 inline-block">
               <SourceChip source={data.cruce.source} />
             </span>
@@ -190,11 +201,10 @@ export default async function IndicadoresPage() {
         {/* Operator leaderboard */}
         {data.operadores.length ? (
           <section className="container pb-16">
-            <h2 className="mb-5 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">05</span>
-              <span>{t('operatorsTitle')}</span>
-            </h2>
-            <OperatorLeaderboard operadores={data.operadores} />
+            <SectionLabel index="05" title={t('operatorsTitle')} />
+            <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+              <OperatorLeaderboard operadores={data.operadores} />
+            </div>
             {data.asOf ? (
               <span className="mt-3 inline-block">
                 <SourceChip source={{ asOf: data.asOf }} />
@@ -206,24 +216,20 @@ export default async function IndicadoresPage() {
         {/* Economic contribution per operator */}
         {contribution && contribution.operators.length ? (
           <section className="container pb-16">
-            <h2 className="mb-2 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">06</span>
-              <span>{t('contribution.title')}</span>
-            </h2>
-            <p className="mb-8 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+            <SectionLabel index="06" title={t('contribution.title')} />
+            <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
               {t('contribution.blurb')}
             </p>
-            <ContributionTable data={contribution} />
+            <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+              <ContributionTable data={contribution} />
+            </div>
           </section>
         ) : null}
 
         {/* Transport infrastructure — the trunk pipeline network */}
         <section className="container pb-16">
-          <h2 className="mb-2 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-            <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">07</span>
-            <span>{t('transportTitle')}</span>
-          </h2>
-          <p className="mb-8 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+          <SectionLabel index="07" title={t('transportTitle')} />
+          <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
             {t('transportBlurb')}
           </p>
           <TransportInfra />
@@ -232,11 +238,8 @@ export default async function IndicadoresPage() {
         {/* Argentina en el mundo — the catapult section */}
         {data.mundo && data.mundo.rankings.length ? (
           <section className="container pb-16">
-            <h2 className="mb-2 flex items-baseline gap-3 text-xl text-nd-text-display md:text-2xl font-display">
-              <span className="font-mono text-[10px] tabular-nums text-nd-text-disabled">08</span>
-              <span>{t('worldTitle')}</span>
-            </h2>
-            <p className="mb-8 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+            <SectionLabel index="08" title={t('worldTitle')} />
+            <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
               {t('worldBlurb')}
             </p>
             <WorldStage mundo={data.mundo} />

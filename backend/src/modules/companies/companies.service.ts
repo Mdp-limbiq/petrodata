@@ -21,7 +21,25 @@ export class CompaniesService {
     if (q.q) where.name = { contains: q.q, mode: 'insensitive' };
 
     const [companies, portfolios, shares] = await Promise.all([
-      this.prisma.company.findMany({ where, orderBy: { name: 'asc' } }),
+      this.prisma.company.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        select: {
+          slug: true,
+          name: true,
+          type: true,
+          sector: true,
+          country: true,
+          logoUrl: true,
+          stockTicker: true,
+          stockExchange: true,
+          isPublic: true,
+          projectCountOilGas: true,
+          projectCountMining: true,
+          commoditySlugs: true,
+          provinces: true,
+        },
+      }),
       this.portfolioMap(),
       this.nationalShareMap(),
     ]);

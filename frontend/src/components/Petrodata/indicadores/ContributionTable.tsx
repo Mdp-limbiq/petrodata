@@ -71,10 +71,11 @@ export function ContributionTable({ data }: { data: Contribution }) {
       </div>
 
       {/* Ranked operators by gross production value */}
-      <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_repeat(4,auto)] items-baseline gap-x-4 border-b border-nd-border pb-2 md:grid">
+      <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_repeat(5,auto)] items-baseline gap-x-4 border-b border-nd-border pb-2 md:grid">
         <span />
         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colOperator')}</span>
         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colShare')}</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colValueShare')}</span>
         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colGross')}</span>
         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colRoyalties')}</span>
         <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colExports')}</span>
@@ -85,7 +86,7 @@ export function ContributionTable({ data }: { data: Contribution }) {
         return (
           <div
             key={op.operator_slug}
-            className="group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b border-nd-border py-3 transition-colors duration-200 hover:bg-nd-surface-raised/60 md:grid-cols-[1.5rem_minmax(0,1fr)_repeat(4,auto)]"
+            className="group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b border-nd-border py-3 transition-colors duration-200 hover:bg-nd-surface-raised/60 md:grid-cols-[1.5rem_minmax(0,1fr)_repeat(5,auto)]"
           >
             <span
               className="font-mono text-[11px] tabular-nums"
@@ -113,6 +114,9 @@ export function ContributionTable({ data }: { data: Contribution }) {
             </div>
             <span className="hidden font-mono text-[11px] tabular-nums text-nd-text-secondary md:block">
               {pct(op.share_boe)}
+            </span>
+            <span className="hidden font-mono text-[11px] tabular-nums text-nd-text-secondary md:block">
+              {pct(op.gross_value_usd / (totals.gross_value_usd || 1))}
             </span>
             <span className="font-mono text-[11px] tabular-nums text-nd-text-display">
               {usd(op.gross_value_usd)}

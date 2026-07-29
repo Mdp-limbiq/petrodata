@@ -73,14 +73,14 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
               <CartesianGrid stroke="var(--nd-border)" strokeDasharray="2 4" vertical={false} />
               <XAxis
                 dataKey="period"
-                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' }}
+                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                 tickLine={false}
                 axisLine={{ stroke: 'var(--nd-border)' }}
                 minTickGap={20}
               />
               <YAxis
                 tickFormatter={(v) => fmtVal(v as number)}
-                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' }}
+                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                 tickLine={false}
                 axisLine={false}
                 width={active === 'gdp' ? 44 : 52}

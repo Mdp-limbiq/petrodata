@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { cached, TTL } from '../../common/cache';
 import {
   CompanyRef,
   controllersFromJson,
@@ -34,6 +35,10 @@ export class MineralProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAll(): Promise<NormalizedProject[]> {
+    return cached('mineral-projects:all', TTL.LONG, () => this.computeAll());
+  }
+
+  private async computeAll(): Promise<NormalizedProject[]> {
     const [uranium, mining] = await Promise.all([
       this.prisma.uraniumProject.findMany(),
       this.prisma.miningProject.findMany({

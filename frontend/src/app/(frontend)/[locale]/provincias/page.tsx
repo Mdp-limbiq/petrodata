@@ -5,6 +5,7 @@ import { NothingFooter } from '@/components/Nothing/Footer'
 import { api } from '@/api/client'
 import { buildAlternates } from '@/i18n/alternates'
 import { ProvinceList, type ProvinceCard } from '@/components/Petrodata/entities/ProvinceList'
+import { formatCompactUSD } from '@/utilities/formatCompactUSD'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -24,20 +25,20 @@ async function getProvinces() {
   }
 }
 
-async function getExportTotals(): Promise<Record<string, number>> {
+async function getExportTotals(): Promise<{ bySlug: Record<string, number>; national: number }> {
   try {
     const { data, error } = await api.GET('/api/v2/provinces/export-summary', { cache: 'no-store' })
-    if (error || !data) return {}
-    const map: Record<string, number> = {}
+    if (error || !data) return { bySlug: {}, national: 0 }
+    const bySlug: Record<string, number> = {}
     for (const p of data.data.provinces) {
       // Oil & gas focus: sum only non-mining export sectors.
-      map[p.slug] = Object.entries(p.by_sector)
+      bySlug[p.slug] = Object.entries(p.by_sector)
         .filter(([sector]) => !/miner/i.test(sector))
         .reduce((sum, [, v]) => sum + (v || 0), 0)
     }
-    return map
+    return { bySlug, national: data.data.national_total_usd || 0 }
   } catch {
-    return {}
+    return { bySlug: {}, national: 0 }
   }
 }
 
@@ -50,12 +51,17 @@ export default async function ProvincesPage() {
   // Oil & gas focus: only provinces with oil & gas activity, sorted by exports (desc).
   const cards: ProvinceCard[] = provinces
     .filter((p) => p.has_oil_gas)
-    .map((p) => ({
-      slug: p.slug,
-      name: p.name,
-      wells: p.oil_gas_wells,
-      exportUsd: exportTotals[p.slug] ?? null,
-    }))
+    .map((p) => {
+      const exportUsd = exportTotals.bySlug[p.slug] ?? null
+      return {
+        slug: p.slug,
+        name: p.name,
+        wells: p.oil_gas_wells,
+        exportUsd,
+        exportShare:
+          exportUsd != null && exportTotals.national ? exportUsd / exportTotals.national : null,
+      }
+    })
     .sort((a, b) => (b.exportUsd ?? 0) - (a.exportUsd ?? 0))
 
   return (
@@ -75,6 +81,11 @@ export default async function ProvincesPage() {
         </section>
         <section className="container pb-20">
           <ProvinceList provinces={cards} />
+          {exportTotals.national > 0 && (
+            <p className="mt-6 text-[11px] leading-relaxed text-nd-text-disabled font-mono">
+              {t('shareNote', { total: `US$ ${formatCompactUSD(exportTotals.national).slice(1)}` })}
+            </p>
+          )}
         </section>
       </main>
       <NothingFooter />

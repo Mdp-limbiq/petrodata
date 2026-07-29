@@ -42,14 +42,14 @@ export function ProductionChart({
             <XAxis
               dataKey="date_month"
               tickFormatter={(v) => formatMonth(v).split(' ')[0]}
-              tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' }}
+              tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--nd-border)' }}
               minTickGap={20}
             />
             <YAxis
               tickFormatter={(v) => formatCompact(v as number)}
-              tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' }}
+              tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
               tickLine={false}
               axisLine={false}
               width={48}

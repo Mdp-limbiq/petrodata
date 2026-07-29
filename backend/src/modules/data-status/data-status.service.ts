@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { cached, TTL } from '../../common/cache';
 
 @Injectable()
 export class DataStatusService {
   constructor(private readonly prisma: PrismaService) {}
 
   async freshness() {
+    return cached('data-status:freshness', TTL.LONG, () => this.computeFreshness());
+  }
+
+  private async computeFreshness() {
     const [
       operatorCount,
       formationCount,

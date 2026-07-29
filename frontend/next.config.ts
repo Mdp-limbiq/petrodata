@@ -25,6 +25,9 @@ const nextConfig: NextConfig = {
       {
         pathname: '/a7a5-infographic.png',
       },
+      {
+        pathname: '/images/**',
+      },
     ],
     qualities: [100],
     remotePatterns: [

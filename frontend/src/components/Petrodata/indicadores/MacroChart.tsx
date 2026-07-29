@@ -47,7 +47,7 @@ function fmtValue(value: number, unit: string): string {
 }
 
 const AXIS = {
-  tick: { fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-space-mono)' },
+  tick: { fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' },
 } as const
 
 export function MacroChart({ chart }: { chart: InvPolicyChart }) {

@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
+import { cached, TTL } from '../../common/cache';
 import { ListOperatorsQueryDto, OperatorProductionQueryDto, OperatorSort } from './operators.dto';
 import { parseMonthInput } from '../production/production.dto';
 
@@ -9,6 +11,16 @@ const SORT_COLUMN: Record<OperatorSort, string> = {
   boe: 'boe',
   active_wells: 'active_wells',
 };
+
+export interface SeriesPoint {
+  date_month: string;
+  oil_m3: number;
+  oil_bbl_d: number;
+  gas_thousand_m3: number;
+  gas_mmcf_d: number;
+  boe: number;
+  active_wells: number;
+}
 
 // Economic-contribution assumptions. Volumes are official (Secretaría de Energía);
 // everything below is a stated valuation convention, surfaced in the API response.
@@ -21,6 +33,12 @@ export class OperatorsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(q: ListOperatorsQueryDto) {
+    return cached(`operators:list:${q.sort ?? 'boe'}:${q.order ?? 'desc'}`, TTL.SHORT, () =>
+      this.computeList(q),
+    );
+  }
+
+  private async computeList(q: ListOperatorsQueryDto) {
     const sort = SORT_COLUMN[q.sort ?? 'boe'];
     const order = (q.order ?? 'desc').toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
@@ -261,12 +279,12 @@ export class OperatorsService {
         })
       : null;
 
-    const activeWells = latestMonth
-      ? await this.prisma.factProductionMonthly.findMany({
-          where: { operatorSlug: slug, dateMonth: latestMonth, boe: { gt: 0 } },
-          select: { wellId: true },
-          distinct: ['wellId'],
-        })
+    const activeWellsRows = latestMonth
+      ? await this.prisma.$queryRaw<{ active_wells: number }[]>`
+          SELECT COUNT(DISTINCT well_id)::int AS active_wells
+          FROM fact_production_monthly
+          WHERE operator_slug = ${slug} AND date_month = ${latestMonth} AND boe > 0
+        `
       : [];
 
     let rank: number | null = null;
@@ -293,7 +311,7 @@ export class OperatorsService {
         gas_thousand_m3: latestAgg._sum.gasThousandM3 ?? 0,
         gas_mmcf_d: latestAgg._sum.gasMmcfD ?? 0,
         boe: latestAgg._sum.boe ?? 0,
-        active_wells: activeWells.length,
+        active_wells: activeWellsRows[0]?.active_wells ?? 0,
       } : null,
       ytd: {
         year,
@@ -313,20 +331,39 @@ export class OperatorsService {
     const from = parseMonthInput(q.from);
     const to = parseMonthInput(q.to);
 
-    const params: any[] = [slug];
-    let dateClause = '';
-    if (from) {
-      params.push(from);
-      dateClause += ` AND date_month >= $${params.length}`;
-    }
-    if (to) {
-      params.push(to);
-      dateClause += ` AND date_month <= $${params.length}`;
-    }
+    return cached(
+      `operators:series:${slug}:${q.from ?? ''}:${q.to ?? ''}:${q.months ?? ''}`,
+      TTL.SHORT,
+      async () => (await this.querySeries([slug], { from, to, months: q.months })).get(slug) ?? [],
+    );
+  }
 
-    const rows = await this.prisma.$queryRawUnsafe<any[]>(
-      `
+  /** One grouped query for several operators; returns one entry per requested slug. */
+  async batchSeries(slugs: string[], months?: number) {
+    const key = `operators:batch:${[...slugs].sort().join(',')}:${months ?? ''}`;
+    return cached(key, TTL.SHORT, async () => {
+      const bySlug = await this.querySeries(slugs, { months });
+      return slugs.map((slug) => ({ operator_slug: slug, points: bySlug.get(slug) ?? [] }));
+    });
+  }
+
+  private async querySeries(
+    slugs: string[],
+    opts: { from?: Date; to?: Date; months?: number },
+  ): Promise<Map<string, SeriesPoint[]>> {
+    const conds: Prisma.Sql[] = [Prisma.sql`operator_slug IN (${Prisma.join(slugs)})`];
+    if (opts.from) conds.push(Prisma.sql`date_month >= ${opts.from}`);
+    if (opts.to) conds.push(Prisma.sql`date_month <= ${opts.to}`);
+    if (!opts.from && opts.months) {
+      conds.push(
+        Prisma.sql`date_month >= (SELECT MAX(date_month) FROM fact_production_monthly) - (${opts.months} * INTERVAL '1 month')`,
+      );
+    }
+    const where = Prisma.join(conds, ' AND ');
+
+    const rows = await this.prisma.$queryRaw<any[]>`
       SELECT
+        operator_slug,
         date_month,
         SUM(oil_m3)::float AS oil_m3,
         SUM(oil_bbl_d)::float AS oil_bbl_d,
@@ -335,21 +372,25 @@ export class OperatorsService {
         SUM(boe)::float AS boe,
         COUNT(DISTINCT CASE WHEN boe > 0 THEN well_id END)::int AS active_wells
       FROM fact_production_monthly
-      WHERE operator_slug = $1${dateClause}
-      GROUP BY date_month
+      WHERE ${where}
+      GROUP BY operator_slug, date_month
       ORDER BY date_month ASC
-      `,
-      ...params,
-    );
+    `;
 
-    return rows.map((r) => ({
-      date_month: new Date(r.date_month).toISOString().slice(0, 10),
-      oil_m3: r.oil_m3,
-      oil_bbl_d: r.oil_bbl_d,
-      gas_thousand_m3: r.gas_thousand_m3,
-      gas_mmcf_d: r.gas_mmcf_d,
-      boe: r.boe,
-      active_wells: r.active_wells,
-    }));
+    const bySlug = new Map<string, SeriesPoint[]>();
+    for (const r of rows) {
+      const list = bySlug.get(r.operator_slug) ?? [];
+      list.push({
+        date_month: new Date(r.date_month).toISOString().slice(0, 10),
+        oil_m3: r.oil_m3,
+        oil_bbl_d: r.oil_bbl_d,
+        gas_thousand_m3: r.gas_thousand_m3,
+        gas_mmcf_d: r.gas_mmcf_d,
+        boe: r.boe,
+        active_wells: r.active_wells,
+      });
+      bySlug.set(r.operator_slug, list);
+    }
+    return bySlug;
   }
 }

@@ -21,11 +21,13 @@ export function CompanyLogo({
   logoUrl,
   website,
   size = 'md',
+  className = '',
 }: {
   name: string
   logoUrl?: string | null
   website?: string | null
   size?: 'sm' | 'md' | 'lg'
+  className?: string
 }) {
   const [failed, setFailed] = useState(false)
   const src = logoUrl || faviconFrom(website)
@@ -33,7 +35,7 @@ export function CompanyLogo({
   if (!src || failed) {
     return (
       <span
-        className={`grid ${DIM[size]} ${TXT[size]} shrink-0 place-items-center border border-nd-border-visible font-display text-nd-text-display`}
+        className={`grid ${DIM[size]} ${TXT[size]} shrink-0 place-items-center border border-nd-border-visible font-display text-nd-text-display ${className}`}
         aria-hidden
       >
         {(name.trim().charAt(0) || '?').toUpperCase()}
@@ -46,7 +48,7 @@ export function CompanyLogo({
       src={src}
       alt=""
       onError={() => setFailed(true)}
-      className={`${DIM[size]} shrink-0 border border-nd-border bg-white object-contain p-0.5`}
+      className={`${DIM[size]} shrink-0 border border-nd-border bg-white object-contain p-0.5 ${className}`}
     />
   )
 }
