@@ -27,7 +27,9 @@ async function getProvince(slug: string): Promise<Detail | null> {
   try {
     const { data, error } = await api.GET('/api/v2/provinces/{slug}', {
       params: { path: { slug } },
-      cache: 'no-store',
+      // Province data changes rarely (monthly cadence) — cache it so repeat
+      // visits don't wait ~4s on the upstream API round-trips.
+      next: { revalidate: 3600 },
     })
     if (error || !data) return null
     return data.data
@@ -37,7 +39,7 @@ async function getProvince(slug: string): Promise<Detail | null> {
 }
 async function getProvinces(): Promise<ListItem[]> {
   try {
-    const { data, error } = await api.GET('/api/v2/provinces', { cache: 'no-store' })
+    const { data, error } = await api.GET('/api/v2/provinces', { next: { revalidate: 3600 } })
     if (error || !data) return []
     return data.data
   } catch {
@@ -48,7 +50,7 @@ async function getProduction(slug: string): Promise<ProdPoint[]> {
   try {
     const { data, error } = await api.GET('/api/v2/provinces/{slug}/production', {
       params: { path: { slug } },
-      cache: 'no-store',
+      next: { revalidate: 3600 },
     })
     if (error || !data) return []
     return data.data
