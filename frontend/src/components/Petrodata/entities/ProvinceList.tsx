@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import { useLocale, useTranslations } from 'next-intl'
-import { Link } from '@/i18n/navigation'
 import { formatCompactUSD } from '@/utilities/formatCompactUSD'
 import { PROVINCE_META, provincePhoto } from './provinceMeta'
 
@@ -20,6 +19,9 @@ export function ProvinceList({ provinces }: { provinces: ProvinceCard[] }) {
   const t = useTranslations('provinces')
   const locale = useLocale()
   const nf = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'es-AR')
+  // Plain anchors on purpose: full-page navigation is reliable here, while the
+  // client-side RSC navigation was silently swallowing clicks on these cards.
+  const hrefPrefix = locale === 'en' ? '/en' : ''
 
   if (provinces.length === 0) {
     return <p className="text-sm text-nd-text-disabled font-mono">{t('noResults')}</p>
@@ -33,9 +35,9 @@ export function ProvinceList({ provinces }: { provinces: ProvinceCard[] }) {
         const sharePct = p.exportShare != null ? p.exportShare * 100 : null
 
         return (
-          <Link
+          <a
             key={p.slug}
-            href={`/provincias/${p.slug}`}
+            href={`${hrefPrefix}/provincias/${p.slug}`}
             className="group relative block min-h-60 overflow-hidden rounded-[10px] border border-nd-border bg-[#16191d] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nd-interactive"
           >
             {meta && (
@@ -116,7 +118,7 @@ export function ProvinceList({ provinces }: { provinces: ProvinceCard[] }) {
                 </>
               )}
             </div>
-          </Link>
+          </a>
         )
       })}
     </div>
