@@ -10,15 +10,20 @@ export function NewsBody({
   text,
   highlight,
   highlightLabel,
+  accent,
   images,
 }: {
   text: string
   highlight: string | null
   highlightLabel?: string
+  /** Category colour, used by the pull-quote. */
+  accent?: string
   images: NewsAttachment[]
 }) {
+  // Sources deliver paragraphs separated by one or more newlines — treat any
+  // break as a paragraph so the body doesn't render as one dense block.
   const paragraphs = text
-    .split(/\n{2,}/)
+    .split(/\n+/)
     .map((p) => p.trim())
     .filter(Boolean)
 
@@ -26,18 +31,22 @@ export function NewsBody({
   const inlineAfter = paragraphs.length > 1 ? 0 : -1
 
   return (
-    <div className="mt-8 flex flex-col gap-5 text-base leading-relaxed text-nd-text-display font-sans">
+    <div className="mt-10 flex flex-col gap-[22px] text-base leading-[1.7] text-nd-text-secondary font-sans">
       {paragraphs.map((p, i) => (
         <Fragment key={i}>
-          <p className="whitespace-pre-line">{p}</p>
+          <p>{p}</p>
           {highlight && i === inlineAfter ? (
-            <NewsHighlight label={highlightLabel}>{highlight}</NewsHighlight>
+            <NewsHighlight label={highlightLabel} accent={accent}>
+              {highlight}
+            </NewsHighlight>
           ) : null}
         </Fragment>
       ))}
 
       {highlight && inlineAfter === -1 ? (
-        <NewsHighlight label={highlightLabel}>{highlight}</NewsHighlight>
+        <NewsHighlight label={highlightLabel} accent={accent}>
+              {highlight}
+            </NewsHighlight>
       ) : null}
 
       {images.map((img, i) => (

@@ -24,15 +24,6 @@ export function familyLabel(family: string): string {
   return family.charAt(0).toUpperCase() + family.slice(1)
 }
 
-/** Importance buckets → 0..3 dots. */
-export function importanceLevel(score: number | null): number {
-  if (score == null) return 0
-  if (score >= 0.75) return 3
-  if (score >= 0.5) return 2
-  if (score >= 0.25) return 1
-  return 0
-}
-
 /** Companies + regulators, de-duped, for entity chips. */
 export function entityList(card: Pick<NewsCard, 'entities'>): string[] {
   const e = card.entities ?? {}
