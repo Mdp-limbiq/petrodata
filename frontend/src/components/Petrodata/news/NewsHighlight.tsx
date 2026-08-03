@@ -1,20 +1,31 @@
 import type { ReactNode } from 'react'
 
 /**
- * Large highlighted block used to remark something important inside a news body
- * (an editorial pull-quote). Rendered as an accented blockquote.
+ * Pull-quote inside a news body: a rule in the category colour, a tinted panel
+ * and the label underneath — the design kit's "key data" block.
  */
-export function NewsHighlight({ label, children }: { label?: string; children: ReactNode }) {
+export function NewsHighlight({
+  label,
+  accent = 'var(--nd-accent)',
+  children,
+}: {
+  label?: string
+  accent?: string
+  children: ReactNode
+}) {
   return (
-    <blockquote className="my-8 border-l-2 border-nd-accent pl-5 sm:pl-6">
+    <blockquote
+      className="my-8 rounded-r-[10px] border-l-[3px] px-6 py-5"
+      style={{ borderColor: accent, background: `color-mix(in srgb, ${accent} 7%, transparent)` }}
+    >
+      <p className="text-pretty text-[16.5px] font-medium leading-relaxed tracking-[-0.01em] text-nd-text-display font-sans">
+        {children}
+      </p>
       {label ? (
-        <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-accent">
+        <span className="mt-3.5 block text-[10.5px] uppercase tracking-[0.15em] text-nd-text-disabled font-mono">
           {label}
         </span>
       ) : null}
-      <p className="text-balance text-xl leading-snug text-nd-text-display font-display sm:text-2xl">
-        {children}
-      </p>
     </blockquote>
   )
 }

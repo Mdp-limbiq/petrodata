@@ -91,6 +91,18 @@
       "wellsInCatalog": "pozos en el catálogo",
       "openFullMap": "Abrir mapa completo"
     },
+    "mapBand": {
+      "label": "EL MAPA",
+      "kicker": "MAPA INTERACTIVO",
+      "titleLine1": "La actividad de la cuenca.",
+      "titleLine2": "Pozo por pozo.",
+      "desc": "{catalog} pozos en el catálogo y {live} en vivo en el mapa: petróleo y gas coloreados por tipo, operadores principales y filtros interactivos para recorrer la cuenca neuquina.",
+      "cta": "ABRIR EL MAPA"
+    },
+    "news": {
+      "label": "ÚLTIMAS NOTICIAS",
+      "all": "Todas las noticias →"
+    },
     "freshness": {
       "dataThrough": "Datos hasta {month}",
       "source": "datos.energia.gob.ar · CC-BY 4.0"
@@ -798,7 +810,7 @@
     }
   },
   "noticias": {
-    "eyebrow": "Monitor de noticias",
+    "eyebrow": "COBERTURA DE LA CUENCA",
     "title": "Principales noticias del sector",
     "blurb": "Seguimiento continuo de noticias, regulación y comunicados del sector de petróleo y gas de Vaca Muerta. Filtrá por fuente, tema, empresa y región.",
     "searchPlaceholder": "Buscar por título…",
@@ -825,7 +837,33 @@
     "entitiesLabel": "Entidades",
     "relatedCoverage": "Cobertura relacionada",
     "readingTime": "{minutes} min de lectura",
-    "tldr": "TL;DR",
-    "keyPoint": "Destacado"
+    "keyPoint": "Destacado",
+    "heading": "Noticias",
+    "featuredLabel": "DESTACADA",
+    "latestLabel": "ÚLTIMAS NOTICIAS",
+    "allTopics": "Todas",
+    "read": "Leer",
+    "publishedLabel": "PUBLICADO",
+    "topicLabels": {
+      "produccion": "Producción",
+      "regulacion": "Regulación",
+      "rigi": "RIGI",
+      "midstream": "Infraestructura",
+      "gnl": "GNL",
+      "exportacion": "Exportación",
+      "inversion": "Inversión",
+      "financiamiento": "Financiamiento",
+      "ambiente": "Ambiente",
+      "laboral": "Laboral",
+      "servicios": "Servicios",
+      "m_a": "M&A",
+      "medio": "Actualidad",
+      "regulatoria": "Regulación",
+      "corporativa": "Corporativa",
+      "prensa": "Prensa"
+    },
+    "sponsorsLabel": "Confían en nosotros",
+    "filePhoto": "FOTO DE ARCHIVO · VACA MUERTA",
+    "allNews": "Todas las noticias →"
   }
 }
