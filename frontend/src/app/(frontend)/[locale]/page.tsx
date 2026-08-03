@@ -8,6 +8,9 @@ import { api, type ApiSchemas } from '@/api/client'
 import { formatMonth } from '@/utilities/formatNumber'
 import { getSocialImageURL } from '@/utilities/getSocialImageURL'
 import { buildAlternates } from '@/i18n/alternates'
+import { SectionLabel } from '@/components/Petrodata/SectionLabel'
+import { NewsCard } from '@/components/Petrodata/news/NewsCard'
+import type { NewsCard as NewsCardType } from '@/api/news'
 import { AnimatedCounter } from '@/components/Petrodata/dashboard/AnimatedCounter'
 import { HeroCards, type StatCardData } from '@/components/Petrodata/dashboard/HeroCards'
 import { VmShareDonut } from '@/components/Petrodata/dashboard/VmShareDonut'
@@ -31,6 +34,15 @@ const MapPreview = nextDynamic(
   () =>
     import('@/components/Petrodata/dashboard/MapPreview').then((m) => ({ default: m.MapPreview })),
   { loading: () => <div className="h-[280px] w-full animate-pulse bg-nd-surface-raised" /> },
+)
+
+const MapBand = nextDynamic(
+  () => import('@/components/Petrodata/dashboard/MapBand').then((m) => ({ default: m.MapBand })),
+  {
+    loading: () => (
+      <div className="h-[320px] w-full animate-pulse rounded-[10px] bg-nd-surface-raised" />
+    ),
+  },
 )
 
 export const revalidate = 300
@@ -113,6 +125,20 @@ async function getWells(): Promise<WellFC> {
   }
 }
 
+/** Latest 3 headlines for the homepage band — cached with the rest of the landing page. */
+async function getLatestNews(): Promise<NewsCardType[]> {
+  try {
+    const { data, error } = await api.GET('/api/v1/news', {
+      params: { query: { pageSize: 3, sort: 'recent' } as never },
+      next: { revalidate: 300 },
+    })
+    if (error || !data) return []
+    return (data as unknown as { data: NewsCardType[] }).data ?? []
+  } catch {
+    return []
+  }
+}
+
 async function getFreshness(): Promise<DataFreshness | null> {
   try {
     const { data, error } = await api.GET('/api/v1/data-freshness', { next: { revalidate: 300 } })
@@ -170,13 +196,14 @@ function toSparkPoints(values: number[]): SparkPoint[] {
 }
 
 export default async function DashboardPage() {
-  const [t, tCommon, latest, operators, wells, freshness] = await Promise.all([
+  const [t, tCommon, latest, operators, wells, freshness, news] = await Promise.all([
     getTranslations('dashboard'),
     getTranslations('common'),
     getLatest(),
     getOperators(),
     getWells(),
     getFreshness(),
+    getLatestNews(),
   ])
 
   const topOperators = operators.slice(0, TOP_N_OPERATORS)
@@ -361,6 +388,24 @@ export default async function DashboardPage() {
             <ProductionChart rows={chartRows} operators={operatorMeta} />
           </div>
         </section>
+
+        {/* EL MAPA */}
+        <section className="container pb-10">
+          <SectionLabel title={t('mapBand.label')} />
+          <MapBand catalogWells={totalWellsCount} liveWells={wells.features.length} />
+        </section>
+
+        {/* ÚLTIMAS NOTICIAS */}
+        {news.length > 0 && (
+          <section className="container pb-10">
+            <SectionLabel title={t('news.label')} note={t('news.all')} noteHref="/noticias" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {news.map((card) => (
+                <NewsCard key={card.docId} card={card} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* DATA FRESHNESS BAR */}
         <section className="container pb-10">

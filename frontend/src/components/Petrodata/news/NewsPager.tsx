@@ -12,6 +12,7 @@ function buildHref(base: Record<string, string | undefined>, page: number): stri
   return qs ? `/noticias?${qs}` : '/noticias'
 }
 
+/** Document count on the left, prev · page · next on the right. */
 export async function NewsPager({
   pagination,
   params,
@@ -22,37 +23,47 @@ export async function NewsPager({
   const t = await getTranslations('noticias')
   const { page, limit, total } = pagination
   const totalPages = Math.max(1, Math.ceil(total / limit))
-  if (totalPages <= 1) return null
 
   const hasPrev = page > 1
   const hasNext = page < totalPages
-
-  const linkCls =
-    'px-3 py-2 border border-nd-border font-mono text-[11px] uppercase tracking-[0.06em] transition-colors hover:border-nd-text-disabled hover:text-nd-text-display'
-  const disabledCls =
-    'px-3 py-2 border border-nd-border font-mono text-[11px] uppercase tracking-[0.06em] text-nd-text-disabled opacity-40 cursor-not-allowed'
+  const btn = 'inline-flex items-center gap-1.5 py-1.5 text-[11.5px] font-semibold uppercase tracking-[0.06em] font-mono'
+  const enabled = `${btn} text-nd-text-display transition-opacity hover:opacity-70`
+  const disabled = `${btn} text-nd-text-display opacity-30`
 
   return (
-    <nav className="flex items-center justify-between gap-4 pt-2" aria-label={t('pagination')}>
-      {hasPrev ? (
-        <Link href={buildHref(params, page - 1)} className={linkCls}>
-          ← {t('prev')}
-        </Link>
-      ) : (
-        <span className={disabledCls}>← {t('prev')}</span>
-      )}
-
-      <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-nd-text-secondary">
-        {t('pageOf', { page, total: totalPages })}
+    <nav
+      className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-nd-border pt-7"
+      aria-label={t('pagination')}
+    >
+      <span className="text-[11.5px] tracking-[0.04em] text-nd-text-disabled font-mono">
+        {t('resultsCount', { count: total })}
       </span>
 
-      {hasNext ? (
-        <Link href={buildHref(params, page + 1)} className={linkCls}>
-          {t('next')} →
-        </Link>
-      ) : (
-        <span className={disabledCls}>{t('next')} →</span>
-      )}
+      <div className="flex items-center gap-6">
+        {hasPrev ? (
+          <Link href={buildHref(params, page - 1)} className={enabled}>
+            <span aria-hidden>←</span> {t('prev')}
+          </Link>
+        ) : (
+          <span className={disabled}>
+            <span aria-hidden>←</span> {t('prev')}
+          </span>
+        )}
+
+        <span className="text-[11.5px] tracking-[0.04em] text-nd-text-display font-mono">
+          {t('pageOf', { page, total: totalPages })}
+        </span>
+
+        {hasNext ? (
+          <Link href={buildHref(params, page + 1)} className={enabled}>
+            {t('next')} <span aria-hidden>→</span>
+          </Link>
+        ) : (
+          <span className={disabled}>
+            {t('next')} <span aria-hidden>→</span>
+          </span>
+        )}
+      </div>
     </nav>
   )
 }

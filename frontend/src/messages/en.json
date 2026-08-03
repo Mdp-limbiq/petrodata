@@ -91,6 +91,18 @@
       "wellsInCatalog": "wells in catalog",
       "openFullMap": "Open full map"
     },
+    "mapBand": {
+      "label": "THE MAP",
+      "kicker": "INTERACTIVE MAP",
+      "titleLine1": "Basin activity.",
+      "titleLine2": "Well by well.",
+      "desc": "{catalog} wells in the catalog and {live} live on the map: oil and gas colored by type, leading operators and interactive filters to navigate the Neuquén basin.",
+      "cta": "OPEN THE MAP"
+    },
+    "news": {
+      "label": "LATEST NEWS",
+      "all": "All news →"
+    },
     "freshness": {
       "dataThrough": "Data through {month}",
       "source": "datos.energia.gob.ar · CC-BY 4.0"
@@ -798,7 +810,7 @@
     }
   },
   "noticias": {
-    "eyebrow": "News monitor",
+    "eyebrow": "BASIN COVERAGE",
     "title": "Leading sector news",
     "blurb": "Continuous tracking of news, regulation and disclosures across Vaca Muerta's oil and gas sector. Filter by source, topic, company and region.",
     "searchPlaceholder": "Search by title…",
@@ -825,7 +837,33 @@
     "entitiesLabel": "Entities",
     "relatedCoverage": "Related coverage",
     "readingTime": "{minutes} min read",
-    "tldr": "TL;DR",
-    "keyPoint": "Key point"
+    "keyPoint": "Key point",
+    "heading": "News",
+    "featuredLabel": "FEATURED",
+    "latestLabel": "LATEST NEWS",
+    "allTopics": "All",
+    "read": "Read",
+    "publishedLabel": "PUBLISHED",
+    "topicLabels": {
+      "produccion": "Production",
+      "regulacion": "Regulation",
+      "rigi": "RIGI",
+      "midstream": "Infrastructure",
+      "gnl": "LNG",
+      "exportacion": "Exports",
+      "inversion": "Investment",
+      "financiamiento": "Financing",
+      "ambiente": "Environment",
+      "laboral": "Labour",
+      "servicios": "Services",
+      "m_a": "M&A",
+      "medio": "Latest",
+      "regulatoria": "Regulation",
+      "corporativa": "Corporate",
+      "prensa": "Press"
+    },
+    "sponsorsLabel": "Trusted by",
+    "filePhoto": "FILE PHOTO · VACA MUERTA",
+    "allNews": "All news →"
   }
 }
