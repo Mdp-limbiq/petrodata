@@ -173,9 +173,9 @@ function buildChartRows(
 function buildNationalSeries(rows: ChartRow[], slugs: string[]) {
   return rows.map((row) => {
     let boe = 0
-    let oilBblD = 0
-    let gasMmcfD = 0
-    let wells = 0
+    const oilBblD = 0
+    const gasMmcfD = 0
+    const wells = 0
     for (const slug of slugs) {
       boe += row[slug] ?? 0
     }
@@ -234,7 +234,6 @@ export default async function DashboardPage() {
 
   // MoM derivations off the top-N national proxy series.
   const boeSpark = toSparkPoints(nationalSeries.slice(-4).map((r) => r.boe))
-  const boeMoM = computeMoM(nationalSeries.map((r) => r.boe))
 
   // For oil/gas/wells MoM we need per-operator oil/gas time series too. The
   // /operators/{slug}/production endpoint returns those fields. Re-aggregate:
