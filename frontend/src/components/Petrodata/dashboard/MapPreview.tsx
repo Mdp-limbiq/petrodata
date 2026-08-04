@@ -66,7 +66,7 @@ export function MapPreview({ wells, totalWells }: { wells: WellFC; totalWells: n
   const fc = wells as unknown as GeoJSON.FeatureCollection<GeoJSON.Point, WellProps>
 
   return (
-    <div className="bg-nd-surface p-5 flex flex-col">
+    <div className="flex flex-col overflow-hidden rounded-[10px] border border-nd-border bg-nd-surface p-5">
       <div className="flex items-baseline justify-between">
         <span
           className="text-nd-text-disabled text-[10px] uppercase tracking-[0.08em] font-mono"
@@ -80,7 +80,7 @@ export function MapPreview({ wells, totalWells }: { wells: WellFC; totalWells: n
         </span>
       </div>
 
-      <div className="mt-4 relative h-[200px] overflow-hidden border border-nd-border bg-nd-surface-raised">
+      <div className="mt-4 relative h-[200px] overflow-hidden rounded-[9px] border border-nd-border bg-nd-surface-raised">
         <Map
           ref={mapRef}
           className="h-full w-full"

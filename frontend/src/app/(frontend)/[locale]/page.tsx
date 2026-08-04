@@ -15,20 +15,7 @@ import { AnimatedCounter } from '@/components/Petrodata/dashboard/AnimatedCounte
 import { HeroCards, type StatCardData } from '@/components/Petrodata/dashboard/HeroCards'
 import { VmShareDonut } from '@/components/Petrodata/dashboard/VmShareDonut'
 import { TopOperatorsMini } from '@/components/Petrodata/dashboard/TopOperatorsMini'
-import {
-  operatorColor,
-  type ChartRow,
-  type OperatorSeriesMeta,
-} from '@/components/Petrodata/dashboard/operatorPalette'
-import type { SparkPoint } from '@/components/Petrodata/dashboard/Sparkline'
-
-const ProductionChart = nextDynamic(
-  () =>
-    import('@/components/Petrodata/dashboard/ProductionChart').then((m) => ({
-      default: m.ProductionChart,
-    })),
-  { loading: () => <div className="h-[280px] md:h-[400px] w-full animate-pulse bg-nd-surface-raised" /> },
-)
+import type { ChartRow } from '@/components/Petrodata/dashboard/operatorPalette'
 
 const MapPreview = nextDynamic(
   () =>
@@ -191,10 +178,6 @@ function computeMoM(values: number[]): number | null {
   return (last - prev) / prev
 }
 
-function toSparkPoints(values: number[]): SparkPoint[] {
-  return values.map((y, i) => ({ x: String(i), y }))
-}
-
 export default async function DashboardPage() {
   const [t, tCommon, latest, operators, wells, freshness, news] = await Promise.all([
     getTranslations('dashboard'),
@@ -213,12 +196,6 @@ export default async function DashboardPage() {
   const slugs = topOperators.map((op) => op.operator_slug)
   const nationalSeries = buildNationalSeries(chartRows, slugs)
 
-  const operatorMeta: OperatorSeriesMeta[] = topOperators.map((op, i) => ({
-    slug: op.operator_slug,
-    name: op.operator_name,
-    color: operatorColor(op.operator_slug, i),
-  }))
-
   if (!latest) {
     return (
       <>
@@ -231,9 +208,6 @@ export default async function DashboardPage() {
       </>
     )
   }
-
-  // MoM derivations off the top-N national proxy series.
-  const boeSpark = toSparkPoints(nationalSeries.slice(-4).map((r) => r.boe))
 
   // For oil/gas/wells MoM we need per-operator oil/gas time series too. The
   // /operators/{slug}/production endpoint returns those fields. Re-aggregate:
@@ -265,6 +239,9 @@ export default async function DashboardPage() {
   const gasMoM = computeMoM(gasSeries)
   const wellsMoM = computeMoM(wellsSeries)
 
+  const monthLabel = formatMonth(latest.date_month as string | null | undefined)
+  const momFootnote = `${monthLabel.toUpperCase()} · ${t('kpi.momSuffix')}`
+
   const heroCards: StatCardData[] = [
     {
       label: t('kpi.oilLatest'),
@@ -272,9 +249,9 @@ export default async function DashboardPage() {
       format: 'compact',
       unit: 'bbl/d',
       mom: oilMoM,
-      momSuffix: t('kpi.momSuffix'),
-      sparkline: toSparkPoints(oilSeries.slice(-4)),
-      accent: 'var(--nd-accent)',
+      footnote: momFootnote,
+      icon: 'line',
+      accent: 'var(--nd-success)',
     },
     {
       label: t('kpi.gasLatest'),
@@ -282,33 +259,32 @@ export default async function DashboardPage() {
       format: 'compact',
       gas: true,
       mom: gasMoM,
-      momSuffix: t('kpi.momSuffix'),
-      sparkline: toSparkPoints(gasSeries.slice(-4)),
-      accent: 'var(--nd-accent)',
+      footnote: momFootnote,
+      icon: 'droplet',
+      accent: 'var(--nd-text-secondary)',
     },
     {
       label: t('kpi.vmShare'),
       value: latest.vm_share.boe * 100,
       format: 'percent',
       mom: null,
-      momSuffix: t('kpi.momSuffix'),
-      sparkline: boeSpark,
-      accent: 'var(--nd-accent)',
+      footnote: t('boeSuffix'),
+      icon: 'bars',
+      accent: 'var(--nd-success)',
     },
     {
       label: t('kpi.activeWells'),
       value: latest.active_wells,
       format: 'integer',
       mom: wellsMoM,
-      momSuffix: t('kpi.momSuffix'),
-      sparkline: toSparkPoints(wellsSeries.slice(-4)),
-      accent: 'var(--nd-accent)',
+      footnote: momFootnote,
+      icon: 'doc',
+      accent: 'var(--nd-text-secondary)',
     },
   ]
 
   const totalWellsCount = freshness?.tables.dim_well?.rows ?? null
   const headlineBoe = nationalSeries.length > 0 ? nationalSeries[nationalSeries.length - 1].boe : latest.boe
-  const monthLabel = formatMonth(latest.date_month as string | null | undefined)
 
   return (
     <>
@@ -349,7 +325,7 @@ export default async function DashboardPage() {
 
         {/* THREE-PANEL */}
         <section className="container pb-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-nd-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <VmShareDonut shareBoe={latest.vm_share.boe} />
             <TopOperatorsMini
               rows={topOperators.map((op) => ({
@@ -362,31 +338,7 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {/* PRODUCTION CHART */}
-        <section className="container pb-10">
-          <div className="bg-nd-surface border border-nd-border p-5 md:p-6">
-            <div className="mb-5 flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
-              <div>
-                <span
-                  className="text-nd-text-disabled text-[10px] uppercase tracking-[0.08em] block font-mono"
-                >
-                  {t('chart.eyebrow')}
-                </span>
-                <h2
-                  className="mt-2 text-balance text-2xl md:text-3xl leading-none text-nd-text-display font-display"
-                >
-                  {t('chart.title')}
-                </h2>
-              </div>
-              <span
-                className="text-nd-text-disabled text-[10px] uppercase tracking-[0.08em] font-mono"
-              >
-                {t('chart.topStacked', { n: topOperators.length })}
-              </span>
-            </div>
-            <ProductionChart rows={chartRows} operators={operatorMeta} />
-          </div>
-        </section>
+        {/* PRODUCTION CHART — hidden; restore this block and `operatorMeta` above to bring it back. */}
 
         {/* EL MAPA */}
         <section className="container pb-10">
