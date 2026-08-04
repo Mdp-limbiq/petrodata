@@ -8,8 +8,13 @@ export function NothingFooter() {
   const t = useTranslations('footer')
   const tNav = useTranslations('nav')
   return (
-    <footer className="border-t border-nd-border">
-      <div className="container py-12">
+    // ponytail: data-theme="dark" flips the nd-* tokens for descendants, so the
+    // text stays legible in light mode without touching every child.
+    <footer className="container pb-8">
+      <div
+        data-theme="dark"
+        className="rounded-[14px] bg-nd-black px-6 py-12 md:px-10"
+      >
         <div className="flex flex-col md:flex-row justify-between gap-8">
           <div className="flex flex-col gap-3">
             <Link href="/" className="flex items-center gap-3">

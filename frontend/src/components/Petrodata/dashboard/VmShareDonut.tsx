@@ -16,7 +16,7 @@ export function VmShareDonut({ shareBoe }: { shareBoe: number }) {
   ]
 
   return (
-    <div className="bg-nd-surface p-5 flex flex-col">
+    <div className="flex flex-col overflow-hidden rounded-[10px] border border-nd-border bg-nd-surface p-5">
       <span
         className="text-nd-text-disabled text-[10px] uppercase tracking-[0.08em] font-mono"
       >

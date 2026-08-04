@@ -63,9 +63,9 @@
     "boeSuffix": "BOE",
     "tagline": "Real-time intelligence for Argentina's oil & gas, refreshed monthly.",
     "kpi": {
-      "oilLatest": "BBL/D OIL · LATEST",
-      "gasLatest": "GAS · LATEST",
-      "vmShare": "VM SHARE · BOE",
+      "oilLatest": "BBL/D OIL",
+      "gasLatest": "GAS",
+      "vmShare": "VM SHARE",
       "activeWells": "ACTIVE WELLS",
       "momSuffix": "MoM"
     },
