@@ -63,9 +63,9 @@
     "boeSuffix": "BOE",
     "tagline": "Inteligencia en tiempo real para el petróleo y el gas de Argentina, actualizada mensualmente.",
     "kpi": {
-      "oilLatest": "BBL/D PETRÓLEO · ÚLTIMO",
-      "gasLatest": "GAS · ÚLTIMO",
-      "vmShare": "PARTICIPACIÓN VM · BOE",
+      "oilLatest": "BBL/D PETRÓLEO",
+      "gasLatest": "GAS",
+      "vmShare": "PARTICIPACIÓN VM",
       "activeWells": "POZOS ACTIVOS",
       "momSuffix": "MoM"
     },

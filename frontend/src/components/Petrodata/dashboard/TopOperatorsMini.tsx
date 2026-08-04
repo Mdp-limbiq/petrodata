@@ -16,7 +16,7 @@ export function TopOperatorsMini({ rows }: { rows: TopOperatorRow[] }) {
   const t = useTranslations('dashboard.topOperators')
   const max = rows[0]?.boe || 1
   return (
-    <div className="bg-nd-surface p-5 flex flex-col">
+    <div className="flex flex-col overflow-hidden rounded-[10px] border border-nd-border bg-nd-surface p-5">
       <div className="flex items-baseline justify-between">
         <span
           className="text-nd-text-disabled text-[10px] uppercase tracking-[0.08em] font-mono"
