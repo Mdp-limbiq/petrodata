@@ -1,0 +1,122 @@
+@import 'tailwindcss';
+@import '../styles/tokens.css';
+
+@custom-variant dark (&:is([data-theme='dark'] *));
+
+@theme inline {
+  /* breakpoints — mismos que producción */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+
+  /* color → utilidades (bg-surface, text-secondary, border-strong, etc.) */
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-raised: var(--surface-raised);
+  --color-inverse: var(--surface-inverse);
+  --color-inverse-2: var(--surface-inverse-2);
+  --color-line: var(--border-default);
+  --color-line-strong: var(--border-strong);
+  --color-primary: var(--text-primary);
+  --color-body: var(--text-body);
+  --color-secondary: var(--text-secondary);
+  --color-tertiary: var(--text-tertiary);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-2: var(--on-dark-2);
+  --color-on-dark-3: var(--on-dark-3);
+  --color-oil: var(--data-oil);
+  --color-gas: var(--data-gas);
+  --color-positive: var(--status-positive);
+  --color-negative: var(--status-negative);
+  --color-caution: var(--status-caution);
+  --color-focus: var(--focus-ring);
+
+  /* type */
+  --font-display: var(--font-inter-tight), system-ui, sans-serif;
+  --font-sans: var(--font-schibsted), system-ui, sans-serif;
+
+  /* shape */
+  --radius-card: var(--radius-card);
+  --radius-control: var(--radius-control);
+}
+
+@layer base {
+  * {
+    border-color: var(--border-default);
+    outline-color: var(--focus-ring);
+  }
+  body {
+    background: var(--canvas);
+    color: var(--text-body);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Regla 9: el foco se ve, siempre */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+@utility type-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--text-tertiary);
+}
+@utility type-label-md {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--text-tertiary);
+}
+@utility type-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: var(--tracking-display);
+  line-height: 1;
+  color: var(--text-primary);
+}
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.25rem;
+  letter-spacing: -0.018em;
+  line-height: 1.08;
+  color: var(--text-primary);
+}
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.45rem;
+  letter-spacing: -0.012em;
+  line-height: 1.18;
+  color: var(--text-primary);
+}
+@utility type-card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.012em;
+  line-height: 1.16;
+  color: var(--text-primary);
+}
+@utility type-kpi {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+@utility tnums {
+  font-variant-numeric: tabular-nums;
+}
