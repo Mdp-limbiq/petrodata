@@ -11,25 +11,14 @@ import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis
 import { useMounted } from '../_lib/useMounted'
 import { formatCompact } from '../_lib/formatNumber'
 import { animateCounter, prefersReducedMotion, useInView } from '../_lib/anim'
+import { fmtPeriod } from './format'
+import { YoyChip } from './YoyChip'
 import type { InvActividad } from '../_lib/types'
 
 const OIL = 'var(--data-oil)'
 const nf0 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 })
-const nf1 = new Intl.NumberFormat('es-AR', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-  signDisplay: 'always',
-})
 
 type Row = { period: string; nuevosPozos: number; preliminary: boolean }
-
-function fmtPeriod(period: string): string {
-  const [y, m] = period.split('-')
-  if (!m) return period
-  const d = new Date(Date.UTC(Number(y), Number(m) - 1, 1))
-  const month = d.toLocaleString('es-AR', { month: 'short', timeZone: 'UTC' }).replace('.', '')
-  return `${month} '${y.slice(2)}`
-}
 
 export function ActividadChart({ actividad }: { actividad: InvActividad }) {
   const t = useTranslations('indicadores')
@@ -96,19 +85,7 @@ export function ActividadChart({ actividad }: { actividad: InvActividad }) {
               <span className="ml-1 text-base font-normal text-secondary">pozos</span>
             </span>
           </div>
-          {yoyPct != null && (
-            <span
-              className="tnums rounded-full px-2 py-0.5 text-[11px]"
-              style={{
-                color: yoyPct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)',
-                background: `color-mix(in srgb, ${
-                  yoyPct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)'
-                } 12%, transparent)`,
-              }}
-            >
-              {nf1.format(yoyPct)}% YoY
-            </span>
-          )}
+          {yoyPct != null && <YoyChip pct={yoyPct} />}
         </div>
       )}
 

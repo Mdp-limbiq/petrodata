@@ -1,7 +1,7 @@
 /* Tipos de la API de inversiones (espejo de frontend/src/api/inversiones.ts
    y del OperatorContributionDto), acotados a lo que la página consume. */
 
-export type InvSource = { label: string; url?: string; asOf: string }
+type InvSource = { label: string; url?: string; asOf: string }
 
 export type InvKpi = {
   id: string
@@ -102,22 +102,6 @@ export type InvPolicyChart = {
   points: { period: string; value: number }[]
 }
 
-export type InvPolicyLever = {
-  tag: string
-  title: string
-  chartId?: string | null
-  indicator: {
-    label: string
-    value: number
-    format: InvKpi['format']
-    tier: string
-    delta?: { pct: number; base: string } | null
-    source: InvSource
-  } | null
-  milestone?: string | null
-  source?: { label: string; url?: string; asOf?: string } | null
-}
-
 export type InvRigi = {
   title: string
   subtitle: string
@@ -137,7 +121,6 @@ export type InvRigi = {
 
 export type InvPolitica = {
   intro: { title: string; text: string }
-  levers: InvPolicyLever[]
   charts: InvPolicyChart[]
   rigi?: InvRigi | null
   impacto?: {
@@ -162,6 +145,31 @@ export type InvMundo = {
   shale?: unknown
   politica?: InvPolitica
 }
+
+/* — Mini-viz del bento de KPIs (construido en _lib/kpiViz.ts, consumido
+     por el componente KpiBento) — */
+
+/* Cómo se lee el valor de la serie en el tooltip de hover:
+   number → entero es-AR + sufijo ("620.249 bbl/d") · usd → compacto
+   ("US$1,1B"), con scale para series guardadas en otra unidad (MM). */
+export type MiniTipSpec =
+  | { kind: 'number'; suffix?: string }
+  | { kind: 'usd'; scale?: number }
+
+/* Fila del desglose VM vs resto: valor absoluto derivado (nacional =
+   VM ÷ participación) + % — receta del 06 en 2 filas */
+export type ShareRow = { label: string; value: string; pct: number }
+
+/* Mini-viz por KPI: SIEMPRE con series reales ya scrapeadas (nada
+   simulado); share usa el desglose de filas en lugar de serie. */
+export type KpiViz =
+  | {
+      kind: 'area' | 'line' | 'bars' | 'signed-bars'
+      color: string
+      data: { x: string; y: number }[]
+      tip: MiniTipSpec
+    }
+  | { kind: 'share'; color: string; rows: ShareRow[] }
 
 export type Contribution = {
   window: { from: string; to: string; months: number }

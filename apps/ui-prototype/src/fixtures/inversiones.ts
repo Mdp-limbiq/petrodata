@@ -2,25 +2,10 @@
    Copia 1:1 del sitio en producción — NO editar a mano los números:
    se regeneran re-scrapeando el sitio. */
 
-export type InvSource = { label: string; url?: string; asOf: string }
-import type { InvMundo } from '@/app/indicadores/_lib/types'
-
-export type InvKpi = {
-  id: string
-  label: string
-  tier: string
-  figure: { kind: string; value: number }
-  delta?: { pct: number; base: string } | null
-  format: { prefix?: string; suffix?: string; decimals: number }
-  source: InvSource
-}
+import type { InvKpi, InvMundo } from '@/app/indicadores/_lib/types'
 
 /* eslint-disable */
 export const ASOF = '2026-04'
-export const HEADLINE =
-  'Vaca Muerta concentra el 69% del petróleo nacional y produce 620.249 bbl/d (2026-04).'
-export const NOTE =
-  'Todas las cifras se computan a partir de datos oficiales ya ingeridos por el pipeline. Las cifras EN MARCHA / PROYECTADO se agregarán con su fuente verificable.'
 
 export const KPIS: InvKpi[] = [
  {
@@ -47,7 +32,7 @@ export const KPIS: InvKpi[] = [
  },
  {
   "id": "participacion_petroleo",
-  "label": "Participación en petróleo nacional",
+  "label": "Participación en petróleo",
   "tier": "confirmado",
   "figure": {
    "kind": "point",
@@ -65,7 +50,7 @@ export const KPIS: InvKpi[] = [
  },
  {
   "id": "participacion_gas",
-  "label": "Participación en gas nacional",
+  "label": "Participación en gas",
   "tier": "confirmado",
   "figure": {
    "kind": "point",
@@ -105,7 +90,7 @@ export const KPIS: InvKpi[] = [
  },
  {
   "id": "exportaciones_energia",
-  "label": "Exportaciones de energía (anual)",
+  "label": "Exportaciones de energía",
   "tier": "confirmado",
   "figure": {
    "kind": "point",
@@ -128,7 +113,7 @@ export const KPIS: InvKpi[] = [
  },
  {
   "id": "superavit_energia",
-  "label": "Superávit comercial energético (anual)",
+  "label": "Superávit energético (anual)",
   "tier": "confirmado",
   "figure": {
    "kind": "point",
@@ -1855,95 +1840,6 @@ export const MUNDO: InvMundo = {
    "title": "La política que convierte potencial en producción",
    "text": "El recurso ya existe. Lo que cambió es el marco: las medidas actuales destraban la inversión necesaria para que la proyección se realice — y con ella, el salto en el ranking mundial."
   },
-  "levers": [
-   {
-    "tag": "Cambiario",
-    "title": "Normalización del tipo de cambio y acceso a divisas para exportadores",
-    "chartId": "fx",
-    "indicator": {
-     "label": "Inflación mensual",
-     "value": 2.15,
-     "format": {
-      "suffix": "%/mes",
-      "decimals": 1
-     },
-     "tier": "confirmado",
-     "source": {
-      "label": "INDEC — IPC variación mensual (Nivel General Nacional)",
-      "url": "https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",
-      "asOf": "2026-05"
-     }
-    }
-   },
-   {
-    "tag": "Exportación",
-    "title": "Fin de los cupos y retenciones a la exportación de crudo y gas",
-    "chartId": "superavit_energia",
-    "indicator": {
-     "label": "Superávit comercial energético",
-     "value": 7.82906310358,
-     "format": {
-      "prefix": "US$",
-      "suffix": " B",
-      "decimals": 1
-     },
-     "delta": {
-      "pct": 36.632974047978344,
-      "base": "YoY"
-     },
-     "tier": "confirmado",
-     "source": {
-      "label": "INDEC — Intercambio Comercial Argentino (ICA)",
-      "url": "https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-2-40",
-      "asOf": "2025"
-     }
-    }
-   },
-   {
-    "tag": "RIGI",
-    "title": "Régimen de Incentivo a Grandes Inversiones: estabilidad fiscal a 30 años",
-    "milestone": "Régimen vigente (Ley 27.742): estabilidad fiscal, cambiaria y aduanera por 30 años.",
-    "source": {
-     "label": "Ministerio de Economía — Registro RIGI (Ley 27.742)",
-     "url": "https://www.argentina.gob.ar/economia/rigi",
-     "asOf": "2026-06"
-    },
-    "indicator": {
-     "label": "Inversión comprometida (petróleo y gas)",
-     "value": 11.214,
-     "format": {
-      "prefix": "US$",
-      "suffix": " B",
-      "decimals": 1
-     },
-     "tier": "referencia",
-     "source": {
-      "label": "Ministerio de Economía — Registro RIGI (Ley 27.742)",
-      "url": "https://www.argentina.gob.ar/economia/rigi",
-      "asOf": "2026-06"
-     }
-    }
-   },
-   {
-    "tag": "Fiscal",
-    "title": "Disciplina fiscal y desregulación que anclan la previsibilidad de inversión",
-    "chartId": "fiscal",
-    "indicator": {
-     "label": "Meses con superávit primario (últ. 12)",
-     "value": 11,
-     "format": {
-      "suffix": "/12",
-      "decimals": 0
-     },
-     "tier": "confirmado",
-     "source": {
-      "label": "Secretaría de Hacienda — Resultado primario (IMIG)",
-      "url": "https://www.argentina.gob.ar/economia/sechacienda",
-      "asOf": "2026-04"
-     }
-    }
-   }
-  ],
   "charts": [
    {
     "id": "inflacion",

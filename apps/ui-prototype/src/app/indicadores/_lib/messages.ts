@@ -62,20 +62,10 @@ const MESSAGES = {
   "assumptionProd": " producción {from} → {to} bbl/d;",
   "assumptionGdp": " PBI US${gdp} B ({year}).",
   "illustrative": "Proyección ilustrativa, no es un pronóstico.",
-  "seeChart": "↑ ver gráfico",
-  "rigiCount": "{count} proyectos · US${total} B",
   "sectorOil": "petróleo",
   "sectorGas": "gas",
   "policyFallbackTitle": "La política que convierte potencial en producción",
   "policyFallbackText": "El recurso ya existe. Lo que cambió es el marco: las medidas actuales destraban la inversión necesaria para que la proyección se realice — y con ella, el salto en el ranking mundial.",
-  "leverFxTag": "Cambiario",
-  "leverFxTitle": "Normalización del tipo de cambio y acceso a divisas para exportadores",
-  "leverExportsTag": "Exportación",
-  "leverExportsTitle": "Fin de los cupos y retenciones a la exportación de crudo y gas",
-  "leverRigiTag": "RIGI",
-  "leverRigiTitle": "Régimen de Incentivo a Grandes Inversiones: estabilidad fiscal a 30 años",
-  "leverFiscalTag": "Fiscal",
-  "leverFiscalTitle": "Disciplina fiscal y desregulación que anclan la previsibilidad de inversión",
   "jumpLabel": "Salto proyectado · {year}",
   "countriesCount": "{countries} países"
  },
@@ -85,10 +75,6 @@ const MESSAGES = {
  "cruceModeLabel": "Unidad",
  "cruceModeUsd": "US$",
  "cruceModeGdp": "% del PBI",
- "ctaTitle": "¿Querés invertir o establecer operaciones?",
- "ctaBody": "Trabajamos con inversores y operadores que buscan exposición al shale argentino. Escribinos para coordinar una conversación.",
- "ctaContact": "Contacto",
- "ctaNewsletter": "O recibí actualizaciones",
  "thesisLabel": "La tesis en seis datos",
  "thesisBlurb": "La tesis en seis cifras verificables: producción, participación, actividad y comercio exterior — cada una con su fuente y su variación interanual.",
  "breakevenBlurb": "El Brent contra el costo de desarrollo de referencia de la cuenca (US$ 45/bbl, YPF): la banda es el margen del negocio, mes a mes.",
@@ -117,7 +103,7 @@ function lookup(key: string): string {
 
 export type T = (key: string, values?: Record<string, string | number>) => string
 
-/** Igual firma que next-intl: useTranslations('indicadores.dayValue') */
+/** Igual firma que next-intl: useTranslations('indicadores.contribution') */
 export function useTranslations(ns: string): T {
   const prefix = ns.replace(/^indicadores\.?/, '')
   return (key, values) => {

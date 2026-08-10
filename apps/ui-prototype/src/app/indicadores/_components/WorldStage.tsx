@@ -3,15 +3,14 @@
 // "Argentina en el mundo" — the catapult section. Frames Vaca Muerta's potential
 // against the world: where Argentina ranks today (real EIA data), where the 2030
 // target would put it (the rank jump), the climb it has already made, and the
-// fastest-growing peers it sits among. Closes with the policy levers that turn
-// potential into realised production. All UI copy is localised via the
+// fastest-growing peers it sits among. All UI copy is localised via the
 // `indicadores` namespace (`world.*`); only data values (country names, source
 // labels, backend-provided narrative) stay in their source language.
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useTranslations } from '../_lib/messages'
+import { useTranslations, type T } from '../_lib/messages'
 import { animate, animateCounter, prefersReducedMotion, useInView } from '../_lib/anim'
-import { fmtUpdate, formatFigure, formatDeltaPct, tierColor } from './format'
+import { fmtUpdate, formatFigure } from './format'
 
 import { MacroChart } from './MacroChart'
 import type {
@@ -19,11 +18,8 @@ import type {
   InvMundoRanking,
   InvMundoGrowth,
   InvPolitica,
-  InvPolicyLever,
   InvRigi,
 } from '../_lib/types'
-
-type T = (key: string, values?: Record<string, string | number>) => string
 
 const nf = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 })
 
@@ -353,29 +349,22 @@ function GrowthBlock({ growth }: { growth: InvMundoGrowth }) {
   )
 }
 
-// Fallback copy if the backend hasn't shipped the computed `politica` block yet.
+
+// Fallback si el backend aún no envió el bloque `politica` computado.
 function fallbackPolitica(t: T): InvPolitica {
   return {
     intro: {
       title: t('world.policyFallbackTitle'),
       text: t('world.policyFallbackText'),
     },
-    levers: [
-      { tag: t('world.leverFxTag'), title: t('world.leverFxTitle'), indicator: null },
-      { tag: t('world.leverExportsTag'), title: t('world.leverExportsTitle'), indicator: null },
-      { tag: t('world.leverRigiTag'), title: t('world.leverRigiTitle'), indicator: null },
-      { tag: t('world.leverFiscalTag'), title: t('world.leverFiscalTitle'), indicator: null },
-    ],
     charts: [],
   }
 }
 
-/** 10 · Política económica — narrativa + charts macro + palancas (las
-    palancas citan los charts vía "ver gráfico", por eso viven juntos) */
+/** 10 · Política económica — narrativa + charts macro */
 export function PoliticaMacro({ politica }: { politica?: InvPolitica }) {
   const t = useTranslations('indicadores')
   const p = politica ?? fallbackPolitica(t)
-  const chartById = new Map(p.charts.map((c) => [c.id, c]))
   return (
     <div className="rounded-[10px] border bg-surface p-5 md:p-6">
       <h3 className="type-h2 mb-2 !text-[1.15rem] md:!text-[1.25rem]">{p.intro.title}</h3>
@@ -401,13 +390,6 @@ export function PoliticaMacro({ politica }: { politica?: InvPolitica }) {
         </div>
       ) : null}
 
-      {/* Palancas como CARDS CHICAS dentro de la card (pedido de Mariano,
-          2026-08-08): borde propio + radio 8 (jerarquía anidada) + gap */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {p.levers.map((lever) => (
-          <LeverCard key={lever.tag} lever={lever} hasChart={lever.chartId ? chartById.has(lever.chartId) : false} />
-        ))}
-      </div>
     </div>
   )
 }
@@ -416,25 +398,22 @@ export function PoliticaMacro({ politica }: { politica?: InvPolitica }) {
 export function ImpactoPanel({ impacto }: { impacto: NonNullable<InvPolitica['impacto']> }) {
   const t = useTranslations('indicadores')
   return (
-    <div className="rounded-[10px] border border-oil/30 bg-surface p-5 md:p-6">
+    <div className="rounded-[10px] border-4 border-black bg-inverse p-5 md:p-6">
       <span className="type-label block !text-oil">{t('world.impactKicker')}</span>
-      <p className="type-display mt-3 max-w-2xl text-pretty !text-[1.5rem] !leading-[1.25] md:!text-[1.75rem]">
+      <p className="type-display mt-3 max-w-2xl text-pretty !text-[1.5rem] !leading-[1.25] !text-white md:!text-[1.75rem]">
         {impacto.headline}
       </p>
       <div className="mt-6 flex flex-wrap gap-x-12 gap-y-6">
         {impacto.items.map((it) => (
           <div key={it.label}>
-            <span className="type-label block">{it.label}</span>
-            <span
-              className="type-kpi mt-1 block text-3xl md:text-4xl"
-              style={{ color: tierColor(it.tier) }}
-            >
+            <span className="type-label block !text-on-dark-2">{it.label}</span>
+            <span className="type-kpi mt-1 block text-3xl !text-white md:text-4xl">
               {formatFigure(it.value, it.format)}
             </span>
           </div>
         ))}
       </div>
-      <p className="mt-6 max-w-2xl text-[10px] leading-relaxed text-tertiary">
+      <p className="mt-6 max-w-2xl text-[10px] leading-relaxed text-on-dark-3">
         {t('world.assumptions')}
         {impacto.assumptions.priceUsd != null
           ? t('world.assumptionPrice', {
@@ -560,48 +539,3 @@ export function RigiSection({ rigi }: { rigi: InvRigi }) {
   )
 }
 
-function LeverCard({ lever, hasChart }: { lever: InvPolicyLever; hasChart: boolean }) {
-  const t = useTranslations('indicadores')
-  const ind = lever.indicator
-  return (
-    <div className="rounded-[8px] border bg-surface p-4">
-      <div className="flex items-center justify-between gap-2">
-        <span className="type-label block !text-oil">{lever.tag}</span>
-        {hasChart ? <span className="type-label shrink-0">{t('world.seeChart')}</span> : null}
-      </div>
-      <p className="mt-2 text-pretty text-sm leading-relaxed text-primary">{lever.title}</p>
-      {ind ? (
-        <div className="mt-4 border-t pt-3">
-          <span className="type-label block">{ind.label}</span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="type-kpi !text-2xl">
-              {formatFigure(ind.value, ind.format)}
-            </span>
-            {ind.delta ? (
-              <span
-                className="text-[11px] tnums"
-                style={{ color: ind.delta.pct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)' }}
-              >
-                {formatDeltaPct(ind.delta.pct)}
-              </span>
-            ) : null}
-          </div>
-        </div>
-      ) : lever.milestone ? (
-        <div className="mt-4 border-t pt-3">
-          <p className="text-pretty text-[13px] leading-relaxed text-secondary">{lever.milestone}</p>
-          {lever.source?.url ? (
-            <a
-              href={lever.source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-block text-[10px] text-gas underline-offset-2 hover:underline"
-            >
-              {lever.source.label} ↗
-            </a>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
-  )
-}

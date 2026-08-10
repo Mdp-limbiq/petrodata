@@ -13,15 +13,10 @@ import { useMounted } from '../_lib/useMounted'
 import { formatCompactUSD } from '../_lib/formatCompactUSD'
 import { animateCounter, prefersReducedMotion, useInView } from '../_lib/anim'
 import type { InvCruce } from '../_lib/types'
+import { YoyChip } from './YoyChip'
 
 const ENERGY_COLOR = 'var(--data-oil)'
 const AGRO_COLOR = 'var(--text-tertiary)'
-
-const nf1 = new Intl.NumberFormat('es-AR', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-  signDisplay: 'always',
-})
 
 type Mode = 'usd' | 'gdp'
 
@@ -98,19 +93,7 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
               <span className="type-kpi block text-3xl md:text-4xl">
                 <span ref={headRef}>{fmtAnchor(lastYear.energiaUsd)}</span>
               </span>
-              {yoyPct != null && (
-                <span
-                  className="tnums rounded-full px-2 py-0.5 text-[11px]"
-                  style={{
-                    color: yoyPct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)',
-                    background: `color-mix(in srgb, ${
-                      yoyPct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)'
-                    } 12%, transparent)`,
-                  }}
-                >
-                  {nf1.format(yoyPct)}% YoY
-                </span>
-              )}
+              {yoyPct != null && <YoyChip pct={yoyPct} />}
             </span>
           </div>
         )}

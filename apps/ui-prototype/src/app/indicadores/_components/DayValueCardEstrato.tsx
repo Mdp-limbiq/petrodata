@@ -10,7 +10,7 @@
 
 import Image from 'next/image'
 import { useEffect, useId, useState } from 'react'
-export type DayValueInputs = {
+type DayValueInputs = {
   /** Barriles producidos en la ventana de contribución. */
   oilBbl: number
   /** Valor bruto publicado para esa ventana (petróleo + gas), en USD. */
@@ -31,8 +31,9 @@ export type DayValueInputs = {
 const MIN = 30
 const MAX = 130
 
-/* Pool de fotos reales de la cuenca: cada visita arranca en una al azar y
-   el carousel pasivo va crossfadeando (pedido de Mariano, 2026-08-07). */
+/* Pool de fotos reales de la cuenca: la foto queda FIJA durante la
+   lectura y cambia en cada visita (pedido de Mariano, 2026-08-10) —
+   se recuerda la última vista para no repetirla. */
 const PHOTOS = [
   '/images/vm-rig.jpg',
   '/images/news/news-produccion-rig.jpg',
@@ -41,7 +42,7 @@ const PHOTOS = [
   '/images/news/news-gnl-buque.jpg',
   '/images/news/news-empresas-refineria.jpg',
 ]
-const ROTATE_MS = 8000
+const PHOTO_KEY = 'vm-day-photo'
 
 const nf = (v: number, decimals: number) =>
   new Intl.NumberFormat('es-AR', {
@@ -76,15 +77,26 @@ export function DayValueCardEstrato({
   const [price, setPrice] = useState(spot ?? Math.min(MAX, Math.max(MIN, brentAvgUsd)))
   const sliderId = useId()
 
-  /* Foto: al azar por visita (elegida post-mount para no romper la
-     hidratación) + rotación en crossfade; reduced-motion la deja fija. */
+  /* Foto: estática, al azar en cada visita (elegida post-mount para no
+     romper la hidratación); se evita repetir la de la visita anterior. */
   const [photoIdx, setPhotoIdx] = useState<number | null>(null)
   useEffect(() => {
-    const start = Math.floor(Math.random() * PHOTOS.length)
-    setPhotoIdx(start)
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const t = setInterval(() => setPhotoIdx((i) => ((i ?? start) + 1) % PHOTOS.length), ROTATE_MS)
-    return () => clearInterval(t)
+    let prev: number | null = null
+    try {
+      const raw = localStorage.getItem(PHOTO_KEY)
+      prev = raw == null ? null : Number(raw)
+      if (!Number.isFinite(prev)) prev = null
+    } catch {
+      /* localStorage bloqueado → random puro */
+    }
+    let idx = Math.floor(Math.random() * PHOTOS.length)
+    if (prev != null && PHOTOS.length > 1 && idx === prev) idx = (idx + 1) % PHOTOS.length
+    try {
+      localStorage.setItem(PHOTO_KEY, String(idx))
+    } catch {
+      /* sin persistencia no hay anti-repetición, nada que hacer */
+    }
+    setPhotoIdx(idx)
   }, [])
 
   // Base publicada, anualizada con la ventana real
@@ -109,25 +121,22 @@ export function DayValueCardEstrato({
 
   return (
     <div className="relative overflow-hidden rounded-[10px] border-4 border-black bg-inverse p-5 md:p-6">
-      {/* Carousel pasivo a la derecha: fotos de la cuenca en B&N oscurecido,
-          fundidas en diagonal con el negro (patrón del footer). Crossfade
-          entre visitas/rotación — todas apiladas, opacidad al índice activo */}
+      {/* Foto de la visita a la derecha: cuenca en B&N oscurecido, fundida
+          en diagonal con el negro (patrón del footer). Una sola imagen —
+          la elegida para esta visita — nada rota mientras se lee. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 w-[70%] [mask-image:linear-gradient(100deg,transparent_12%,black_55%)] sm:w-[50%]"
       >
-        {PHOTOS.map((src, i) => (
+        {photoIdx != null && (
           <Image
-            key={src}
-            src={src}
+            src={PHOTOS[photoIdx]}
             alt=""
             fill
             sizes="(min-width: 1024px) 40rem, 70vw"
-            className={`object-cover grayscale brightness-[.68] transition-opacity duration-1000 motion-reduce:transition-none ${
-              photoIdx === i ? 'opacity-100' : 'opacity-0'
-            }`}
+            className="object-cover grayscale brightness-[.68]"
           />
-        ))}
+        )}
       </div>
 
       {/* Rótulo: rombo oil + label + hairline (firma de las cards de noticias) */}

@@ -24,23 +24,18 @@ export function formatDeltaPct(pct: number, locale = 'es-AR'): string {
   return `${n}%`
 }
 
-/** Color por tier. confirmado=positivo; en_marcha/proyectado=caution (estados
-    no finales); referencia=neutro. Tokens Estrato, nunca hex. */
-export function tierColor(tier: string): string {
-  switch (tier) {
-    case 'confirmado':
-      return 'var(--status-positive)'
-    case 'en_marcha':
-      return 'var(--status-caution)'
-    case 'proyectado':
-      return 'var(--status-caution)'
-    case 'referencia':
-      return 'var(--text-secondary)'
-    default:
-      return 'var(--text-tertiary)'
-  }
-}
 
+
+/** "2026-04" → "abr '26" · anual ("2025") tal cual. Receta única para
+ *  las fechas de los tooltips de charts (Ramp/Actividad/Macro/bento). */
+export function fmtPeriod(period: string): string {
+  if (!period.includes('-')) return period
+  const [y, m] = period.split('-')
+  if (!m) return period
+  const d = new Date(Date.UTC(Number(y), Number(m) - 1, 1))
+  const month = d.toLocaleString('es-AR', { month: 'short', timeZone: 'UTC' }).replace('.', '')
+  return `${month} '${y.slice(2)}`
+}
 
 /** "2026-04" → "04-2026" · "2026-08-07[ …]" → "07-08-2026" · resto tal cual */
 export function fmtUpdate(asOf: string): string {

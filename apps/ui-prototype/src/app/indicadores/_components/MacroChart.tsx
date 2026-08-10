@@ -22,15 +22,8 @@ import {
 } from 'recharts'
 import { useMounted } from '../_lib/useMounted'
 import { formatCompact } from '../_lib/formatNumber'
+import { fmtPeriod } from './format'
 import type { InvPolicyChart } from '../_lib/types'
-
-function fmtPeriod(period: string): string {
-  if (!period.includes('-')) return period // annual ("2025")
-  const [y, m] = period.split('-')
-  const d = new Date(Date.UTC(Number(y), Number(m) - 1, 1))
-  const month = d.toLocaleString('es-AR', { month: 'short', timeZone: 'UTC' }).replace('.', '')
-  return `${month} '${y.slice(2)}`
-}
 
 function fmtValue(value: number, unit: string): string {
   switch (unit) {

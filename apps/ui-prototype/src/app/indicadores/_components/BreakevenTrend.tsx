@@ -23,17 +23,10 @@ import {
 import { useMounted } from '../_lib/useMounted'
 import { animateCounter, prefersReducedMotion, useInView } from '../_lib/anim'
 import type { InvBreakeven } from '../_lib/types'
+import { fmtPeriod } from './format'
 
 const nf0 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 })
 const nf1 = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1 })
-
-function fmtDate(iso: string): string {
-  // "2026-04-21" → "abr '26"
-  const [y, m] = iso.split('-')
-  const d = new Date(Date.UTC(Number(y), Number(m) - 1, 1))
-  const month = d.toLocaleString('es-AR', { month: 'short', timeZone: 'UTC' }).replace('.', '')
-  return `${month} '${y.slice(2)}`
-}
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
 
@@ -127,7 +120,7 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
                 <CartesianGrid stroke="var(--border-default)" strokeDasharray="2 4" vertical={false} />
                 <XAxis
                   dataKey="date"
-                  tickFormatter={fmtDate}
+                  tickFormatter={fmtPeriod}
                   tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--border-default)' }}
@@ -226,7 +219,7 @@ function BeTooltip({
     <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
       {/* la fecha es encabezado, no metadata: on-dark-2 y 11px para que se lea */}
       <div className="type-label-md mb-1.5 border-b border-white/10 pb-1.5 !text-on-dark-2">
-        {fmtDate(row.date)}
+        {fmtPeriod(row.date)}
       </div>
       <div className="text-[12px] tnums text-white">Brent US${nf1.format(row.value)}</div>
       <div
