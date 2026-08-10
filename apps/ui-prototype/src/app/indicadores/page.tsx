@@ -1,392 +1,233 @@
 import type { Metadata } from 'next'
-import { PageHero } from '@/ui/page-hero'
-import { Surface } from '@/ui/surface'
-import { Stat } from '@/ui/stat'
-import { SectionLabel } from '@/ui/section-label'
-import { Badge } from '@/ui/badge'
-import { ProportionBarList } from '@/ui/proportion-list'
-import { EmptyState } from '@/ui/empty-state'
-import { Alert } from '@/ui/alert'
-import { formatDecimal, formatInteger } from '@/lib/format'
-import { applyEstado, readMock, type SearchParams } from '@/mock/state'
+import { FooterNewsletterForm } from '@/ui/shell/FooterNewsletterForm'
 import {
+  ASOF,
   BREAKEVEN,
-  BRENT,
   CONTRIBUTION,
-  CONTRIBUTION_TOTALS,
-  DAY_VALUE,
-  RIGI,
-  TESIS,
-  VM,
-  WORLD_OIL,
-} from '@/fixtures/indicadores'
-import { OIL_PRODUCERS } from '@/fixtures/operators'
-import { ContributionTable } from './_client/contribution-table'
-import { BreakevenChart } from './_client/breakeven-chart'
+  CRUCE,
+  DAY_VALUE_INPUTS,
+  HEADLINE,
+  KPIS,
+  MUNDO,
+  NOTE,
+  OPERADORES,
+  SERIE,
+  ACTIVIDAD,
+} from '@/fixtures/inversiones'
+import { useTranslations } from './_lib/messages'
+import { SectionLabelNd } from './_components/SectionLabelNd'
+import { DayValueCardEstrato } from './_components/DayValueCardEstrato'
+import { KpiBento, type KpiViz } from './_components/KpiBento'
+import { BreakevenTrend } from './_components/BreakevenTrend'
+import { RampChart } from './_components/RampChart'
+import { ActividadChart } from './_components/ActividadChart'
+import { CruceChart } from './_components/CruceChart'
+import { OperatorLeaderboard } from './_components/OperatorLeaderboard'
+import { ContributionTable } from './_components/ContributionTable'
+import { TransportInfra } from './_components/TransportInfra'
+import { WorldStage } from './_components/WorldStage'
+
+/* INDICADORES — copia 1:1 de vacamuerta.io/indicadores (pedido de Mariano,
+   2026-08-07): misma estructura, mismos componentes, mismos tokens (nd-*),
+   mismas fuentes tipográficas y datos reales scrapeados del sitio vivo.
+   Punto de partida para el fine-tuning con Estrato. */
 
 export const metadata: Metadata = {
   title: 'Indicadores',
   description:
-    'La oportunidad de Vaca Muerta en números: valor de producción, contribución por operadora, margen sobre el breakeven y el lugar de Argentina en el mundo. Datos reales de vacamuerta.io.',
+    'La oportunidad de Vaca Muerta en números: cada cifra se computa a partir de datos oficiales de producción y exportación, con su fuente y fecha de corte.',
 }
 
-export default async function IndicadoresPage({
-  searchParams,
-}: {
-  searchParams: SearchParams
-}) {
-  const { estado } = await readMock(searchParams)
-  const tesis = applyEstado(estado, TESIS, 3)
-  const contribution = applyEstado(estado, CONTRIBUTION, 4)
+export default function IndicadoresPage() {
+  const t = useTranslations('indicadores')
 
-  const hero = (
-    <PageHero eyebrow="Tesis de inversión" title="Indicadores">
-      La oportunidad de Vaca Muerta en números: cada cifra se computa a partir de datos
-      oficiales de producción y exportación.
-    </PageHero>
-  )
+  const kpiValue = (id: string): number | null =>
+    KPIS.find((k) => k.id === id)?.figure.value ?? null
 
-  /* error / offline → hero + estado de error, nada más */
-  if (tesis === null || contribution === null) {
-    return (
-      <div className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
-        {hero}
-        <EmptyState
-          kind={estado === 'offline' ? 'offline' : 'error'}
-          actionHref="/indicadores"
-          actionLabel="Reintentar"
-        />
-      </div>
-    )
+  /* Mini-viz del bento — todas series REALES ya scrapeadas (nada simulado):
+     rampa de producción, actividad de pozos, exportaciones de energía del
+     cruce y el flip del superávit desde los charts de política. */
+  const superavitSerie = MUNDO.politica?.charts.find((c) => c.id === 'superavit_energia')
+  const kpiViz: Record<string, KpiViz> = {
+    produccion_vm: {
+      kind: 'area',
+      color: 'var(--data-oil)',
+      data: SERIE.points.map((p) => ({ x: p.period, y: p.oilBblD })),
+    },
+    participacion_petroleo: { kind: 'share', color: 'var(--data-oil)' },
+    participacion_gas: { kind: 'share', color: 'var(--data-gas)' },
+    pozos_activos: {
+      kind: 'bars',
+      color: 'rgba(255,255,255,0.8)',
+      data: ACTIVIDAD.points.map((p) => ({ x: p.period, y: p.nuevosPozos })),
+    },
+    exportaciones_energia: {
+      kind: 'line',
+      color: '#2fe0a4',
+      data: CRUCE.points
+        .filter((p) => p.energiaUsd != null)
+        .slice(-20)
+        .map((p) => ({ x: p.period, y: p.energiaUsd as number })),
+    },
+    ...(superavitSerie
+      ? {
+          superavit_energia: {
+            kind: 'signed-bars' as const,
+            color: '#2fe0a4',
+            data: superavitSerie.points.map((p) => ({ x: p.period, y: p.value })),
+          },
+        }
+      : {}),
   }
 
-  const vacio = estado === 'vacio'
-
-  const oilItems = OIL_PRODUCERS.map((o, i) => ({
-    key: o.name,
-    label: i === 0 ? <span className="font-medium text-oil">{o.name}</span> : o.name,
-    value: o.bbld,
-    display: `${formatInteger(o.bbld)} bbl/d`,
-    color: i === 0 ? 'var(--data-oil)' : undefined,
-  }))
-
-  const worldItems = [
-    ...WORLD_OIL.top.map((c) => ({
-      key: c.name,
-      label: c.name as React.ReactNode,
-      value: c.kbbld,
-      display: `${formatInteger(c.kbbld)} mil bbl/d`,
-      color: undefined as string | undefined,
-    })),
-    {
-      key: 'argentina',
-      label: (
-        <span className="font-medium text-oil">Argentina · #{WORLD_OIL.todayRank} hoy</span>
-      ),
-      value: WORLD_OIL.todayKbbld,
-      display: `${formatInteger(WORLD_OIL.todayKbbld)} mil bbl/d`,
-      color: 'var(--data-oil)',
-    },
-  ]
-
   return (
-    <div className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
-      {hero}
-
-      {/* Valor de un día — única superficie inversa: jerarquía máxima */}
-      <section aria-label="Valor de un día de Vaca Muerta">
-        {vacio ? (
-          <EmptyState
-            kind="empty"
-            title="Sin valor de producción"
-            detail="No hay valor bruto de producción para mostrar."
+    <div className="nd-scope w-full flex-1 overflow-x-clip">
+      {/* Hero — tipografía y marca Estrato (rombo oil, Inter Tight, Schibsted) */}
+      <section className="container border-b border-nd-border pb-6 pt-8 md:pt-12">
+        <span className="type-label-md flex items-center gap-2.5 !tracking-[0.14em]">
+          <span
+            aria-hidden
+            className="nd-live-dot inline-block size-1.5 rotate-45"
+            style={{ background: 'var(--data-oil)' }}
           />
-        ) : (
-          <Surface variant="inverse">
-            <dl className="m-0 flex min-w-0 flex-col gap-2.5">
-              <dt className="type-label !text-on-dark-3">Valor de un día de Vaca Muerta</dt>
-              <dd className="m-0 flex flex-wrap items-baseline gap-2">
-                <span className="type-kpi text-[2.6rem] !text-on-dark md:text-[3rem]">
-                  US$ {formatDecimal(DAY_VALUE.perDayMUSD, 1)} M
-                </span>
-                <span className="type-label-md !text-on-dark-3">por día</span>
-              </dd>
-              <dd className="m-0 tnums text-on-dark">
-                ≈ US$ {formatDecimal(DAY_VALUE.perYearBUSD, 1)} B al año · ≈{' '}
-                {formatDecimal(DAY_VALUE.pbiPct, 1)}% del PBI {DAY_VALUE.pbiYear}
-              </dd>
-              <dd className="m-0 type-label !text-on-dark-3">
-                Valor bruto de producción · últimos 12 meses · petróleo a Brent menos calidad
-                + gas a PIST
-              </dd>
-            </dl>
-          </Surface>
-        )}
+          {t('eyebrow')}
+        </span>
+        <h1 className="type-h1 mt-3 text-balance">{t('title')}</h1>
+        <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-secondary [font-family:var(--font-schibsted)]">
+          {t('blurb')}
+        </p>
       </section>
 
-      {/* Grid Brent: precio, margen y sólo-petróleo */}
-      <section aria-label="Brent y margen" className="mt-4">
-        {vacio ? (
-          <EmptyState
-            kind="empty"
-            title="Brent no disponible"
-            detail="No hay precio de referencia para mostrar."
-          />
-        ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <Surface variant="flat">
-              <Stat
-                label="Brent hoy"
-                value={BRENT.value}
-                format="compact"
-                unit="US$/bbl"
-                animate
-                footnote={`PROMEDIO PERÍODO US$ ${formatDecimal(BRENT.avg12m, 1)}`}
-              />
-            </Surface>
-            <Surface variant="flat">
-              <Stat
-                label="Margen sobre breakeven"
-                value={BRENT.marginOverBreakeven}
-                format="compact"
-                unit="US$/bbl"
-                animate
-                footnote={`BREAKEVEN REF. US$ ${formatInteger(BRENT.breakeven)} (YPF)`}
-              />
-            </Surface>
-            <Surface variant="flat">
-              <Stat
-                label="Sólo el petróleo"
-                value={BRENT.oilOnlyYearBUSD}
-                format="compact"
-                unit="US$ B/año"
-                animate
-                footnote={`US$ ${formatDecimal(BRENT.oilOnlyDayMUSD, 1)} M POR DÍA`}
-              />
-            </Surface>
+      {/* Cuánto vale un día + qué es Vaca Muerta dentro del país —
+          card única Estrato compacta (ancla | escenario + banda de foto) */}
+      <section className="container pb-12 pt-8">
+        <DayValueCardEstrato
+          inputs={DAY_VALUE_INPUTS}
+          oilSharePct={kpiValue('participacion_petroleo')}
+          gasSharePct={kpiValue('participacion_gas')}
+          wells={kpiValue('pozos_activos')}
+        />
+      </section>
+
+      {/* Headline + nota de integridad — tipografía ESTRATO (Inter Tight
+          para el titular, Schibsted para la nota; pedido de Mariano) */}
+      <section className="container pb-10">
+        <p className="type-display max-w-3xl text-pretty !text-[1.7rem] !leading-[1.25] md:!text-[2rem]">
+          {HEADLINE}
+        </p>
+        {/* [font-family:…] explícito: dentro del scope nd el heredado es
+            Helvetica; la nota va en Schibsted (cuerpo Estrato) */}
+        <p className="mt-4 max-w-2xl text-pretty text-[11px] leading-relaxed text-tertiary [font-family:var(--font-schibsted)]">
+          {NOTE}
+        </p>
+      </section>
+
+      {/* La tesis en seis datos — bento oscuro Estrato */}
+      <section className="container pb-16">
+        <SectionLabelNd title={t('thesisLabel')} note={t('asOf', { month: ASOF })} />
+        <KpiBento kpis={KPIS.filter((k) => k.id !== 'produccion_nacional')} viz={kpiViz} />
+      </section>
+
+      {/* 01 · Margen sobre el breakeven */}
+      <section className="container pb-16">
+        <SectionLabelNd index="01" title={t('breakevenTitle')} note="US$/BBL" />
+        <div className="overflow-hidden rounded-[10px] border border-nd-border">
+          <BreakevenTrend breakeven={BREAKEVEN} />
+        </div>
+      </section>
+
+      {/* 02 · Rampa de producción */}
+      <section className="container pb-16">
+        <SectionLabelNd index="02" title={SERIE.title} note={SERIE.unit} />
+        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+          <RampChart points={SERIE.points} />
+        </div>
+      </section>
+
+      {/* 03 · Actividad: pozos nuevos por mes */}
+      <section className="container pb-16">
+        <SectionLabelNd index="03" title={t('actividadTitle')} note={ACTIVIDAD.unit} />
+        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+          <ActividadChart actividad={ACTIVIDAD} />
+        </div>
+      </section>
+
+      {/* 04 · Cruce agro vs energía */}
+      <section className="container pb-16">
+        <SectionLabelNd index="04" title={CRUCE.title} note={CRUCE.unit} />
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+          {t('cruceBlurb')}
+        </p>
+        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+          <CruceChart cruce={CRUCE} />
+        </div>
+      </section>
+
+      {/* 05 · Operadores principales */}
+      <section className="container pb-16">
+        <SectionLabelNd index="05" title={t('operatorsTitle')} />
+        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+          <OperatorLeaderboard operadores={OPERADORES} />
+        </div>
+      </section>
+
+      {/* 06 · Contribución económica por operadora */}
+      <section className="container pb-16">
+        <SectionLabelNd index="06" title={t('contribution.title')} />
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+          {t('contribution.blurb')}
+        </p>
+        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+          <ContributionTable data={CONTRIBUTION} />
+        </div>
+      </section>
+
+      {/* 07 · Infraestructura de transporte */}
+      <section className="container pb-16">
+        <SectionLabelNd index="07" title={t('transportTitle')} />
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+          {t('transportBlurb')}
+        </p>
+        <TransportInfra />
+      </section>
+
+      {/* 08 · Argentina en el mundo */}
+      <section className="container pb-16">
+        <SectionLabelNd index="08" title={t('worldTitle')} />
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+          {t('worldBlurb')}
+        </p>
+        <WorldStage mundo={MUNDO} />
+      </section>
+
+      {/* Banda CTA */}
+      <section className="border-t border-nd-border bg-nd-surface">
+        <div className="container flex flex-col gap-6 py-16 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-xl">
+            {/* tipografía Estrato: Inter Tight display + Schibsted cuerpo */}
+            <h2 className="type-display max-w-3xl text-balance !text-[1.5rem] !leading-[1.25] md:!text-[1.75rem]">
+              {t('ctaTitle')}
+            </h2>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-secondary [font-family:var(--font-schibsted)]">
+              {t('ctaBody')}
+            </p>
           </div>
-        )}
-      </section>
-
-      {/* 01 · La tesis en seis datos */}
-      <section aria-label="La tesis en seis datos" className="mt-14">
-        <SectionLabel index="01" title="La tesis en seis datos" note={`DATOS AL ${VM.dataDate}`} />
-        <div className="mt-5">
-          {tesis.length === 0 ? (
-            <EmptyState
-              kind="empty"
-              title="Sin datos de la tesis"
-              detail="No hay indicadores para mostrar."
-            />
-          ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {tesis.map((t) => (
-                <Surface key={t.label} variant="flat" className="flex flex-col gap-2.5">
-                  <p className="m-0 type-label">{t.label}</p>
-                  <p
-                    className={`m-0 tnums ${
-                      t.value.length <= 9 ? 'type-kpi text-[1.9rem]' : 'type-h2'
-                    }`}
-                  >
-                    {t.value}
-                  </p>
-                  <div className="mt-auto flex items-center justify-between gap-2">
-                    <span className="type-label tnums">{t.asOf}</span>
-                    {t.yoy && <Badge tone="positive">{t.yoy} i/a</Badge>}
-                  </div>
-                </Surface>
-              ))}
+          <div className="flex flex-col items-start gap-4">
+            <a
+              href="mailto:info@vacamuerta.io?subject=Inversiones%20Vaca%20Muerta"
+              className="inline-flex w-fit items-center gap-2 rounded-[8px] bg-nd-text-display px-5 py-2.5 font-mono text-xs uppercase tracking-[0.06em] text-nd-surface transition-opacity hover:opacity-80"
+            >
+              {t('ctaContact')} →
+            </a>
+            <div>
+              <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+                {t('ctaNewsletter')}
+              </span>
+              <FooterNewsletterForm />
             </div>
-          )}
+          </div>
         </div>
       </section>
-
-      {/* 02 · Contribución económica por operadora */}
-      <section aria-label="Contribución económica por operadora" className="mt-14">
-        <SectionLabel
-          index="02"
-          title="Contribución económica por operadora"
-          note="VENTANA 2025-06 A 2026-05"
-        />
-        <div className="mt-5">
-          {contribution.length === 0 ? (
-            <EmptyState
-              kind="empty"
-              title="Sin datos por operadora"
-              detail="No hay contribución económica para mostrar."
-            />
-          ) : (
-            <>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <Surface variant="flat">
-                  <Stat
-                    label="Valor bruto"
-                    value={CONTRIBUTION_TOTALS.valorBrutoBUSD}
-                    format="compact"
-                    unit="US$ B"
-                    footnote="ANUALIZADO"
-                  />
-                </Surface>
-                <Surface variant="flat">
-                  <Stat
-                    label="Regalías"
-                    value={CONTRIBUTION_TOTALS.regaliasBUSD}
-                    format="compact"
-                    unit="US$ B"
-                    footnote="AL 12% DEL VALOR BRUTO"
-                  />
-                </Surface>
-                <Surface variant="flat">
-                  <Stat
-                    label="Exportaciones"
-                    value={CONTRIBUTION_TOTALS.exportacionesBUSD}
-                    format="compact"
-                    unit="US$ B"
-                    footnote="ATRIBUIDAS PRO RATA"
-                  />
-                </Surface>
-              </div>
-              <div className="mt-3">
-                <ContributionTable rows={contribution} />
-              </div>
-              <div className="mt-3">
-                <Alert tone="info" title="Metodología">
-                  Volúmenes oficiales por operadora, ventana 2025-06 a 2026-05; petróleo
-                  valuado a Brent −US$ 5/bbl; regalías al 12%; exportaciones atribuidas pro
-                  rata de la producción. Son estimaciones, no cifras contables.
-                </Alert>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
-
-      {/* 03 · Margen sobre el breakeven */}
-      <section aria-label="Margen sobre el breakeven" className="mt-14">
-        <SectionLabel index="03" title="Margen sobre el breakeven" note="US$/BBL" />
-        <div className="mt-5">
-          {vacio ? (
-            <EmptyState
-              kind="empty"
-              title="Sin serie de breakeven"
-              detail="No hay datos de costos para mostrar."
-            />
-          ) : (
-            <Surface variant="flat">
-              <BreakevenChart
-                data={BREAKEVEN}
-                brent={BRENT.value}
-                breakeven={BRENT.breakeven}
-                margin={BRENT.marginOverBreakeven}
-              />
-              <p className="mt-3 border-t pt-3 text-secondary">
-                Con el Brent en{' '}
-                <span className="tnums font-medium text-body">
-                  {formatDecimal(BRENT.value, 1)} US$/bbl
-                </span>{' '}
-                y un breakeven de referencia de{' '}
-                <span className="tnums font-medium text-body">
-                  US$ {formatInteger(BRENT.breakeven)}
-                </span>{' '}
-                (YPF), el margen es de{' '}
-                <span className="tnums font-medium text-body">
-                  {formatDecimal(BRENT.marginOverBreakeven, 1)} US$/bbl
-                </span>
-                . La serie histórica es ilustrativa.
-              </p>
-            </Surface>
-          )}
-        </div>
-      </section>
-
-      {/* 04 · Operadores principales · petróleo */}
-      <section aria-label="Operadores principales de petróleo" className="mt-14">
-        <SectionLabel index="04" title="Operadores principales · petróleo" note={VM.dataDate} />
-        <div className="mt-5">
-          {vacio ? (
-            <EmptyState
-              kind="empty"
-              title="Sin operadores"
-              detail="No hay producción por operadora para mostrar."
-            />
-          ) : (
-            <Surface variant="flat">
-              <ProportionBarList items={oilItems} />
-            </Surface>
-          )}
-        </div>
-      </section>
-
-      {/* 05 · Argentina en el mundo */}
-      <section aria-label="Argentina en el mundo" className="mt-14">
-        <SectionLabel index="05" title="Argentina en el mundo" note="EIA · 2025" />
-        <div className="mt-5">
-          {vacio ? (
-            <EmptyState
-              kind="empty"
-              title="Sin ranking mundial"
-              detail="No hay datos de producción por país para mostrar."
-            />
-          ) : (
-            <Surface variant="flat">
-              <ProportionBarList items={worldItems} />
-              <div className="mt-4 flex flex-wrap items-center gap-2 border-t pt-3">
-                <span className="text-secondary">
-                  Proyectado 2030:{' '}
-                  <span className="tnums font-medium text-body">
-                    #{WORLD_OIL.projectedRank} · {formatInteger(WORLD_OIL.projectedKbbld)} mil
-                    bbl/d
-                  </span>
-                </span>
-                <Badge tone="positive">
-                  +{WORLD_OIL.todayRank - WORLD_OIL.projectedRank} puestos
-                </Badge>
-              </div>
-            </Surface>
-          )}
-        </div>
-      </section>
-
-      {/* 06 · Proyectos RIGI de petróleo y gas */}
-      <section aria-label="Proyectos RIGI de petróleo y gas" className="mt-14">
-        <SectionLabel
-          index="06"
-          title="Proyectos RIGI de petróleo y gas"
-          note={`US$ ${formatDecimal(RIGI.totalBUSD, 1)} B COMPROMETIDOS`}
-        />
-        <div className="mt-5">
-          {vacio ? (
-            <EmptyState
-              kind="empty"
-              title="Sin proyectos RIGI"
-              detail="No hay proyectos aprobados para mostrar."
-            />
-          ) : (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {RIGI.projects.map((p) => (
-                <Surface key={p.name} variant="flat">
-                  <div className="flex items-start justify-between gap-3">
-                    <Badge tone={p.kind === 'gas' ? 'gas' : 'oil'}>{p.kind}</Badge>
-                    <span className="type-kpi text-[1.35rem]">
-                      US$ {formatDecimal(p.busd, 1)} B
-                    </span>
-                  </div>
-                  <p className="m-0 mt-3 font-medium text-body">{p.name}</p>
-                  <p className="m-0 mt-1 type-label">{p.sponsor}</p>
-                </Surface>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Cierre */}
-      <div className="mt-14">
-        <Alert tone="info" title="Fuente de los datos">
-          Datos reales de vacamuerta.io (2026-08-05); las series de los gráficos son
-          ilustrativas.
-        </Alert>
-      </div>
     </div>
   )
 }
