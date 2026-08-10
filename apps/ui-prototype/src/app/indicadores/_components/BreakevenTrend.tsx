@@ -49,13 +49,13 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
   useEffect(() => {
     if (!inView || !headRef.current) return
     if (prefersReducedMotion()) {
-      headRef.current.textContent = nf0.format(Math.round(headroomUsd))
+      headRef.current.textContent = nf1.format(headroomUsd)
       return
     }
-    const a = animateCounter(headRef.current, Math.round(headroomUsd), {
+    const a = animateCounter(headRef.current, headroomUsd, {
       duration: 1500,
       delay: 250,
-      format: (v) => nf0.format(Math.round(v)),
+      format: (v) => nf1.format(v),
     })
     return () => {
       a?.pause?.()
@@ -91,18 +91,18 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
   const off = dataMax > dataMin ? clamp01((dataMax - referenceUsd) / (dataMax - dataMin)) : 0.5
   const last = rows[rows.length - 1]
   const positive = headroomUsd >= 0
-  const stateColor = positive ? 'var(--nd-success)' : 'var(--nd-warning)'
+  const stateColor = positive ? 'var(--status-positive)' : 'var(--status-caution)'
 
   return (
-    <div ref={ref} className="flex flex-col gap-5 bg-nd-surface p-6">
+    <div ref={ref} className="flex flex-col gap-5">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <span className="block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+          <span className="type-label block">
             {t('charts.breakevenHeadroom')}
           </span>
-          <span className="mt-1 block text-3xl tabular-nums text-nd-text-display md:text-4xl font-display">
-            US$<span ref={headRef}>{nf0.format(Math.round(headroomUsd))}</span>
-            <span className="ml-1 text-base text-nd-text-secondary">/bbl</span>
+          <span className="type-kpi mt-1 block text-3xl md:text-4xl">
+            US$<span ref={headRef}>{nf1.format(headroomUsd)}</span>
+            <span className="ml-1 text-base font-normal text-secondary">/bbl</span>
           </span>
         </div>
       </div>
@@ -114,49 +114,49 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
               <AreaChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
                 <defs>
                   <linearGradient id="grad-be-fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset={0} stopColor="var(--nd-success)" stopOpacity={0.45} />
-                    <stop offset={off} stopColor="var(--nd-success)" stopOpacity={0.04} />
-                    <stop offset={off} stopColor="var(--nd-warning)" stopOpacity={0.04} />
-                    <stop offset={1} stopColor="var(--nd-warning)" stopOpacity={0.4} />
+                    <stop offset={0} stopColor="var(--status-positive)" stopOpacity={0.45} />
+                    <stop offset={off} stopColor="var(--status-positive)" stopOpacity={0.04} />
+                    <stop offset={off} stopColor="var(--status-caution)" stopOpacity={0.04} />
+                    <stop offset={1} stopColor="var(--status-caution)" stopOpacity={0.4} />
                   </linearGradient>
                   <linearGradient id="grad-be-stroke" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset={off} stopColor="var(--nd-success)" />
-                    <stop offset={off} stopColor="var(--nd-warning)" />
+                    <stop offset={off} stopColor="var(--status-positive)" />
+                    <stop offset={off} stopColor="var(--status-caution)" />
                   </linearGradient>
                 </defs>
-                <CartesianGrid stroke="var(--nd-border)" strokeDasharray="2 4" vertical={false} />
+                <CartesianGrid stroke="var(--border-default)" strokeDasharray="2 4" vertical={false} />
                 <XAxis
                   dataKey="date"
                   tickFormatter={fmtDate}
-                  tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                  tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                   tickLine={false}
-                  axisLine={{ stroke: 'var(--nd-border)' }}
+                  axisLine={{ stroke: 'var(--border-default)' }}
                   minTickGap={36}
                 />
                 <YAxis
                   domain={[domainMin, domainMax]}
                   ticks={yTicks}
                   tickFormatter={(v) => `US$${nf0.format(v as number)}`}
-                  tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                  tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                   tickLine={false}
                   axisLine={false}
                   width={56}
                 />
                 <Tooltip
                   content={<BeTooltip referenceUsd={referenceUsd} />}
-                  cursor={{ stroke: 'var(--nd-border)', strokeWidth: 1 }}
+                  cursor={{ stroke: 'var(--border-default)', strokeWidth: 1 }}
                 />
                 <ReferenceLine
                   y={referenceUsd}
-                  stroke="var(--nd-text-secondary)"
+                  stroke="var(--text-secondary)"
                   strokeDasharray="5 4"
                   strokeWidth={1}
                   label={{
                     value: `Breakeven US$${nf0.format(referenceUsd)}`,
                     position: 'insideTopLeft',
-                    fill: 'var(--nd-text-secondary)',
+                    fill: 'var(--text-secondary)',
                     fontSize: 10,
-                    fontFamily: 'var(--font-mono)',
+                    fontFamily: 'var(--font-schibsted)',
                   }}
                 />
                 <Area
@@ -175,7 +175,7 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
                     y={last.value}
                     r={4}
                     fill={stateColor}
-                    stroke="var(--nd-surface)"
+                    stroke="var(--surface)"
                     strokeWidth={2}
                   />
                 )}
@@ -184,17 +184,17 @@ export function BreakevenTrend({ breakeven }: { breakeven: InvBreakeven }) {
           )}
         </div>
       ) : (
-        <div className="flex h-[200px] items-center justify-center font-mono text-sm text-nd-text-disabled md:h-[240px]">
+        <div className="flex h-[200px] items-center justify-center text-sm text-tertiary md:h-[240px]">
           {t('charts.noBrent')}
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px]">
-        <span className="text-nd-text-secondary">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-[11px]">
+        <span className="text-secondary">
           <span className="mr-1 inline-block size-2 rounded-full align-middle" style={{ background: stateColor }} />{' '}
-          Brent · {breakeven.source.asOf} · US${nf0.format(Math.round(brentUsd))}
+          Brent · {breakeven.source.asOf} · US${nf1.format(brentUsd)}
         </span>
-        <span className="text-nd-text-disabled">
+        <span className="text-tertiary">
           Ref. US${nf0.format(referenceUsd)} — {breakeven.referenceSource.label}
         </span>
       </div>
@@ -219,18 +219,19 @@ function BeTooltip({
   if (!row) return null
   const head = row.value - referenceUsd
   const positive = head >= 0
-  /* Tooltip oscuro Estrato (pedido de Mariano, 2026-08-08): card negra,
-     radio 8px, status vivos del tema dark */
+  /* Tooltip oscuro Estrato: card negra, radio 8px, status vivos del tema
+     dark — el caso negativo va en CAUTION (ámbar), la misma semántica que
+     la banda del chart, no en rojo */
   return (
-    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 font-mono shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
+    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
       {/* la fecha es encabezado, no metadata: on-dark-2 y 11px para que se lea */}
-      <div className="mb-1.5 border-b border-white/10 pb-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-on-dark-2">
+      <div className="type-label-md mb-1.5 border-b border-white/10 pb-1.5 !text-on-dark-2">
         {fmtDate(row.date)}
       </div>
-      <div className="text-[12px] tabular-nums text-white">Brent US${nf1.format(row.value)}</div>
+      <div className="text-[12px] tnums text-white">Brent US${nf1.format(row.value)}</div>
       <div
-        className="text-[11px] tabular-nums"
-        style={{ color: positive ? '#2fe0a4' : '#ff6d5f' }}
+        className="text-[11px] tnums"
+        style={{ color: positive ? '#2fe0a4' : '#c49a3f' }}
       >
         {positive ? '+' : ''}
         {nf1.format(head)} vs breakeven

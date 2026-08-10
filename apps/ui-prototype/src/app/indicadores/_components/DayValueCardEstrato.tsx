@@ -5,12 +5,28 @@
    Composición: rótulo con rombo + hairline (la firma de las cards de
    noticias) → ancla | escenario (el escenario como PANEL INTERNO elevado:
    superficie sobre superficie, la zona interactiva se distingue sola) →
-   fila de stats de la formación al pie, separada por hairline.
+   fila de stats de la formación al pie (sin divisoria, solo aire).
    La lógica del slider es la misma del DayValueCard original. */
 
 import Image from 'next/image'
 import { useEffect, useId, useState } from 'react'
-import type { DayValueInputs } from './DayValueCard'
+export type DayValueInputs = {
+  /** Barriles producidos en la ventana de contribución. */
+  oilBbl: number
+  /** Valor bruto publicado para esa ventana (petróleo + gas), en USD. */
+  grossValueUsd: number
+  /** Brent promedio que reporta el endpoint para la ventana. */
+  brentAvgUsd: number
+  /** Descuento por calidad sobre Brent, en USD/bbl. */
+  oilDiscountUsd: number
+  /** Meses de la ventana, para anualizar honestamente. */
+  months: number
+  gdpUsd: number | null
+  gdpYear: number | null
+  /** Brent vivo (default del slider). */
+  brentSpotUsd: number | null
+  breakevenUsd: number
+}
 
 const MIN = 30
 const MAX = 130
@@ -147,7 +163,7 @@ export function DayValueCardEstrato({
             US$ {nf(price, 1)}
           </span>
           {isToday && (
-            <span className="ml-1 text-[9px] font-medium uppercase tracking-[0.1em] text-on-dark-3">
+            <span className="type-label ml-1 !text-[9px] !text-on-dark-3">
               hoy
             </span>
           )}

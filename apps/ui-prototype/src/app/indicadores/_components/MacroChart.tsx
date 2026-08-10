@@ -1,8 +1,8 @@
 'use client'
 
 // One chart, three shapes — for the sourced economic series (inflation = area,
-// FX = line, fiscal / energy surplus = signed bars). Themed with nd-* tokens to
-// match RampChart. Bars colour positive green / negative red so the fiscal swing
+// FX = line, fiscal / energy surplus = signed bars). Tokens Estrato, a juego
+// con RampChart. Bars colour positive green / negative red so the fiscal swing
 // and the energy-surplus flip read at a glance.
 
 import {
@@ -47,7 +47,7 @@ function fmtValue(value: number, unit: string): string {
 }
 
 const AXIS = {
-  tick: { fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' },
+  tick: { fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' },
 } as const
 
 export function MacroChart({ chart }: { chart: InvPolicyChart }) {
@@ -57,16 +57,16 @@ export function MacroChart({ chart }: { chart: InvPolicyChart }) {
 
   const yFmt = (v: number) => (chart.unit === '%/mes' ? `${v}%` : formatCompact(v))
   const tip = (
-    <Tooltip content={<MacroTooltip unit={chart.unit} />} cursor={{ stroke: 'var(--nd-border)', strokeWidth: 1 }} />
+    <Tooltip content={<MacroTooltip unit={chart.unit} />} cursor={{ stroke: 'var(--border-default)', strokeWidth: 1 }} />
   )
-  const grid = <CartesianGrid stroke="var(--nd-border)" strokeDasharray="2 4" vertical={false} />
+  const grid = <CartesianGrid stroke="var(--border-default)" strokeDasharray="2 4" vertical={false} />
   const xAxis = (
     <XAxis
       dataKey="period"
       tickFormatter={fmtPeriod}
       tick={AXIS.tick}
       tickLine={false}
-      axisLine={{ stroke: 'var(--nd-border)' }}
+      axisLine={{ stroke: 'var(--border-default)' }}
       minTickGap={28}
     />
   )
@@ -75,7 +75,7 @@ export function MacroChart({ chart }: { chart: InvPolicyChart }) {
   )
 
   return (
-    <div className="h-[220px] w-full md:h-[260px]">
+    <div className="h-[200px] w-full md:h-[240px]">
       {mounted && (
         <ResponsiveContainer width="100%" height="100%">
           {chart.kind === 'area' ? (
@@ -122,8 +122,8 @@ export function MacroChart({ chart }: { chart: InvPolicyChart }) {
               {xAxis}
               {yAxis}
               {tip}
-              <ReferenceLine y={0} stroke="var(--nd-border)" />
-              <Bar dataKey="value" isAnimationActive animationDuration={700}>
+              <ReferenceLine y={0} stroke="var(--border-default)" />
+              <Bar dataKey="value" isAnimationActive animationDuration={800}>
                 {rows.map((r) => (
                   <Cell key={r.period} fill={r.value >= 0 ? 'var(--status-positive)' : 'var(--status-negative)'} />
                 ))}
@@ -153,11 +153,12 @@ function MacroTooltip({
   const row = payload[0]?.payload
   if (!row) return null
   return (
-    <div className="border border-nd-border bg-nd-surface/95 px-3 py-2 font-mono shadow-[0_8px_24px_-12px_rgba(0,0,0,0.4)] backdrop-blur-md">
-      <div className="mb-1 border-b border-nd-border pb-1 text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+    /* Tooltip oscuro Estrato: misma receta que los charts 01-04 */
+    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
+      <div className="type-label-md mb-1.5 border-b border-white/10 pb-1.5 !text-on-dark-2">
         {fmtPeriod(String(label))}
       </div>
-      <div className="text-[12px] tabular-nums text-nd-text-display">{fmtValue(row.value, unit)}</div>
+      <div className="text-[12px] tnums text-white">{fmtValue(row.value, unit)}</div>
     </div>
   )
 }

@@ -76,7 +76,7 @@ export function ActividadChart({ actividad }: { actividad: InvActividad }) {
 
   if (!rows.length) {
     return (
-      <div className="flex h-[200px] items-center justify-center font-mono text-sm text-nd-text-disabled md:h-[240px]">
+      <div className="flex h-[200px] items-center justify-center text-sm text-tertiary md:h-[240px]">
         {t('charts.noActivity')}
       </div>
     )
@@ -88,17 +88,17 @@ export function ActividadChart({ actividad }: { actividad: InvActividad }) {
       {lastConfirmed && (
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+            <span className="type-label block">
               Pozos nuevos · {fmtPeriod(lastConfirmed.period)}
             </span>
-            <span className="mt-1 block text-3xl tabular-nums text-nd-text-display md:text-4xl font-display">
+            <span className="type-kpi mt-1 block text-3xl md:text-4xl">
               <span ref={headRef}>{nf0.format(lastConfirmed.nuevosPozos)}</span>
-              <span className="ml-1 text-base text-nd-text-secondary">pozos</span>
+              <span className="ml-1 text-base font-normal text-secondary">pozos</span>
             </span>
           </div>
           {yoyPct != null && (
             <span
-              className="tnums rounded-full px-2 py-0.5 font-mono text-[11px]"
+              className="tnums rounded-full px-2 py-0.5 text-[11px]"
               style={{
                 color: yoyPct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)',
                 background: `color-mix(in srgb, ${
@@ -116,18 +116,18 @@ export function ActividadChart({ actividad }: { actividad: InvActividad }) {
         {mounted && (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="var(--nd-border)" strokeDasharray="2 4" vertical={false} />
+              <CartesianGrid stroke="var(--border-default)" strokeDasharray="2 4" vertical={false} />
               <XAxis
                 dataKey="period"
                 tickFormatter={fmtPeriod}
-                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                 tickLine={false}
-                axisLine={{ stroke: 'var(--nd-border)' }}
+                axisLine={{ stroke: 'var(--border-default)' }}
                 minTickGap={24}
               />
               <YAxis
                 tickFormatter={(v) => formatCompact(v as number)}
-                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                 tickLine={false}
                 axisLine={false}
                 width={40}
@@ -136,7 +136,7 @@ export function ActividadChart({ actividad }: { actividad: InvActividad }) {
                 content={
                   <ActividadTooltip prelimLabel={t('charts.preliminary')} wellsLabel={t('charts.wells')} />
                 }
-                cursor={{ fill: 'var(--nd-border)', fillOpacity: 0.3 }}
+                cursor={{ fill: 'var(--border-default)', fillOpacity: 0.3 }}
               />
               <Bar dataKey="nuevosPozos" isAnimationActive animationDuration={800}>
                 {rows.map((r) => (
@@ -148,7 +148,7 @@ export function ActividadChart({ actividad }: { actividad: InvActividad }) {
         )}
       </div>
       {hasPrelim && (
-        <p className="font-mono text-[10px] uppercase tracking-[0.06em] text-nd-text-disabled">
+        <p className="type-label">
           <span
             className="mr-1.5 inline-block size-2.5 rounded-[2px] align-middle"
             style={{ background: OIL, opacity: 0.35 }}
@@ -178,12 +178,12 @@ function ActividadTooltip({
   if (!row) return null
   /* Tooltip oscuro Estrato: card negra radio 8, fecha legible (on-dark-2) */
   return (
-    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 font-mono shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
-      <div className="mb-1.5 flex items-center justify-between gap-4 border-b border-white/10 pb-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-on-dark-2">
+    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
+      <div className="type-label-md mb-1.5 flex items-center justify-between gap-4 border-b border-white/10 pb-1.5 !text-on-dark-2">
         <span>{fmtPeriod(row.period)}</span>
         {row.preliminary && <span style={{ color: '#e2a33f' }}>{prelimLabel}</span>}
       </div>
-      <div className="text-[12px] tabular-nums text-white">
+      <div className="text-[12px] tnums text-white">
         {new Intl.NumberFormat('es-AR').format(row.nuevosPozos)} {wellsLabel}
       </div>
     </div>

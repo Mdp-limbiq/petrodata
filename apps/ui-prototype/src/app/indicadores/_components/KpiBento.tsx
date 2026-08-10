@@ -21,7 +21,7 @@ import {
 } from 'recharts'
 import { useMounted } from '../_lib/useMounted'
 import { animateCounter, useInView } from '../_lib/anim'
-import { formatDeltaPct, formatFigure } from './format'
+import { fmtUpdate, formatDeltaPct, formatFigure } from './format'
 import type { InvKpi } from '../_lib/types'
 
 /* Mini-viz por KPI (pedido de Mariano): SIEMPRE con series reales ya
@@ -33,13 +33,7 @@ export type KpiViz =
 /* La card es SIEMPRE oscura: status vivo del tema dark */
 const CONFIRMED = '#2fe0a4'
 
-/** "2026-04" → "04-2026" · "2026-08-07[ …]" → "07-08-2026" · resto tal cual */
-export function fmtUpdate(asOf: string): string {
-  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(asOf)
-  if (ymd) return `${ymd[3]}-${ymd[2]}-${ymd[1]}`
-  const ym = /^(\d{4})-(\d{2})$/.exec(asOf)
-  return ym ? `${ym[2]}-${ym[1]}` : asOf
-}
+
 
 /* Bento 4-col: héroe y cierre en doble ancho, el resto simple */
 const SPAN: Record<string, string> = {

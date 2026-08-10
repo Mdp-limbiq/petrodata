@@ -47,39 +47,39 @@ export function OperatorLeaderboard({ operadores }: { operadores: InvOperador[] 
         return (
           <div
             key={op.slug}
-            className="group grid grid-cols-[1.5rem_1fr] items-center gap-3 border-b border-nd-border py-3 transition-colors duration-200 hover:bg-nd-surface-raised/60"
+            className="group grid grid-cols-[1.5rem_1fr] items-center gap-3 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
           >
             <span
-              className="font-mono text-[11px] tabular-nums"
-              style={{ color: leader ? 'var(--data-oil)' : 'var(--nd-text-disabled)' }}
+              className="text-[11px] tnums"
+              style={{ color: leader ? 'var(--data-oil)' : 'var(--text-tertiary)' }}
             >
               {String(i + 1).padStart(2, '0')}
             </span>
             <div className="min-w-0">
               <div className="flex items-baseline justify-between gap-3">
                 <span
-                  className="truncate font-sans text-sm text-nd-text-display"
+                  className="truncate text-sm text-primary"
                   style={{ fontWeight: leader ? 600 : 400 }}
                 >
                   {op.name}
                 </span>
-                <span className="shrink-0 font-mono text-[11px] tabular-nums text-nd-text-secondary">
+                <span className="shrink-0 text-[11px] tnums text-secondary">
                   {nf.format(Math.round(op.oilBblD))} bbl/d ·{' '}
                   <span
                     className="font-semibold"
-                    style={{ color: leader ? 'var(--data-oil)' : 'var(--nd-text-display)' }}
+                    style={{ color: leader ? 'var(--data-oil)' : 'var(--text-primary)' }}
                   >
                     {op.sharePct.toLocaleString('es-AR', { maximumFractionDigits: 1 })}%
                   </span>
                 </span>
               </div>
-              <div className="mt-1.5 h-1.5 w-full overflow-hidden bg-nd-border">
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
                 <div
                   ref={(el) => {
                     barRefs.current[i] = el
                   }}
                   data-pct={pct}
-                  className="h-full"
+                  className="h-full rounded-full"
                   style={{
                     width: `${pct}%`,
                     background: 'var(--data-oil)',

@@ -7,15 +7,12 @@ const MESSAGES = {
  "title": "Indicadores",
  "blurb": "La oportunidad de Vaca Muerta en números: cada cifra se computa a partir de datos oficiales de producción y exportación, con su fuente y fecha de corte. Sin proyecciones sin respaldo.",
  "asOf": "Datos al {month}",
- "source": "Fuente",
- "computedBy": "Computado por vacamuerta.io a partir de {source}",
- "sourceLatest": "Computado por vacamuerta.io · último dato disponible {date}",
  "operatorsTitle": "Operadores principales",
  "contribution": {
   "title": "Contribución económica por operadora",
   "blurb": "Cuánto aporta la operación de cada empresa al país: valor bruto de producción en dólares, regalías provinciales y exportaciones de energía atribuidas según su participación en la producción.",
   "grossValue": "Valor bruto de producción",
-  "annualizedNote": "anualizado",
+  "annualizedNote": "anualizado · Brent promedio US$ {brent}",
   "windowNote": "últimos {months} meses",
   "ofGdp": "% del PBI ({year})",
   "royalties": "Regalías (12%)",
@@ -38,12 +35,6 @@ const MESSAGES = {
  "kmUnit": "km",
  "worldTitle": "Argentina en el mundo",
  "worldBlurb": "Dónde está Argentina hoy entre los productores del mundo, y a dónde la lleva Vaca Muerta si la proyección se realiza. El salto en el ranking, con datos de la EIA.",
- "tiers": {
-  "confirmado": "Confirmado",
-  "en_marcha": "En marcha",
-  "proyectado": "Proyectado",
-  "referencia": "Referencia"
- },
  "charts": {
   "noProduction": "Sin datos de producción.",
   "noActivity": "Sin datos de actividad.",
@@ -62,12 +53,6 @@ const MESSAGES = {
   "unitTbpd": "mil bbl/d",
   "unitBcf": "BCF/año",
   "worldProduction": "{label} · producción mundial",
-  "countriesYear": "{countries} países · {year}",
-  "today": "Hoy",
-  "projectedYear": "Proyectado {year}",
-  "placesJump": "+{jump} puestos",
-  "computed": "Computado · {source}",
-  "reference": "Referencia · {source}",
   "fastestGrowing": "{label} · productores de mayor crecimiento",
   "growthBlurb": "Entre los grandes productores, Argentina es de los que más rápido crece{rank} — el ritmo que la proyección extiende.",
   "growthRank": " (puesto {rank})",
@@ -90,7 +75,9 @@ const MESSAGES = {
   "leverRigiTag": "RIGI",
   "leverRigiTitle": "Régimen de Incentivo a Grandes Inversiones: estabilidad fiscal a 30 años",
   "leverFiscalTag": "Fiscal",
-  "leverFiscalTitle": "Disciplina fiscal y desregulación que anclan la previsibilidad de inversión"
+  "leverFiscalTitle": "Disciplina fiscal y desregulación que anclan la previsibilidad de inversión",
+  "jumpLabel": "Salto proyectado · {year}",
+  "countriesCount": "{countries} países"
  },
  "breakevenTitle": "Margen sobre el breakeven",
  "actividadTitle": "Actividad: pozos nuevos por mes",
@@ -102,28 +89,20 @@ const MESSAGES = {
  "ctaBody": "Trabajamos con inversores y operadores que buscan exposición al shale argentino. Escribinos para coordinar una conversación.",
  "ctaContact": "Contacto",
  "ctaNewsletter": "O recibí actualizaciones",
- "noData": "Los indicadores de inversión no están disponibles en este momento.",
  "thesisLabel": "La tesis en seis datos",
- "dayValue": {
-  "label": "Valor de un día de Vaca Muerta",
-  "perDay": "por día",
-  "perYear": "al año",
-  "ofGdp": "del PBI",
-  "anchorBasis": "Valor bruto de producción · últimos {months} meses · petróleo a Brent menos calidad + gas a PIST",
-  "sliderLabel": "Escenario: precio del petróleo (Brent)",
-  "scenarioLabel": "A ese precio, sólo el petróleo:",
-  "margin": "Margen sobre el breakeven:",
-  "avgChip": "Promedio del período US$ {price}",
-  "spotChip": "Brent hoy US$ {price}",
-  "note": "El escenario valúa sólo el petróleo a Brent menos US$ {discount}/bbl por calidad, sobre el volumen del período; no incluye gas ni descuenta costos o impuestos. Breakeven de referencia: US$ {breakeven}/bbl (YPF)."
- },
- "vmCard": {
-  "label": "Formación",
-  "title": "Vaca Muerta",
-  "oilShare": "del petróleo nacional",
-  "gasShare": "del gas nacional",
-  "wells": "pozos activos"
- }
+ "thesisBlurb": "La tesis en seis cifras verificables: producción, participación, actividad y comercio exterior — cada una con su fuente y su variación interanual.",
+ "breakevenBlurb": "El Brent contra el costo de desarrollo de referencia de la cuenca (US$ 45/bbl, YPF): la banda es el margen del negocio, mes a mes.",
+ "serieBlurb": "La rampa de producción de petróleo de Vaca Muerta, mes a mes. El tramo punteado es el último dato, todavía parcial.",
+ "actividadBlurb": "El pulso de la perforación: pozos nuevos conectados por mes. La actividad de hoy anticipa la producción de los próximos trimestres.",
+ "operatorsBlurb": "Quién produce el petróleo de la cuenca: las principales operadoras por volumen diario y participación sobre el total.",
+ "growthSectionBlurb": "Entre los grandes productores del mundo, la métrica que importa acá: velocidad. Argentina, empujada por Vaca Muerta, corre en el pelotón de punta.",
+ "politicaBlurb": "Las variables macro que condicionan la inversión — inflación, tipo de cambio, resultado fiscal y superávit energético — y las medidas que destraban el capital.",
+ "rigiBlurb": "Los proyectos de petróleo y gas con inversión comprometida bajo el Régimen de Incentivo a Grandes Inversiones. Aprobados, no anunciados.",
+ "impactoBlurb": "Qué significa para la economía si la proyección a 2030 se cumple: valor exportable, PBI y producción. Ilustrativo, con supuestos explícitos.",
+ "growthTitle": "Productores de mayor crecimiento",
+ "politicaTitle": "Política económica",
+ "rigiTitle": "RIGI · Inversión comprometida",
+ "impactoTitle": "Impacto proyectado"
 } as const
 
 function lookup(key: string): string {
@@ -148,7 +127,3 @@ export function useTranslations(ns: string): T {
   }
 }
 
-/** Versión server (misma cosa, async como en next-intl/server) */
-export async function getTranslations(ns: string): Promise<T> {
-  return useTranslations(ns)
-}

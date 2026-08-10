@@ -79,7 +79,7 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
 
   if (!rows.length) {
     return (
-      <div className="flex h-[200px] items-center justify-center font-mono text-sm text-nd-text-disabled md:h-[240px]">
+      <div className="flex h-[200px] items-center justify-center text-sm text-tertiary md:h-[240px]">
         {t('charts.noTrade')}
       </div>
     )
@@ -91,16 +91,16 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         {lastYear?.energiaUsd != null && (
           <div>
-            <span className="block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+            <span className="type-label block">
               Exportaciones de energía · {lastYear.period}
             </span>
             <span className="mt-1 flex items-baseline gap-2">
-              <span className="block text-3xl tabular-nums text-nd-text-display md:text-4xl font-display">
+              <span className="type-kpi block text-3xl md:text-4xl">
                 <span ref={headRef}>{fmtAnchor(lastYear.energiaUsd)}</span>
               </span>
               {yoyPct != null && (
                 <span
-                  className="tnums rounded-full px-2 py-0.5 font-mono text-[11px]"
+                  className="tnums rounded-full px-2 py-0.5 text-[11px]"
                   style={{
                     color: yoyPct >= 0 ? 'var(--status-positive)' : 'var(--status-negative)',
                     background: `color-mix(in srgb, ${
@@ -116,17 +116,17 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
         )}
 
         {hasGdp && (
-          <div className="inline-flex w-fit border border-nd-border" role="group" aria-label={t('cruceModeLabel')}>
+          <div className="inline-flex w-fit overflow-hidden rounded-[8px] border" role="group" aria-label={t('cruceModeLabel')}>
             {(['usd', 'gdp'] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
                 aria-pressed={active === m}
-                className="px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.06em] transition-colors"
+                className="px-3 py-1.5 text-[11px] uppercase tracking-[var(--tracking-label)] transition-colors"
                 style={{
-                  color: active === m ? 'var(--nd-text-display)' : 'var(--nd-text-disabled)',
-                  background: active === m ? 'var(--nd-surface-raised)' : 'transparent',
+                  color: active === m ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                  background: active === m ? 'var(--surface-raised)' : 'transparent',
                 }}
               >
                 {m === 'usd' ? t('cruceModeUsd') : t('cruceModeGdp')}
@@ -140,17 +140,17 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
         {mounted && (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={rows} margin={{ top: 8, right: 16, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke="var(--nd-border)" strokeDasharray="2 4" vertical={false} />
+              <CartesianGrid stroke="var(--border-default)" strokeDasharray="2 4" vertical={false} />
               <XAxis
                 dataKey="period"
-                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                 tickLine={false}
-                axisLine={{ stroke: 'var(--nd-border)' }}
+                axisLine={{ stroke: 'var(--border-default)' }}
                 minTickGap={20}
               />
               <YAxis
                 tickFormatter={(v) => fmtVal(v as number)}
-                tick={{ fill: 'var(--nd-text-disabled)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+                tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontFamily: 'var(--font-schibsted)' }}
                 tickLine={false}
                 axisLine={false}
                 width={active === 'gdp' ? 44 : 52}
@@ -164,7 +164,7 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
                     pctGdpSuffix={t('charts.pctGdpSuffix')}
                   />
                 }
-                cursor={{ stroke: 'var(--nd-border)', strokeWidth: 1 }}
+                cursor={{ stroke: 'var(--border-default)', strokeWidth: 1 }}
               />
               {/* agro primero (fondo), energía encima (protagonista) */}
               <Line
@@ -194,12 +194,12 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-nd-border pt-4">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t pt-4">
         <LegendDot color={ENERGY_COLOR} label={t('charts.energy')} />
         <LegendDot color={AGRO_COLOR} label={t('charts.agroLegend')} />
         {active === 'gdp' && cruce.gdpSource && (
-          <span className="ml-auto font-mono text-[10px] text-nd-text-disabled">
-            {t('computedBy', { source: cruce.gdpSource.label })}
+          <span className="ml-auto text-[10px] text-tertiary">
+            {cruce.gdpSource.label}
           </span>
         )}
       </div>
@@ -209,7 +209,7 @@ export function CruceChart({ cruce }: { cruce: InvCruce }) {
 
 function LegendDot({ color, label }: { color: string; label: string }) {
   return (
-    <span className="flex items-center gap-2 font-mono text-[11px] text-nd-text-secondary">
+    <span className="flex items-center gap-2 text-[11px] text-secondary">
       <span className="inline-block size-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
       {label}
     </span>
@@ -241,8 +241,8 @@ function CruceTooltip({
      la energía se lista primero (protagonista) */
   const ordered = [...payload].sort((a) => (a.dataKey === 'energia' ? -1 : 1))
   return (
-    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 font-mono shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
-      <div className="mb-1.5 border-b border-white/10 pb-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-on-dark-2">
+    <div className="rounded-[8px] border border-white/15 bg-[#04060a] px-3 py-2.5 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.8)]">
+      <div className="type-label-md mb-1.5 border-b border-white/10 pb-1.5 !text-on-dark-2">
         {label}
         {mode === 'gdp' ? ` · ${pctGdpSuffix}` : ''}
       </div>
@@ -257,7 +257,7 @@ function CruceTooltip({
               />
               {p.dataKey === 'agro' ? agroLabel : energyLabel}
             </span>
-            <span className="tabular-nums text-white">{p.value != null ? fmt(Number(p.value)) : '—'}</span>
+            <span className="tnums text-white">{p.value != null ? fmt(Number(p.value)) : '—'}</span>
           </li>
         ))}
       </ul>

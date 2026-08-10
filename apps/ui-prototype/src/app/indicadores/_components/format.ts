@@ -24,36 +24,28 @@ export function formatDeltaPct(pct: number, locale = 'es-AR'): string {
   return `${n}%`
 }
 
-/** Tier accent color. Only `confirmado` exists today; future tiers slot in. */
+/** Color por tier. confirmado=positivo; en_marcha/proyectado=caution (estados
+    no finales); referencia=neutro. Tokens Estrato, nunca hex. */
 export function tierColor(tier: string): string {
   switch (tier) {
     case 'confirmado':
       return 'var(--status-positive)'
     case 'en_marcha':
-      return '#0284c7'
+      return 'var(--status-caution)'
     case 'proyectado':
-      return '#f59e0b'
+      return 'var(--status-caution)'
     case 'referencia':
-      return 'var(--nd-text-secondary)'
+      return 'var(--text-secondary)'
     default:
-      return 'var(--nd-text-disabled)'
+      return 'var(--text-tertiary)'
   }
 }
 
-/** Translation key for a tier label, under the `indicadores` namespace. Call
- *  sites resolve it with `t(tierLabelKey(tier))` so labels follow the UI locale
- *  (the raw Spanish tier code, e.g. `confirmado`, never reaches the UI). */
-export function tierLabelKey(tier: string): string {
-  switch (tier) {
-    case 'confirmado':
-      return 'tiers.confirmado'
-    case 'en_marcha':
-      return 'tiers.en_marcha'
-    case 'proyectado':
-      return 'tiers.proyectado'
-    case 'referencia':
-      return 'tiers.referencia'
-    default:
-      return 'tiers.confirmado'
-  }
+
+/** "2026-04" → "04-2026" · "2026-08-07[ …]" → "07-08-2026" · resto tal cual */
+export function fmtUpdate(asOf: string): string {
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(asOf)
+  if (ymd) return `${ymd[3]}-${ymd[2]}-${ymd[1]}`
+  const ym = /^(\d{4})-(\d{2})$/.exec(asOf)
+  return ym ? `${ym[2]}-${ym[1]}` : asOf
 }

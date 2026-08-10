@@ -37,13 +37,13 @@ export function TransportInfra() {
   return (
     <div ref={ref}>
       {/* Summary: total network split gas / oil */}
-      <div className="grid grid-cols-1 gap-px overflow-hidden border border-nd-border bg-nd-border sm:grid-cols-3">
+      <div className="mb-8 grid grid-cols-1 gap-px bg-line sm:grid-cols-3">
         <Stat
           label={t('transportNetwork')}
           km={s.totalKm}
           unit={t('kmUnit')}
           sub={t('transportSegments', { count: s.gasSegments + s.oilSegments })}
-          color="var(--nd-text-display)"
+          color="var(--text-primary)"
           inView={inView}
         />
         <Stat
@@ -65,35 +65,53 @@ export function TransportInfra() {
       </div>
 
       {/* Gas transport km by operator */}
-      <div className="mt-8">
-        <span className="mb-4 block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
-          {t('transportByOperator')}
-        </span>
+      <div>
+        <span className="type-label block border-b pb-2">{t('transportByOperator')}</span>
+        {/* Receta del 06 (referencia de Mariano): ranking numerado con líder
+            destacado, hover por fila, dato + % en la línea del nombre y
+            barra redondeada a todo el ancho */}
         <div className="flex flex-col">
           {s.operators.map((o, i) => {
             const pct = (o.km / max) * 100
+            const sharePct = (o.km / s.gasKm) * 100
+            const leader = i === 0
             return (
               <div
                 key={o.operator}
-                className="grid grid-cols-[1fr_auto] items-center gap-3 border-b border-nd-border py-2.5"
+                className="group grid grid-cols-[1.5rem_1fr] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
               >
+                <span
+                  className="text-[11px] tnums"
+                  style={{ color: leader ? 'var(--data-gas)' : 'var(--text-tertiary)' }}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </span>
                 <div className="min-w-0">
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="truncate font-sans text-sm text-nd-text-display">
+                    <span
+                      className="truncate text-sm text-primary"
+                      style={{ fontWeight: leader ? 600 : 400 }}
+                    >
                       {o.operator}
                     </span>
-                    <span className="shrink-0 font-mono text-[11px] tabular-nums text-nd-text-secondary">
-                      {nf.format(o.km)} {t('kmUnit')}
+                    <span className="shrink-0 text-[11px] tnums text-secondary">
+                      {nf.format(o.km)} {t('kmUnit')} ·{' '}
+                      <span
+                        className="font-semibold"
+                        style={{ color: leader ? 'var(--data-gas)' : 'var(--text-primary)' }}
+                      >
+                        {sharePct.toLocaleString('es-AR', { maximumFractionDigits: 1 })}%
+                      </span>
                     </span>
                   </div>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden bg-nd-border">
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
                     <div
                       ref={(el) => {
                         barRefs.current[i] = el
                       }}
                       data-pct={pct}
-                      className="h-full"
-                      style={{ width: `${pct}%`, background: GAS_COLOR }}
+                      className="h-full rounded-full"
+                      style={{ width: `${pct}%`, background: GAS_COLOR, opacity: leader ? 1 : 0.85 }}
                     />
                   </div>
                 </div>
@@ -103,7 +121,7 @@ export function TransportInfra() {
         </div>
       </div>
 
-      <span className="mt-3 inline-block font-mono text-[10px] text-nd-text-disabled">
+      <span className="mt-3 inline-block text-[10px] text-tertiary">
         {s.source.label} · Update {s.source.asOf}
       </span>
     </div>
@@ -143,17 +161,18 @@ function Stat({
     }
   }, [inView, km])
 
+  /* Celda a escala del 06: label type-label → valor type-kpi xl/2xl con la
+     unidad chica al lado (no gigante adentro del número) → nota */
   return (
-    <div className="bg-nd-surface px-5 py-5">
-      <span className="block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
-        {label}
+    <div className="bg-surface p-4">
+      <span className="type-label block">{label}</span>
+      <span className="mt-2 flex items-baseline gap-1.5">
+        <span className="type-kpi text-xl md:text-2xl" style={{ color }}>
+          <span ref={numRef}>{nf.format(km)}</span>
+        </span>
+        <span className="text-sm font-normal text-secondary">{unit}</span>
       </span>
-      <span className="type-kpi mt-1 block !text-3xl md:!text-4xl" style={{ color }}>
-        <span ref={numRef}>{nf.format(km)}</span> {unit}
-      </span>
-      <span className="mt-2 block font-mono text-[11px] tabular-nums text-nd-text-secondary">
-        {sub}
-      </span>
+      <span className="mt-1 block text-[10px] text-tertiary">{sub}</span>
     </div>
   )
 }

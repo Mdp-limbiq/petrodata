@@ -40,7 +40,7 @@ export function ContributionTable({ data }: { data: Contribution }) {
   const totals = data.totals
   const a = data.assumptions
   const headline: Array<{ label: string; value: string; note?: string }> = [
-    { label: t('grossValue'), value: usd(totals.gross_value_annualized_usd), note: t('annualizedNote') },
+    { label: t('grossValue'), value: usd(totals.gross_value_annualized_usd), note: t('annualizedNote', { brent: a.brent_avg_usd_bbl != null ? a.brent_avg_usd_bbl.toFixed(1).replace('.', ',') : '—' }) },
     ...(totals.value_share_of_gdp != null
       ? [{ label: t('ofGdp', { year: totals.gdp_year ?? '' }), value: pct(totals.value_share_of_gdp) }]
       : []),
@@ -53,17 +53,17 @@ export function ContributionTable({ data }: { data: Contribution }) {
   return (
     <div ref={ref}>
       {/* Headline totals */}
-      <div className="mb-8 grid grid-cols-2 gap-px bg-nd-border md:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-px bg-line md:grid-cols-4">
         {headline.map((h) => (
-          <div key={h.label} className="bg-nd-surface p-4">
-            <span className="block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+          <div key={h.label} className="bg-surface p-4">
+            <span className="type-label block">
               {h.label}
             </span>
-            <span className="mt-2 block font-mono text-xl tabular-nums text-nd-text-display md:text-2xl">
+            <span className="type-kpi mt-2 block text-xl md:text-2xl">
               {h.value}
             </span>
             {h.note ? (
-              <span className="mt-1 block font-mono text-[10px] text-nd-text-disabled">{h.note}</span>
+              <span className="mt-1 block text-[10px] text-tertiary">{h.note}</span>
             ) : null}
           </div>
         ))}
@@ -74,14 +74,14 @@ export function ContributionTable({ data }: { data: Contribution }) {
           Mariano, 2026-08-08): con repeat(5,auto) cada grilla calculaba
           anchos distintos y nada quedaba alineado. Números y sus títulos
           alineados a la derecha. */}
-      <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem] items-baseline gap-x-4 border-b border-nd-border pb-2 md:grid">
+      <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem] items-baseline gap-x-4 border-b pb-2 md:grid">
         <span />
-        <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colOperator')}</span>
-        <span className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colShare')}</span>
-        <span className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colValueShare')}</span>
-        <span className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colGross')}</span>
-        <span className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colRoyalties')}</span>
-        <span className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">{t('colExports')}</span>
+        <span className="type-label">{t('colOperator')}</span>
+        <span className="type-label text-right">{t('colShare')}</span>
+        <span className="type-label text-right">{t('colValueShare')}</span>
+        <span className="type-label text-right">{t('colGross')}</span>
+        <span className="type-label text-right">{t('colRoyalties')}</span>
+        <span className="type-label text-right">{t('colExports')}</span>
       </div>
       {top.map((op, i) => {
         const barPct = (op.gross_value_usd / maxGross) * 100
@@ -89,45 +89,45 @@ export function ContributionTable({ data }: { data: Contribution }) {
         return (
           <div
             key={op.operator_slug}
-            className="group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b border-nd-border py-3 transition-colors duration-200 hover:bg-nd-surface-raised/60 md:grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem]"
+            className="group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60 md:grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem]"
           >
             <span
-              className="font-mono text-[11px] tabular-nums"
-              style={{ color: leader ? 'var(--data-oil)' : 'var(--nd-text-disabled)' }}
+              className="text-[11px] tnums"
+              style={{ color: leader ? 'var(--data-oil)' : 'var(--text-tertiary)' }}
             >
               {String(i + 1).padStart(2, '0')}
             </span>
             <div className="min-w-0">
               <span
-                className="block truncate font-sans text-sm text-nd-text-display"
+                className="block truncate text-sm text-primary"
                 style={{ fontWeight: leader ? 600 : 400 }}
               >
                 {op.operator_name}
               </span>
-              <div className="mt-1.5 h-1.5 w-full overflow-hidden bg-nd-border">
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
                 <div
                   ref={(el) => {
                     barRefs.current[i] = el
                   }}
                   data-pct={barPct}
-                  className="h-full"
+                  className="h-full rounded-full"
                   style={{ width: `${barPct}%`, background: 'var(--data-oil)', opacity: leader ? 1 : 0.85 }}
                 />
               </div>
             </div>
-            <span className="hidden text-right font-mono text-[11px] tabular-nums text-nd-text-secondary md:block">
+            <span className="hidden text-right text-[11px] tnums text-secondary md:block">
               {pct(op.share_boe)}
             </span>
-            <span className="hidden text-right font-mono text-[11px] tabular-nums text-nd-text-secondary md:block">
+            <span className="hidden text-right text-[11px] tnums text-secondary md:block">
               {pct(op.gross_value_usd / (totals.gross_value_usd || 1))}
             </span>
-            <span className="text-right font-mono text-[11px] tabular-nums text-nd-text-display">
+            <span className="text-right text-[11px] tnums text-primary">
               {usd(op.gross_value_usd)}
             </span>
-            <span className="hidden text-right font-mono text-[11px] tabular-nums text-nd-text-secondary md:block">
+            <span className="hidden text-right text-[11px] tnums text-secondary md:block">
               {usd(op.royalties_usd)}
             </span>
-            <span className="hidden text-right font-mono text-[11px] tabular-nums text-nd-text-secondary md:block">
+            <span className="hidden text-right text-[11px] tnums text-secondary md:block">
               {op.attributed_exports_usd != null ? usd(op.attributed_exports_usd) : '—'}
             </span>
           </div>
@@ -135,7 +135,7 @@ export function ContributionTable({ data }: { data: Contribution }) {
       })}
 
       {/* Methodology */}
-      <p className="mt-4 max-w-3xl font-mono text-[11px] leading-relaxed text-nd-text-disabled">
+      <p className="mt-4 max-w-3xl text-[11px] leading-relaxed text-tertiary">
         {t('methodology', {
           brent: a.brent_avg_usd_bbl != null ? a.brent_avg_usd_bbl.toFixed(1) : '—',
           discount: a.oil_discount_usd_bbl,

@@ -5,7 +5,7 @@
 // animation respects `prefers-reduced-motion` and only touches compositor props
 // (transform/opacity) or text content.
 
-import { animate, svg, stagger, utils } from 'animejs'
+import { animate } from 'animejs'
 import { useEffect, useRef, useState } from 'react'
 
 export function prefersReducedMotion(): boolean {
@@ -74,64 +74,4 @@ export function animateCounter(
   })
 }
 
-/**
- * Draw an SVG path left-to-right (stroke-dashoffset under the hood, via v4's
- * drawable proxy). Reduced motion shows the full path immediately.
- */
-export function drawPath(
-  path: SVGGeometryElement,
-  opts: { duration?: number; delay?: number; ease?: string } = {},
-) {
-  const { duration = 3500, delay = 300, ease = 'inOutQuad' } = opts
-  if (prefersReducedMotion()) return
-  const [drawable] = svg.createDrawable(path)
-  return animate(drawable, { draw: ['0 0', '0 1'], duration, delay, ease })
-}
-
-/** Fade in (opacity) a set of elements. Reduced motion shows them at once. */
-export function fadeIn(targets: Element | Element[] | string, opts: { duration?: number; delay?: number } = {}) {
-  const { duration = 700, delay = 0 } = opts
-  if (prefersReducedMotion()) {
-    utils.set(targets, { opacity: 1 })
-    return
-  }
-  return animate(targets, { opacity: [0, 1], duration, delay, ease: 'outSine' })
-}
-
-/**
- * Staggered entrance (translateY + opacity) for lists/rows/cards. Compositor
- * props only. Reduced motion reveals everything with no movement.
- */
-export function staggerIn(
-  targets: Element[] | string,
-  opts: { y?: number; duration?: number; startDelay?: number; step?: number } = {},
-) {
-  const { y = 16, duration = 700, startDelay = 80, step = 70 } = opts
-  if (prefersReducedMotion()) {
-    utils.set(targets, { opacity: 1, translateY: 0 })
-    return
-  }
-  return animate(targets, {
-    opacity: [0, 1],
-    translateY: [y, 0],
-    duration,
-    ease: 'outQuad',
-    delay: stagger(step, { start: startDelay }),
-  })
-}
-
-/** Pop-in (scale overshoot) for markers / nodes. Compositor-only. */
-export function popIn(targets: Element[] | string, opts: { startDelay?: number; step?: number } = {}) {
-  const { startDelay = 200, step = 120 } = opts
-  if (prefersReducedMotion()) {
-    utils.set(targets, { opacity: 1, scale: 1 })
-    return
-  }
-  return animate(targets, {
-    opacity: [0, 1],
-    scale: [{ to: 0, duration: 0 }, { to: 1.25, duration: 360, ease: 'outBack' }, { to: 1, duration: 180, ease: 'outQuad' }],
-    delay: stagger(step, { start: startDelay }),
-  })
-}
-
-export { animate, stagger, utils }
+export { animate }

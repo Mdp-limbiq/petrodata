@@ -15,7 +15,7 @@ import {
   ACTIVIDAD,
 } from '@/fixtures/inversiones'
 import { useTranslations } from './_lib/messages'
-import { SectionLabelNd } from './_components/SectionLabelNd'
+import { SectionLabel } from '@/ui/section-label'
 import { DayValueCardEstrato } from './_components/DayValueCardEstrato'
 import { KpiBento, type KpiViz } from './_components/KpiBento'
 import { BreakevenTrend } from './_components/BreakevenTrend'
@@ -25,12 +25,19 @@ import { CruceChart } from './_components/CruceChart'
 import { OperatorLeaderboard } from './_components/OperatorLeaderboard'
 import { ContributionTable } from './_components/ContributionTable'
 import { TransportInfra } from './_components/TransportInfra'
-import { WorldStage } from './_components/WorldStage'
+import {
+  ImpactoPanel,
+  PoliticaMacro,
+  RigiSection,
+  WorldGrowth,
+  WorldRankings,
+} from './_components/WorldStage'
 
-/* INDICADORES — copia 1:1 de vacamuerta.io/indicadores (pedido de Mariano,
-   2026-08-07): misma estructura, mismos componentes, mismos tokens (nd-*),
-   mismas fuentes tipográficas y datos reales scrapeados del sitio vivo.
-   Punto de partida para el fine-tuning con Estrato. */
+/* INDICADORES — nació como copia 1:1 de vacamuerta.io/indicadores (datos
+   reales scrapeados 2026-08-07) y fue fine-tuneada sección por sección con
+   Mariano hasta quedar 100% en el design system ESTRATO: tokens de color,
+   Inter Tight para display/cifras, Schibsted para cuerpo/labels, cards con
+   ancla animada + tooltips oscuros, y semántica oil/gas/status. */
 
 export const metadata: Metadata = {
   title: 'Indicadores',
@@ -81,26 +88,26 @@ export default function IndicadoresPage() {
   }
 
   return (
-    <div className="nd-scope w-full flex-1 overflow-x-clip">
+    <div className="w-full flex-1 overflow-x-clip">
       {/* Hero — tipografía y marca Estrato (rombo oil, Inter Tight, Schibsted) */}
-      <section className="container border-b border-nd-border pb-6 pt-8 md:pt-12">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 border-b pb-6 pt-8 md:pt-12">
         <span className="type-label-md flex items-center gap-2.5 !tracking-[0.14em]">
           <span
             aria-hidden
-            className="nd-live-dot inline-block size-1.5 rotate-45"
+            className="live-dot inline-block size-1.5 rotate-45"
             style={{ background: 'var(--data-oil)' }}
           />
           {t('eyebrow')}
         </span>
         <h1 className="type-h1 mt-3 text-balance">{t('title')}</h1>
-        <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-secondary [font-family:var(--font-schibsted)]">
+        <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
           {t('blurb')}
         </p>
       </section>
 
       {/* Cuánto vale un día + qué es Vaca Muerta dentro del país —
           card única Estrato compacta (ancla | escenario + banda de foto) */}
-      <section className="container pb-12 pt-8">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-12 pt-8">
         <DayValueCardEstrato
           inputs={DAY_VALUE_INPUTS}
           oilSharePct={kpiValue('participacion_petroleo')}
@@ -111,116 +118,220 @@ export default function IndicadoresPage() {
 
       {/* Headline + nota de integridad — tipografía ESTRATO (Inter Tight
           para el titular, Schibsted para la nota; pedido de Mariano) */}
-      <section className="container pb-10">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-10">
         <p className="type-display max-w-3xl text-pretty !text-[1.7rem] !leading-[1.25] md:!text-[2rem]">
           {HEADLINE}
         </p>
-        {/* [font-family:…] explícito: dentro del scope nd el heredado es
-            Helvetica; la nota va en Schibsted (cuerpo Estrato) */}
-        <p className="mt-4 max-w-2xl text-pretty text-[11px] leading-relaxed text-tertiary [font-family:var(--font-schibsted)]">
+        <p className="mt-4 max-w-2xl text-pretty text-[11px] leading-relaxed text-tertiary">
           {NOTE}
         </p>
       </section>
 
       {/* La tesis en seis datos — bento oscuro Estrato */}
-      <section className="container pb-16">
-        <SectionLabelNd title={t('thesisLabel')} note={t('asOf', { month: ASOF })} />
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel title={t('thesisLabel')} note={t('asOf', { month: ASOF })} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('thesisBlurb')}
+        </p>
         <KpiBento kpis={KPIS.filter((k) => k.id !== 'produccion_nacional')} viz={kpiViz} />
       </section>
 
       {/* 01 · Margen sobre el breakeven */}
-      <section className="container pb-16">
-        <SectionLabelNd index="01" title={t('breakevenTitle')} note="US$/BBL" />
-        <div className="overflow-hidden rounded-[10px] border border-nd-border">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="01" title={t('breakevenTitle')} note="US$/BBL" />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('breakevenBlurb')}
+        </p>
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
           <BreakevenTrend breakeven={BREAKEVEN} />
         </div>
       </section>
 
       {/* 02 · Rampa de producción */}
-      <section className="container pb-16">
-        <SectionLabelNd index="02" title={SERIE.title} note={SERIE.unit} />
-        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="02" title={SERIE.title} note={SERIE.unit} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('serieBlurb')}
+        </p>
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
           <RampChart points={SERIE.points} />
         </div>
       </section>
 
       {/* 03 · Actividad: pozos nuevos por mes */}
-      <section className="container pb-16">
-        <SectionLabelNd index="03" title={t('actividadTitle')} note={ACTIVIDAD.unit} />
-        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="03" title={t('actividadTitle')} note={ACTIVIDAD.unit} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('actividadBlurb')}
+        </p>
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
           <ActividadChart actividad={ACTIVIDAD} />
         </div>
       </section>
 
       {/* 04 · Cruce agro vs energía */}
-      <section className="container pb-16">
-        <SectionLabelNd index="04" title={CRUCE.title} note={CRUCE.unit} />
-        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="04" title={CRUCE.title} note={CRUCE.unit} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
           {t('cruceBlurb')}
         </p>
-        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
           <CruceChart cruce={CRUCE} />
         </div>
       </section>
 
       {/* 05 · Operadores principales */}
-      <section className="container pb-16">
-        <SectionLabelNd index="05" title={t('operatorsTitle')} />
-        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="05" title={t('operatorsTitle')} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('operatorsBlurb')}
+        </p>
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
           <OperatorLeaderboard operadores={OPERADORES} />
         </div>
       </section>
 
       {/* 06 · Contribución económica por operadora */}
-      <section className="container pb-16">
-        <SectionLabelNd index="06" title={t('contribution.title')} />
-        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="06" title={t('contribution.title')} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
           {t('contribution.blurb')}
         </p>
-        <div className="rounded-[10px] border border-nd-border bg-nd-surface p-5 md:p-6">
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
           <ContributionTable data={CONTRIBUTION} />
         </div>
       </section>
 
       {/* 07 · Infraestructura de transporte */}
-      <section className="container pb-16">
-        <SectionLabelNd index="07" title={t('transportTitle')} />
-        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="07" title={t('transportTitle')} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
           {t('transportBlurb')}
         </p>
-        <TransportInfra />
+        {/* una sola card: encabezado de datos + barras (composición del 06) */}
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
+          <TransportInfra />
+        </div>
       </section>
 
-      {/* 08 · Argentina en el mundo */}
-      <section className="container pb-16">
-        <SectionLabelNd index="08" title={t('worldTitle')} />
-        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-nd-text-secondary font-sans">
+      {/* 08 · Argentina en el mundo — rankings EIA (hoy vs proyectado) */}
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel
+            index="08"
+            title={t('worldTitle')}
+            note={MUNDO.rankings[0] ? `EIA · ${MUNDO.rankings[0].year}` : undefined}
+          />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
           {t('worldBlurb')}
         </p>
-        <WorldStage mundo={MUNDO} />
+        <WorldRankings mundo={MUNDO} />
       </section>
 
+      {/* 09 · Productores de mayor crecimiento */}
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel
+            index="09"
+            title={t('growthTitle')}
+            note={
+              MUNDO.fastestGrowing[0]
+                ? `${MUNDO.fastestGrowing[0].sinceYear}–${MUNDO.fastestGrowing[0].toYear}`
+                : undefined
+            }
+          />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('growthSectionBlurb')}
+        </p>
+        <WorldGrowth mundo={MUNDO} />
+      </section>
+
+      {/* 10 · Política económica — narrativa + charts macro + palancas */}
+      <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+        <div className="mb-3">
+          <SectionLabel index="10" title={t('politicaTitle')} />
+        </div>
+        <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          {t('politicaBlurb')}
+        </p>
+        <PoliticaMacro politica={MUNDO.politica} />
+      </section>
+
+      {/* 11 · RIGI — inversión comprometida (dataset propio) */}
+      {MUNDO.politica?.rigi && MUNDO.politica.rigi.projects.length > 0 && (
+        <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+          <div className="mb-3">
+            <SectionLabel
+              index="11"
+              title={t('rigiTitle')}
+              note={`${MUNDO.politica.rigi.count} proyectos · US$ ${(
+                MUNDO.politica.rigi.totalMusd / 1000
+              ).toLocaleString('es-AR', { maximumFractionDigits: 1 })} B`}
+            />
+          </div>
+          <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+            {t('rigiBlurb')}
+          </p>
+          <RigiSection rigi={MUNDO.politica.rigi} />
+        </section>
+      )}
+
+      {/* 12 · Impacto proyectado — el cierre antes del CTA */}
+      {MUNDO.politica?.impacto && (
+        <section className="mx-auto max-w-[80rem] px-4 md:px-8 pb-16">
+          <div className="mb-3">
+            <SectionLabel
+              index="12"
+              title={t('impactoTitle')}
+              note={MUNDO.rankings[0] ? String(MUNDO.rankings[0].projected.year) : undefined}
+            />
+          </div>
+          <p className="mb-5 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+            {t('impactoBlurb')}
+          </p>
+          <ImpactoPanel impacto={MUNDO.politica.impacto} />
+        </section>
+      )}
+
       {/* Banda CTA */}
-      <section className="border-t border-nd-border bg-nd-surface">
-        <div className="container flex flex-col gap-6 py-16 md:flex-row md:items-center md:justify-between">
+      <section className="border-t bg-surface">
+        <div className="mx-auto max-w-[80rem] px-4 md:px-8 flex flex-col gap-6 py-16 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl">
             {/* tipografía Estrato: Inter Tight display + Schibsted cuerpo */}
             <h2 className="type-display max-w-3xl text-balance !text-[1.5rem] !leading-[1.25] md:!text-[1.75rem]">
               {t('ctaTitle')}
             </h2>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-secondary [font-family:var(--font-schibsted)]">
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-secondary">
               {t('ctaBody')}
             </p>
           </div>
           <div className="flex flex-col items-start gap-4">
             <a
               href="mailto:info@vacamuerta.io?subject=Inversiones%20Vaca%20Muerta"
-              className="inline-flex w-fit items-center gap-2 rounded-[8px] bg-nd-text-display px-5 py-2.5 font-mono text-xs uppercase tracking-[0.06em] text-nd-surface transition-opacity hover:opacity-80"
+              className="inline-flex w-fit items-center gap-2 rounded-[8px] bg-inverse px-5 py-2.5 text-xs uppercase tracking-[var(--tracking-label)] text-on-dark transition-opacity hover:opacity-80"
             >
               {t('ctaContact')} →
             </a>
             <div>
-              <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-nd-text-disabled">
+              <span className="type-label mb-2 block">
                 {t('ctaNewsletter')}
               </span>
               <FooterNewsletterForm />
