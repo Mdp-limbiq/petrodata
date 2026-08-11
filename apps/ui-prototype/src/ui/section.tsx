@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import { SectionLabel } from '@/ui/section-label'
+import { SectionLabel } from './section-label'
 
-/* Sección de Indicadores — receta única de las 13 secciones de la página:
+/* Sección de página — receta única de las 13 secciones de la página:
    contenedor 80rem, SectionLabel (índice opcional + nota), blurb corto en
    secondary y el contenido. card=true envuelve el contenido en la card
    clara estándar (secciones 01–07); 08–12 traen su propia card. */

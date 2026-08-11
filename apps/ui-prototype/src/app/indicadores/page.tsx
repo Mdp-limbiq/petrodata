@@ -13,7 +13,7 @@ import {
 } from '@/fixtures/inversiones'
 import { useTranslations } from './_lib/messages'
 import { buildKpiViz, kpiValue } from './_lib/kpiViz'
-import { Section } from './_components/Section'
+import { Section } from '@/ui/section'
 import { DayValueCardEstrato } from './_components/DayValueCardEstrato'
 import { KpiBento } from './_components/KpiBento'
 import { BreakevenTrend } from './_components/BreakevenTrend'

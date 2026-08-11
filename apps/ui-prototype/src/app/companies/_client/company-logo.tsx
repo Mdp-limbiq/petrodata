@@ -2,8 +2,12 @@
 
 import { useState } from 'react'
 
-/* Port 1:1 de CompanyLogo de producción: favicon de Google resuelto
-   desde el dominio de la empresa, con fallback a la inicial en caja. */
+/* Logo de empresa: favicon de Google resuelto desde el dominio, con
+   fallback a la inicial en caja. Radio 4px — el mismo de la bandera
+   argentina de Indicadores, que es el otro gráfico chico embebido del
+   sistema (8px sería demasiado sobre 28px). El fondo blanco de la placa
+   es funcional, no decorativo: los favicons se diseñan asumiendo fondo
+   claro y un PNG transparente desaparecería en tema oscuro. */
 
 const DIM: Record<'sm' | 'md' | 'lg', string> = { sm: 'size-7', md: 'size-9', lg: 'size-12' }
 const TXT: Record<'sm' | 'md' | 'lg', string> = { sm: 'text-[11px]', md: 'text-sm', lg: 'text-lg' }
@@ -35,8 +39,7 @@ export function CompanyLogo({
   if (!src || failed) {
     return (
       <span
-        className={`grid ${DIM[size]} ${TXT[size]} shrink-0 place-items-center border ${className}`}
-        style={{ borderColor: 'var(--nd-border-visible)', color: 'var(--nd-text-display)' }}
+        className={`grid ${DIM[size]} ${TXT[size]} shrink-0 place-items-center rounded-[4px] border border-line-strong font-display font-semibold text-primary ${className}`}
         aria-hidden
       >
         {(name.trim().charAt(0) || '?').toUpperCase()}
@@ -49,8 +52,7 @@ export function CompanyLogo({
       src={src}
       alt=""
       onError={() => setFailed(true)}
-      className={`${DIM[size]} shrink-0 border bg-white object-contain p-0.5 ${className}`}
-      style={{ borderColor: 'var(--nd-border)' }}
+      className={`${DIM[size]} shrink-0 rounded-[4px] border bg-white object-contain p-0.5 ${className}`}
     />
   )
 }

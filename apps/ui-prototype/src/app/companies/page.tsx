@@ -1,25 +1,31 @@
 import type { Metadata } from 'next'
+import { Section } from '@/ui/section'
 import { EmptyState } from '@/ui/empty-state'
+import { formatDecimal, formatInteger } from '@/lib/format'
 import { readMock, applyEstado } from '@/mock/state'
-import { COMPANIES } from '@/fixtures/companies'
 import { CompanyBrowser } from './_client/company-browser'
+import { CompanyBento } from './_components/CompanyBento'
+import {
+  ConcentrationBlock,
+  ListedBlock,
+  PerWellBlock,
+  ValueGapBlock,
+} from './_components/AnalysisBlocks'
+import { ClosingPanel } from './_components/ClosingPanel'
+import { RANKED, STATS } from './_lib/stats'
 
-/* EMPRESAS — copia 1:1 de vacamuerta.io/companies (scrape 2026-08-11),
-   igual que se hizo con indicadores antes de fine-tunearla: hero con
-   eyebrow + h1 + blurb, y la tabla de las 52 del ranking. Los colores y
-   tipografías vienen del shim `.nd-scope` de globals.css, que reproduce
-   los tokens reales de producción; se borra cuando la sección migre a
-   Estrato. Textos: namespace `companies` de es.json. */
+/* EMPRESAS — nació como copia 1:1 de vacamuerta.io/companies (scrape del
+   2026-08-11) y Mariano la pasó de directorio a página-tesis en Estrato:
+   la foto del sector en bento oscuro, cuatro secciones numeradas que
+   explican la concentración, el listado completo y el cierre negro.
+   Cada cifra sale de sumas sobre la fixture del ranking (_lib/stats.ts). */
 
-const T = {
-  listEyebrow: 'EMPRESAS',
-  listTitle: 'Empresas de petróleo y gas',
-  listBlurb: 'Carteras de proyectos por empresa en Argentina.',
-}
+const pct = (v: number) => `${formatDecimal(v, 1)}%`
 
 export const metadata: Metadata = {
   title: 'Empresas de petróleo y gas',
-  description: 'Carteras de proyectos por empresa en Argentina.',
+  description:
+    'Quiénes desarrollan la cuenca: las 52 operadoras del ranking nacional, su participación en la producción y en el valor, y los pozos que operan.',
 }
 
 export default async function CompaniesPage({
@@ -28,42 +34,103 @@ export default async function CompaniesPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { estado } = await readMock(searchParams)
-  const companies = applyEstado(estado, COMPANIES, 3)
+  const companies = applyEstado(estado, RANKED, 3)
+  const s = STATS
 
   return (
-    <main className="nd-scope w-full flex-1 overflow-x-clip">
-      <section className="nd-container pb-8 pt-12 md:pt-20">
-        <span
-          className="nd-mono block text-[11px] uppercase tracking-[0.08em]"
-          style={{ color: 'var(--nd-text-secondary)' }}
-        >
-          {T.listEyebrow}
+    <div className="w-full flex-1 overflow-x-clip">
+      {/* Hero — marca Estrato: rombo oil con pulso, Inter Tight, Schibsted */}
+      <section className="mx-auto max-w-[80rem] border-b px-4 pb-6 pt-8 md:px-8 md:pt-12">
+        <span className="type-label-md flex items-center gap-2.5 !tracking-[0.14em]">
+          <span
+            aria-hidden
+            className="live-dot inline-block size-1.5 rotate-45"
+            style={{ background: 'var(--data-oil)' }}
+          />
+          Directorio · Empresas
         </span>
-        <h1
-          className="mt-4 text-balance break-words text-4xl leading-none sm:text-5xl md:text-7xl"
-          style={{ color: 'var(--nd-text-display)', fontFamily: 'var(--nd-font-display)' }}
-        >
-          {T.listTitle}
-        </h1>
-        <p
-          className="mt-5 max-w-2xl text-pretty text-base leading-relaxed"
-          style={{ color: 'var(--nd-text-secondary)' }}
-        >
-          {T.listBlurb}
+        <h1 className="type-h1 mt-3 text-balance">Quiénes desarrollan la cuenca</h1>
+        <p className="mt-3 max-w-2xl text-pretty text-sm leading-relaxed text-secondary">
+          Las {s.empresas} operadoras del ranking nacional de producción, con su participación en el
+          crudo y el gas del país, el valor que capturan y los pozos que operan.
         </p>
       </section>
 
-      <section className="nd-container pb-20">
-        {companies === null ? (
+      {companies === null ? (
+        <section className="mx-auto max-w-[80rem] px-4 py-16 md:px-8">
           <EmptyState
             kind={estado === 'offline' ? 'offline' : 'error'}
             actionHref="/companies"
             actionLabel="Reintentar"
           />
-        ) : (
-          <CompanyBrowser companies={companies} />
-        )}
-      </section>
-    </main>
+        </section>
+      ) : (
+        <>
+          {/* La foto del sector — bento oscuro */}
+          <Section
+            title="El sector en seis datos"
+            note="Update 08-2026"
+            blurb={`Quién produce en Vaca Muerta y cuánto pesa cada uno. El titular es la concentración: ${pct(s.top5)} de la producción nacional está en cinco empresas.`}
+          >
+            <CompanyBento />
+          </Section>
+
+          {/* 01 · Concentración */}
+          <Section
+            index="01"
+            title="La concentración de la producción"
+            note={`Top 10 · ${pct(s.top10)}`}
+            blurb={`${s.grandes} empresas explican el ${pct(s.pctGrandes)} de la producción nacional. Las otras ${s.cola} suman ${pct(s.pctCola)} repartido en ${formatInteger(s.pozosCola)} pozos.`}
+          >
+            <ConcentrationBlock />
+          </Section>
+
+          {/* 02 · Producción vs valor */}
+          <Section
+            index="02"
+            title="Producir no es capturar valor"
+            note="Múltiplo valor / producción"
+            blurb="La brecha entre lo que una empresa produce y el valor que captura mide la mezcla de su cartera: el crudo vale mucho más que el gas por unidad de energía. TotalEnergies produce el 11,7% del país y captura el 0,9% del valor; Vista produce 4,4% y captura 7,7%."
+          >
+            <ValueGapBlock />
+          </Section>
+
+          {/* 03 · Pozos vs producción */}
+          <Section
+            index="03"
+            title="Más pozos no es más producción"
+            note="Aporte por cada 100 pozos"
+            blurb={`Entre las ${s.grandes} grandes, el aporte por pozo varía casi veinte veces: un pozo shale de Vaca Muerta produce lo que decenas de pozos convencionales maduros. Por eso el ranking se ordena por producción y no por cantidad de pozos.`}
+          >
+            <PerWellBlock />
+          </Section>
+
+          {/* 04 · Las que cotizan */}
+          <Section
+            index="04"
+            title="Las que cotizan en bolsa"
+            note={`${s.cotizan} de ${s.empresas}`}
+            blurb={`Ocho operadoras tienen precio público todos los días y concentran el ${pct(s.pctCotizan)} de la producción: casi dos tercios de la cuenca se puede seguir desde una pantalla de mercado.`}
+          >
+            <ListedBlock />
+          </Section>
+
+          {/* 05 · El listado completo */}
+          <Section
+            index="05"
+            title="El listado completo"
+            note={`${s.empresas} empresas`}
+            blurb="Todas las operadoras con pozos registrados, ordenadas por participación en la producción nacional."
+          >
+            <CompanyBrowser companies={companies} />
+          </Section>
+
+          {/* Cierre */}
+          <section className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
+            <ClosingPanel />
+          </section>
+        </>
+      )}
+    </div>
   )
 }

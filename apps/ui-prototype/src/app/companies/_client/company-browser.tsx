@@ -2,55 +2,20 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { TextField } from '@/ui/field'
+import { EmptyState } from '@/ui/empty-state'
+import { formatDecimal, formatInteger } from '@/lib/format'
 import { CompanyLogo } from './company-logo'
+import { RANK_BY_SLUG } from '../_lib/stats'
 import type { Company } from '@/fixtures/companies'
 
-/* LISTA DE EMPRESAS — port 1:1 de CompanyList de producción
-   (frontend/src/components/Petrodata/entities/CompanyList.tsx):
-   barra de toggle + buscador, tabla de 6 columnas dentro de una caja
-   con borde, y CTA mailto al pie. Los textos son los del namespace
-   `companies` de es.json, agrupados acá arriba porque el prototipo
-   no tiene capa i18n.
-
-   Divergencias DELIBERADAS respecto de producción (fixes que ya
-   estaban en el prototipo y no conviene perder): label real en el
-   buscador, conteo anunciado por aria-live, normalización de acentos
-   en la búsqueda y caption accesible en la tabla. */
-
-const T = {
-  listEyebrow: 'EMPRESAS',
-  sector: 'Sector',
-  nationalShare: '% Nacional',
-  valueShare: '% Valor (US$)',
-  projects: 'Proyectos',
-  search: 'Buscar empresa…',
-  withWells: 'Con pozos',
-  noResults: 'Ninguna empresa coincide con la búsqueda.',
-  ctaWells: '¿Tenés un pozo o estás perforando en la zona? Escribinos para sumarte:',
-  private: 'Privada',
-  tradedOn: (exchange: string) => `Cotiza en ${exchange}`,
-}
-
-/* Lupa de lucide-react ("search") en SVG inline: el prototipo no
-   tiene la dependencia y producción la usa sólo para este ícono. */
-function SearchIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return (
-    <svg
-      className={className}
-      style={style}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  )
-}
+/* EL LISTADO COMPLETO — las 52 con la receta 06 de Indicadores.
+   Decisiones de Mariano (2026-08-11):
+   - ordenado por participación en la producción, no por cantidad de pozos
+   - sin el toggle "Con pozos" (filtraba cero filas: todas tienen ≥1)
+   - sin la columna "Sector" (decía "Petróleo & Gas" 52 veces)
+   El puesto sale de RANK_BY_SLUG, calculado sobre el set completo, así que
+   NO se renumera al buscar: el puesto es de la empresa, no de la vista. */
 
 function normalize(s: string) {
   return s
@@ -61,224 +26,125 @@ function normalize(s: string) {
 
 export function CompanyBrowser({ companies }: { companies: Company[] }) {
   const [q, setQ] = useState('')
-  // producción arranca con el filtro ACTIVO: sólo empresas con ≥1 pozo
-  const [onlyWells, setOnlyWells] = useState(true)
 
   const filtered = useMemo(() => {
     const needle = normalize(q.trim())
-    return companies.filter(
-      (c) => (!needle || normalize(c.name).includes(needle)) && (!onlyWells || c.proyectos >= 1),
-    )
-  }, [companies, q, onlyWells])
+    return needle ? companies.filter((c) => normalize(c.name).includes(needle)) : companies
+  }, [companies, q])
+
+  const max = companies[0]?.pctNacional || 1
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={onlyWells}
-          onClick={() => setOnlyWells((v) => !v)}
-          className="nd-mono inline-flex w-fit items-center gap-2 text-[11px] uppercase tracking-[0.08em]"
-          style={{ color: 'var(--nd-text-secondary)' }}
-        >
-          <span
-            className="relative inline-flex h-4 w-7 items-center rounded-full transition-colors"
-            style={{ background: onlyWells ? 'var(--nd-accent)' : 'var(--nd-border)' }}
-          >
-            <span
-              className="inline-block size-3 rounded-full bg-white transition-transform"
-              style={{ transform: onlyWells ? 'translateX(14px)' : 'translateX(2px)' }}
-            />
-          </span>
-          {T.withWells}
-        </button>
-
-        <div className="flex items-center gap-3 md:w-72">
-          <label className="relative block w-full">
-            <span className="sr-only">{T.search}</span>
-            <SearchIcon
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
-              style={{ color: 'var(--nd-text-disabled)' }}
-            />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={T.search}
-              className="nd-mono w-full border py-2.5 pl-9 pr-3 text-sm outline-none"
-              style={{
-                borderColor: 'var(--nd-border)',
-                background: 'var(--nd-surface)',
-                color: 'var(--nd-text-primary)',
-              }}
-            />
-          </label>
-          <p aria-live="polite" className="sr-only">
-            {filtered.length === 1 ? '1 empresa' : `${filtered.length} empresas`}
-          </p>
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <p aria-live="polite" className="type-label tnums m-0 pb-2">
+          {filtered.length === companies.length
+            ? `${companies.length} empresas`
+            : `${filtered.length} de ${companies.length} empresas`}
+        </p>
+        <div className="w-full md:max-w-[18rem]">
+          <TextField
+            label="Buscar empresa"
+            type="search"
+            placeholder="YPF, Vista, Tecpetrol…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <p className="nd-mono text-sm" style={{ color: 'var(--nd-text-disabled)' }}>
-          {T.noResults}
-        </p>
+        <EmptyState
+          kind="empty"
+          title="Sin resultados"
+          detail="Ninguna empresa coincide con la búsqueda."
+        />
       ) : (
-        <div
-          className="overflow-x-auto border"
-          style={{ borderColor: 'var(--nd-border)', background: 'var(--nd-surface)' }}
-        >
-          <table className="nd-mono w-full text-[12px]">
-            <caption className="sr-only">
-              Ranking nacional de empresas de petróleo y gas por cantidad de pozos
-            </caption>
-            <thead>
-              <tr
-                className="text-[10px] uppercase tracking-[0.08em]"
-                style={{ background: 'var(--nd-surface-raised)', color: 'var(--nd-text-secondary)' }}
-              >
-                <th className="w-px px-5 py-3 text-left">#</th>
-                <th className="px-5 py-3 text-left">{T.listEyebrow}</th>
-                <th className="px-5 py-3 text-left">{T.sector}</th>
-                <th className="px-5 py-3 text-right">{T.nationalShare}</th>
-                <th className="px-5 py-3 text-right">{T.valueShare}</th>
-                <th className="px-5 py-3 text-right">{T.projects}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y" style={{ borderColor: 'var(--nd-border)' }}>
-              {filtered.map((c, i) => (
-                <tr key={c.slug} className="transition-colors hover:bg-[var(--nd-surface-raised)]">
-                  <td className="px-5 py-3 tabular-nums" style={{ color: 'var(--nd-text-disabled)' }}>
-                    {i + 1}
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-start gap-3">
-                      <CompanyLogo name={c.name} website={c.website} size="sm" />
-                      <div className="flex flex-col items-start gap-1">
+        <div className="rounded-[10px] border bg-surface p-5 md:p-6">
+          <div className="mb-1 grid grid-cols-[1.5rem_minmax(0,1fr)_5.5rem_5.5rem] items-baseline gap-x-4 border-b pb-2">
+            <span className="type-label">#</span>
+            <span className="type-label">Empresa</span>
+            <span className="type-label text-right">% Valor</span>
+            <span className="type-label text-right">Pozos</span>
+          </div>
+          <div className="flex flex-col">
+            {filtered.map((c) => {
+              const rank = RANK_BY_SLUG[c.slug]
+              const leader = rank === 1
+              return (
+                <div
+                  key={c.slug}
+                  className="grid grid-cols-[1.5rem_minmax(0,1fr)_5.5rem_5.5rem] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
+                >
+                  <span
+                    className="text-[11px] tnums"
+                    style={{ color: leader ? 'var(--data-oil)' : 'var(--text-tertiary)' }}
+                  >
+                    {String(rank).padStart(2, '0')}
+                  </span>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <CompanyLogo name={c.name} website={c.website} size="sm" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-3">
                         <Link
                           href={`/companies/${c.slug}`}
-                          className="font-[family-name:var(--nd-font-display)] tracking-normal hover:underline"
-                          style={{ color: 'var(--nd-text-display)' }}
+                          className="truncate text-sm text-primary hover:underline"
+                          style={{ fontWeight: leader ? 600 : 400 }}
                         >
                           {c.name}
                         </Link>
-                        <CompanyBadge company={c} />
+                        <span className="shrink-0 text-[11px] tnums text-secondary">
+                          <span
+                            className="font-semibold"
+                            style={{ color: leader ? 'var(--data-oil)' : 'var(--text-primary)' }}
+                          >
+                            {formatDecimal(c.pctNacional, 1)}%
+                          </span>
+                        </span>
+                      </div>
+                      {c.exchange && c.price != null && (
+                        <span className="mt-0.5 block text-[10px] tnums text-tertiary">
+                          {c.exchange} · US$ {formatDecimal(c.price, 2)}
+                          {c.change != null && (
+                            <span
+                              className="ml-1 font-semibold"
+                              style={{
+                                color:
+                                  c.change >= 0
+                                    ? 'var(--status-positive)'
+                                    : 'var(--status-negative)',
+                              }}
+                            >
+                              {c.change >= 0 ? '+' : '−'}
+                              {formatDecimal(Math.abs(c.change), 1)}%
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${(c.pctNacional / max) * 100}%`,
+                            background: 'var(--data-oil)',
+                            opacity: leader ? 1 : 0.85,
+                          }}
+                        />
                       </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-3" style={{ color: 'var(--nd-text-secondary)' }}>
-                    {c.sector}
-                  </td>
-                  <td
-                    className="px-5 py-3 text-right tabular-nums"
-                    style={{ color: 'var(--nd-text-secondary)' }}
-                  >
-                    {c.pctNacional.toFixed(1)}%
-                  </td>
-                  <td
-                    className="px-5 py-3 text-right tabular-nums"
-                    style={{ color: 'var(--nd-text-secondary)' }}
-                  >
-                    {c.pctValor.toFixed(1)}%
-                  </td>
-                  <td
-                    className="px-5 py-3 text-right tabular-nums"
-                    style={{ color: 'var(--nd-text-secondary)' }}
-                  >
-                    {c.proyectos}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                  <span className="text-right text-[11px] tnums text-secondary">
+                    {formatDecimal(c.pctValor, 1)}%
+                  </span>
+                  <span className="text-right text-[11px] tnums text-secondary">
+                    {formatInteger(c.proyectos)}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )}
-
-      {/* CTA — invita a las operadoras a sumarse al listado */}
-      <div
-        className="flex flex-wrap items-center gap-x-2 gap-y-1 border px-4 py-3 text-sm"
-        style={{
-          borderColor: 'var(--nd-border)',
-          background: 'var(--nd-surface)',
-          color: 'var(--nd-text-secondary)',
-        }}
-      >
-        <span>{T.ctaWells}</span>
-        <a
-          href="mailto:info@vacamuerta.io"
-          className="underline underline-offset-2 transition-colors hover:text-[var(--nd-accent)]"
-          style={{ color: 'var(--nd-text-display)' }}
-        >
-          info@vacamuerta.io
-        </a>
-      </div>
     </div>
   )
-}
-
-/* Chips bajo el nombre: si cotiza y hay precio → exchange + precio +
-   variación (coloreada); si cotiza sin precio → sólo exchange; si no
-   cotiza → "Privada". Mismo árbol de decisión que producción. */
-function CompanyBadge({ company }: { company: Company }) {
-  const badge =
-    'inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] tabular-nums'
-  const { exchange, price, change, isPublic } = company
-
-  if (exchange && price != null) {
-    const up = (change ?? 0) >= 0
-    return (
-      <div className="flex flex-wrap items-center gap-1">
-        <span
-          title={T.tradedOn(exchange)}
-          className={`${badge} cursor-help`}
-          style={{ borderColor: 'var(--nd-border)', color: 'var(--nd-text-disabled)' }}
-        >
-          {exchange}
-        </span>
-        <span
-          className={badge}
-          style={{ borderColor: 'var(--nd-border)', color: 'var(--nd-text-display)' }}
-        >
-          ${price.toFixed(2)}
-        </span>
-        {change != null && (
-          <span
-            className={`${badge} gap-0.5`}
-            style={{
-              borderColor: 'var(--nd-border)',
-              color: up ? 'var(--nd-success)' : 'var(--nd-accent)',
-            }}
-          >
-            <span className="text-[7px] leading-none">{up ? '▲' : '▼'}</span>
-            {Math.abs(change).toFixed(1)}%
-          </span>
-        )}
-      </div>
-    )
-  }
-
-  if (exchange) {
-    return (
-      <span
-        title={T.tradedOn(exchange)}
-        className={`${badge} cursor-help`}
-        style={{ borderColor: 'var(--nd-border)', color: 'var(--nd-text-disabled)' }}
-      >
-        {exchange}
-      </span>
-    )
-  }
-
-  if (!isPublic) {
-    return (
-      <span
-        className={badge}
-        style={{ borderColor: 'var(--nd-border)', color: 'var(--nd-text-disabled)' }}
-      >
-        {T.private}
-      </span>
-    )
-  }
-
-  return null
 }
