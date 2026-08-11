@@ -68,6 +68,7 @@ export default async function CompaniesPage({
         <>
           {/* La foto del sector — bento oscuro */}
           <Section
+            first
             title="El sector en seis datos"
             note="Update 08-2026"
             blurb={`Quién produce en Vaca Muerta y cuánto pesa cada uno. El titular es la concentración: ${pct(s.top5)} de la producción nacional está en cinco empresas.`}
