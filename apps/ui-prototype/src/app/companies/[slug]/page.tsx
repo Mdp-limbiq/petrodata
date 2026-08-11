@@ -11,8 +11,12 @@ import { readMock } from '@/mock/state'
 import { COMPANIES } from '@/fixtures/companies'
 import { StockChart } from '../_client/stock-chart'
 
-/* Ficha de compañía — campos reales del ranking: rank, listing,
-   % nacional, % del valor y proyectos; cotización solo si lista en bolsa. */
+/* Ficha de compañía — campos reales del ranking: rank, cotización,
+   % nacional, % del valor y proyectos; cotización solo si lista en bolsa.
+   NOTA: la ficha equivalente de producción está caída (todas las URLs
+   /companies/<slug> devuelven sólo el skeleton), así que esta pantalla
+   NO es todavía un port 1:1 — sigue en composición Estrato hasta que
+   podamos auditarla contra el sitio real. */
 
 export async function generateMetadata({
   params,
@@ -36,6 +40,9 @@ export default async function CompanyDetailPage({
   if (!company) notFound()
 
   const listed = company.ticker != null && company.price != null
+  /* la fixture guarda la cotización como en producción: bolsa (NYQ/BUE)
+     y variación del día en puntos porcentuales */
+  const listingLabel = company.exchange ?? 'Privada'
 
   return (
     <main className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
@@ -47,7 +54,7 @@ export default async function CompanyDetailPage({
         <div className="mt-5 flex flex-wrap items-end justify-between gap-6">
           <div className="min-w-0 max-w-[40rem]">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <Badge tone="neutral">{company.listing}</Badge>
+              <Badge tone="neutral">{listingLabel}</Badge>
               <Badge tone="neutral">{company.sector}</Badge>
             </div>
             <h1 className="type-display text-balance break-words text-[clamp(2.4rem,6vw,3.6rem)]">
@@ -64,8 +71,8 @@ export default async function CompanyDetailPage({
                 value={company.price!}
                 format="compact"
                 unit="US$"
-                delta={company.change}
-                footnote={`${company.ticker} · ${company.listing}`}
+                delta={company.change != null ? company.change / 100 : null}
+                footnote={`${company.ticker} · ${listingLabel}`}
                 onDark
               />
             </Surface>
