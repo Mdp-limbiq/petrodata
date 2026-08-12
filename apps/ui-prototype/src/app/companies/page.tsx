@@ -3,7 +3,7 @@ import { Section } from '@/ui/section'
 import { EmptyState } from '@/ui/empty-state'
 import { formatDecimal, formatInteger } from '@/lib/format'
 import { readMock, applyEstado } from '@/mock/state'
-import { CompanyBrowser } from './_client/company-browser'
+import { CompanyList } from './_components/CompanyList'
 import { CompanyBento } from './_components/CompanyBento'
 import { ConcentrationBlock, ListedBlock, PerWellBlock } from './_components/AnalysisBlocks'
 import { RANKED, STATS } from './_lib/stats'
@@ -107,7 +107,7 @@ export default async function CompaniesPage({
             note={`${s.empresas} empresas`}
             blurb="Todas las operadoras con pozos registrados, ordenadas por participación en la producción nacional."
           >
-            <CompanyBrowser companies={companies} />
+            <CompanyList companies={companies} />
           </Section>
         </>
       )}
