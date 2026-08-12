@@ -6,13 +6,12 @@ import { readMock, applyEstado } from '@/mock/state'
 import { CompanyBrowser } from './_client/company-browser'
 import { CompanyBento } from './_components/CompanyBento'
 import { ConcentrationBlock, ListedBlock, PerWellBlock } from './_components/AnalysisBlocks'
-import { ClosingPanel } from './_components/ClosingPanel'
 import { RANKED, STATS } from './_lib/stats'
 
 /* EMPRESAS — nació como copia 1:1 de vacamuerta.io/companies (scrape del
    2026-08-11) y Mariano la pasó de directorio a página-tesis en Estrato:
-   la foto del sector en bento oscuro, cuatro secciones numeradas que
-   explican la concentración, el listado completo y el cierre negro.
+   la foto del sector en bento oscuro y cuatro secciones numeradas que
+   explican la concentración, cerrando con el listado completo.
    Cada cifra sale de sumas sobre la fixture del ranking (_lib/stats.ts). */
 
 const pct = (v: number) => `${formatDecimal(v, 1)}%`
@@ -110,11 +109,6 @@ export default async function CompaniesPage({
           >
             <CompanyBrowser companies={companies} />
           </Section>
-
-          {/* Cierre */}
-          <section className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
-            <ClosingPanel />
-          </section>
         </>
       )}
     </div>

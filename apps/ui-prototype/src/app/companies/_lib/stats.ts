@@ -54,7 +54,6 @@ export const STATS = {
   cola: cola.length,
   pctCola: suma(cola.map((c) => c.pctNacional)),
   pozosCola: suma(cola.map((c) => c.proyectos)),
-  pctPozosCola: (suma(cola.map((c) => c.proyectos)) / pozosTotales) * 100,
   /** sin producción declarada pero con pozos operados */
   sinProduccion: RANKED.filter((c) => c.pctNacional === 0).length,
   pozosSinProduccion: suma(RANKED.filter((c) => c.pctNacional === 0).map((c) => c.proyectos)),
