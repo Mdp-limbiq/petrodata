@@ -57,6 +57,9 @@ export type Productividad = {
   pctNacional: number
   /** puntos de producción nacional por cada 100 pozos operados */
   por100: number
+  /** para el logo de la fila */
+  website?: string
+  logoUrl?: string
 }
 
 /** Cuánta producción aporta cada 100 pozos: entre las grandes varía casi
@@ -68,6 +71,8 @@ export const PRODUCTIVIDAD: Productividad[] = grandes
     pozos: c.proyectos,
     pctNacional: c.pctNacional,
     por100: (c.pctNacional / c.proyectos) * 100,
+    website: c.website,
+    logoUrl: c.logoUrl,
   }))
   .sort((a, b) => b.por100 - a.por100)
 

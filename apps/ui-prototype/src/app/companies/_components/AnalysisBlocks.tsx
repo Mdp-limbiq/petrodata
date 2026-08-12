@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { formatDecimal, formatInteger } from '@/lib/format'
 import { RankedRow } from './RankedRow'
+import { CompanyLogo } from '../_client/company-logo'
 import { COTIZAN, PRODUCTIVIDAD, RANKED, RANK_BY_SLUG, STATS } from '../_lib/stats'
 
 const OIL = 'var(--data-oil)'
@@ -26,6 +27,8 @@ export function ConcentrationBlock() {
             key={c.slug}
             rank={i + 1}
             name={c.name}
+            website={c.website}
+            logoUrl={c.logoUrl}
             index={i}
             leader={i === 0}
             pct={(c.pctNacional / max) * 100}
@@ -65,6 +68,8 @@ export function PerWellBlock() {
             key={p.slug}
             rank={i + 1}
             name={p.name}
+            website={p.website}
+            logoUrl={p.logoUrl}
             index={i}
             leader={i === 0}
             pct={(p.por100 / max) * 100}
@@ -116,27 +121,30 @@ export function ListedBlock() {
               <span className="text-[11px] tnums text-tertiary">
                 {String(RANK_BY_SLUG[c.slug]).padStart(2, '0')}
               </span>
-              <div className="min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <Link
-                    href={`/companies/${c.slug}`}
-                    className="truncate text-sm text-primary hover:underline"
-                  >
-                    {c.name}
-                  </Link>
-                  <span className="shrink-0 text-[10px] tnums text-tertiary">
-                    {c.ticker} · {c.exchange}
+              <div className="flex min-w-0 items-start gap-3">
+                <CompanyLogo name={c.name} website={c.website} logoUrl={c.logoUrl} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <Link
+                      href={`/companies/${c.slug}`}
+                      className="truncate text-sm text-primary hover:underline"
+                    >
+                      {c.name}
+                    </Link>
+                    <span className="shrink-0 text-[10px] tnums text-tertiary">
+                      {c.ticker} · {c.exchange}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${(c.pctNacional / max) * 100}%`, background: OIL }}
+                    />
+                  </div>
+                  <span className="mt-1 block text-[10px] tnums text-tertiary">
+                    {pct1(c.pctNacional)} de la producción nacional
                   </span>
                 </div>
-                <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
-                  <div
-                    className="h-full rounded-full"
-                    style={{ width: `${(c.pctNacional / max) * 100}%`, background: OIL }}
-                  />
-                </div>
-                <span className="mt-1 block text-[10px] tnums text-tertiary">
-                  {pct1(c.pctNacional)} de la producción nacional
-                </span>
               </div>
               <span className="text-right text-[13px] tnums text-primary">
                 US$ {formatDecimal(c.price ?? 0, 2)}

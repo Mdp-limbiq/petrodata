@@ -3,17 +3,20 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useInView, prefersReducedMotion } from '@/lib/motion'
+import { CompanyLogo } from '../_client/company-logo'
 
 /* Fila de ranking — receta de la sección 06 de Indicadores, que es la
    referencia de composición para toda lista del sistema: rank numerado
-   "01".., nombre truncado con el líder en el color del dato y en negrita,
-   el valor en la MISMA línea de base que el nombre (nunca en una columna
-   aparte centrada), y barra redondeada a todo el ancho que crece al
-   entrar en viewport. */
+   "01".., logo de la empresa, nombre truncado con el líder en el color
+   del dato y en negrita, el valor en la MISMA línea de base que el
+   nombre (nunca en una columna aparte centrada), y barra redondeada a
+   todo el ancho que crece al entrar en viewport. */
 
 export function RankedRow({
   rank,
   name,
+  website,
+  logoUrl,
   right,
   sub,
   pct,
@@ -23,6 +26,10 @@ export function RankedRow({
 }: {
   rank: number
   name: string
+  /** dominio de la empresa → favicon de Google */
+  website?: string
+  /** ícono resuelto del sitio, tiene prioridad sobre el favicon */
+  logoUrl?: string
   /** valor + % en la línea de base del nombre */
   right: ReactNode
   /** metadata opcional bajo el nombre (cotización, provincia…) */
@@ -62,23 +69,28 @@ export function RankedRow({
       >
         {String(rank).padStart(2, '0')}
       </span>
-      <div className="min-w-0">
-        <div className="flex items-baseline justify-between gap-3">
-          <span
-            className="truncate text-sm text-primary"
-            style={{ fontWeight: leader ? 600 : 400 }}
-          >
-            {name}
-          </span>
-          <span className="shrink-0 text-[11px] tnums text-secondary">{right}</span>
-        </div>
-        {sub}
-        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
-          <div
-            ref={barRef}
-            className="h-full rounded-full"
-            style={{ width: `${pct}%`, background: color, opacity: leader ? 1 : 0.85 }}
-          />
+      {/* logo + contenido, misma composición que el listado completo:
+          la barra arranca a la derecha del logo, no debajo */}
+      <div className="flex min-w-0 items-start gap-3">
+        <CompanyLogo name={name} website={website} logoUrl={logoUrl} size="sm" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-3">
+            <span
+              className="truncate text-sm text-primary"
+              style={{ fontWeight: leader ? 600 : 400 }}
+            >
+              {name}
+            </span>
+            <span className="shrink-0 text-[11px] tnums text-secondary">{right}</span>
+          </div>
+          {sub}
+          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
+            <div
+              ref={barRef}
+              className="h-full rounded-full"
+              style={{ width: `${pct}%`, background: color, opacity: leader ? 1 : 0.85 }}
+            />
+          </div>
         </div>
       </div>
     </div>
