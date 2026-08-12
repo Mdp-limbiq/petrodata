@@ -5,12 +5,7 @@ import { formatDecimal, formatInteger } from '@/lib/format'
 import { readMock, applyEstado } from '@/mock/state'
 import { CompanyBrowser } from './_client/company-browser'
 import { CompanyBento } from './_components/CompanyBento'
-import {
-  ConcentrationBlock,
-  ListedBlock,
-  PerWellBlock,
-  ValueGapBlock,
-} from './_components/AnalysisBlocks'
+import { ConcentrationBlock, ListedBlock, PerWellBlock } from './_components/AnalysisBlocks'
 import { ClosingPanel } from './_components/ClosingPanel'
 import { RANKED, STATS } from './_lib/stats'
 
@@ -86,19 +81,9 @@ export default async function CompaniesPage({
             <ConcentrationBlock />
           </Section>
 
-          {/* 02 · Producción vs valor */}
+          {/* 02 · Pozos vs producción */}
           <Section
             index="02"
-            title="Producir no es capturar valor"
-            note="Múltiplo valor / producción"
-            blurb="La brecha entre lo que una empresa produce y el valor que captura mide la mezcla de su cartera: el crudo vale mucho más que el gas por unidad de energía. TotalEnergies produce el 11,7% del país y captura el 0,9% del valor; Vista produce 4,4% y captura 7,7%."
-          >
-            <ValueGapBlock />
-          </Section>
-
-          {/* 03 · Pozos vs producción */}
-          <Section
-            index="03"
             title="Más pozos no es más producción"
             note="Aporte por cada 100 pozos"
             blurb={`Entre las ${s.grandes} grandes, el aporte por pozo varía casi veinte veces: un pozo shale de Vaca Muerta produce lo que decenas de pozos convencionales maduros. Por eso el ranking se ordena por producción y no por cantidad de pozos.`}
@@ -106,9 +91,9 @@ export default async function CompaniesPage({
             <PerWellBlock />
           </Section>
 
-          {/* 04 · Las que cotizan */}
+          {/* 03 · Las que cotizan */}
           <Section
-            index="04"
+            index="03"
             title="Las que cotizan en bolsa"
             note={`${s.cotizan} de ${s.empresas}`}
             blurb={`Ocho operadoras tienen precio público todos los días y concentran el ${pct(s.pctCotizan)} de la producción: casi dos tercios de la cuenca se puede seguir desde una pantalla de mercado.`}
@@ -116,9 +101,9 @@ export default async function CompaniesPage({
             <ListedBlock />
           </Section>
 
-          {/* 05 · El listado completo */}
+          {/* 04 · El listado completo */}
           <Section
-            index="05"
+            index="04"
             title="El listado completo"
             note={`${s.empresas} empresas`}
             blurb="Todas las operadoras con pozos registrados, ordenadas por participación en la producción nacional."

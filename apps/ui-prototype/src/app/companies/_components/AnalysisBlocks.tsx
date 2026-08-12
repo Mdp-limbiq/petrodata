@@ -1,19 +1,16 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { formatDecimal, formatInteger } from '@/lib/format'
-import { prefersReducedMotion, useInView } from '@/lib/motion'
 import { RankedRow } from './RankedRow'
-import { BRECHAS, COTIZAN, PRODUCTIVIDAD, RANKED, RANK_BY_SLUG, STATS, UMBRAL_GRANDE } from '../_lib/stats'
+import { COTIZAN, PRODUCTIVIDAD, RANKED, RANK_BY_SLUG, STATS } from '../_lib/stats'
 
 const OIL = 'var(--data-oil)'
-const GAS = 'var(--data-gas)'
 const pct1 = (v: number) => `${formatDecimal(v, 1)}%`
 
 /* ── 01 · Concentración ───────────────────────────────────────────────
-   Las diez primeras con la receta 06 y la acumulada en la nota: es el
-   titular del sector y hoy había que sumar 52 filas para verlo. */
+   Las diez primeras con la receta 06: es el titular del sector y antes
+   había que sumar 52 filas para verlo. */
 export function ConcentrationBlock() {
   const top = RANKED.slice(0, 10)
   const max = top[0].pctNacional
@@ -51,96 +48,7 @@ export function ConcentrationBlock() {
   )
 }
 
-/* ── 02 · Producción vs valor ─────────────────────────────────────────
-   Barras divergentes desde un eje central: a la derecha en oil si la
-   empresa captura más valor del que produce (crudo), a la izquierda en
-   gas si captura menos (gas seco). El signo de la brecha ES la mezcla
-   de la cartera, así que los tokens de dato explican el gráfico solos. */
-export function ValueGapBlock() {
-  const maxDesvio = Math.max(...BRECHAS.map((b) => Math.abs(b.ratio - 1)))
-  return (
-    <div className="rounded-[10px] border bg-surface p-5 md:p-6">
-      <div className="mb-1 flex items-baseline justify-between gap-3 border-b pb-2">
-        <span className="type-label">Empresa</span>
-        <span className="type-label">Producción → valor · múltiplo</span>
-      </div>
-      <div className="flex flex-col">
-        {BRECHAS.map((b, i) => (
-          <GapRow key={b.slug} brecha={b} index={i} maxDesvio={maxDesvio} />
-        ))}
-      </div>
-      <p className="mt-3 text-[10px] text-tertiary">
-        Múltiplo = participación en el valor ÷ participación en la producción. Sólo las{' '}
-        {STATS.grandes} empresas con {UMBRAL_GRANDE}% o más de la producción nacional: por debajo, el
-        redondeo a un decimal fabrica múltiplos falsos.
-      </p>
-    </div>
-  )
-}
-
-function GapRow({
-  brecha,
-  index,
-  maxDesvio,
-}: {
-  brecha: (typeof BRECHAS)[number]
-  index: number
-  maxDesvio: number
-}) {
-  const { ref, inView } = useInView<HTMLDivElement>(0.15)
-  const barRef = useRef<HTMLDivElement>(null)
-  const gana = brecha.ratio >= 1
-  const ancho = (Math.abs(brecha.ratio - 1) / maxDesvio) * 50 // 50% = medio ancho
-
-  /* ancho final en el markup, animación 0 → final (ver RankedRow) */
-  useEffect(() => {
-    const el = barRef.current
-    if (!el || !inView || prefersReducedMotion()) return
-    el.style.width = '0%'
-    requestAnimationFrame(() => {
-      el.style.transition = `width 800ms cubic-bezier(0.16,1,0.3,1) ${index * 45}ms`
-      el.style.width = `${ancho}%`
-    })
-  }, [inView, ancho, index])
-
-  return (
-    <div
-      ref={ref}
-      className="grid grid-cols-[1.5rem_1fr] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
-    >
-      <span className="text-[11px] tnums" style={{ color: 'var(--text-tertiary)' }}>
-        {String(RANK_BY_SLUG[brecha.slug]).padStart(2, '0')}
-      </span>
-      <div className="min-w-0">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="truncate text-sm text-primary">{brecha.name}</span>
-          <span className="shrink-0 text-[11px] tnums text-secondary">
-            {pct1(brecha.pctNacional)} → {pct1(brecha.pctValor)} ·{' '}
-            <span className="font-semibold" style={{ color: gana ? OIL : GAS }}>
-              ×{formatDecimal(brecha.ratio, 2)}
-            </span>
-          </span>
-        </div>
-        {/* eje central: la barra crece a la derecha si gana valor */}
-        <div className="relative mt-1.5 h-1.5 w-full rounded-full bg-line">
-          <span aria-hidden className="absolute left-1/2 top-[-2px] h-[10px] w-px bg-line-strong" />
-          <div
-            ref={barRef}
-            className="absolute top-0 h-full rounded-full"
-            style={{
-              width: `${ancho}%`,
-              background: gana ? OIL : GAS,
-              left: gana ? '50%' : undefined,
-              right: gana ? undefined : '50%',
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── 03 · Pozos no es producción ──────────────────────────────────────
+/* ── 02 · Pozos no es producción ──────────────────────────────────────
    Entre las grandes, el aporte por cada 100 pozos varía casi veinte
    veces: es la razón por la que el ranking no puede ordenarse por pozos. */
 export function PerWellBlock() {
@@ -182,7 +90,7 @@ export function PerWellBlock() {
   )
 }
 
-/* ── 04 · Las que cotizan ─────────────────────────────────────────────
+/* ── 03 · Las que cotizan ─────────────────────────────────────────────
    Las ocho con precio público, hoy desparramadas en chips de 10px entre
    las filas 1, 11, 18, 19, 22, 24, 26 y 45. Acá el pill tintado del YoY
    sí corresponde: hay uno por fila y respira. */
