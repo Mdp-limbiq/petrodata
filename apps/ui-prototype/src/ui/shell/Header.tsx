@@ -24,15 +24,20 @@ export function Header() {
       </a>
       <div className="mx-auto max-w-[80rem] px-4 md:px-8">
         <div className="flex h-14 items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/" className="flex min-w-0 items-center gap-2.5">
             {/* Marca Estrato: rombo monocromo (negro en claro, blanco en oscuro) */}
-            <span aria-hidden className="size-2 rotate-45 bg-primary" />
-            <span className="type-label-md !text-secondary tracking-[0.14em]">Vacamuerta.io</span>
-            <span className="type-label rounded-full border px-2 py-0.5 !text-tertiary">
+            <span aria-hidden className="size-2 shrink-0 rotate-45 bg-primary" />
+            <span className="type-label-md truncate !text-secondary tracking-[0.14em]">
+              Vacamuerta.io
+            </span>
+            {/* El badge de prototipo se oculta abajo de sm: son 86px de una
+                etiqueta de desarrollo que en 375px empujaba la barra fuera de
+                la pantalla (la fila pedía 369px sobre 343 disponibles). */}
+            <span className="type-label hidden shrink-0 rounded-full border px-2 py-0.5 !text-tertiary sm:inline-block">
               Prototipo Estrato
             </span>
           </Link>
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1.5">
             <Link
               href="/catalog"
               className="type-label-md rounded-[8px] px-3 py-2 hover:bg-raised hover:!text-primary"
