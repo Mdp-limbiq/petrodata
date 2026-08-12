@@ -55,7 +55,7 @@ export function CompanyList({ companies }: { companies: Company[] }) {
                 {String(rank).padStart(2, '0')}
               </span>
               <div className="flex min-w-0 items-start gap-3">
-                <CompanyLogo name={c.name} website={c.website} size="sm" />
+                <CompanyLogo name={c.name} website={c.website} logoUrl={c.logoUrl} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-3">
                     <Link
