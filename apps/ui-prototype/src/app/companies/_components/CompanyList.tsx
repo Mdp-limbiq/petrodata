@@ -33,7 +33,7 @@ export function CompanyList({ companies }: { companies: Company[] }) {
 
   return (
     <div className="rounded-[10px] border bg-surface p-5 md:p-6">
-      <div className="mb-1 grid grid-cols-[1.5rem_minmax(0,1fr)_5.5rem_5.5rem] items-baseline gap-x-4 border-b pb-2">
+      <div className="row-bleed mb-1 grid grid-cols-[1.5rem_minmax(0,1fr)_5.5rem_5.5rem] items-baseline gap-x-4 border-b pb-2">
         <span className="type-label">#</span>
         <span className="type-label">Empresa</span>
         <span className="type-label text-right">% Valor</span>
@@ -46,7 +46,7 @@ export function CompanyList({ companies }: { companies: Company[] }) {
           return (
             <div
               key={c.slug}
-              className="grid grid-cols-[1.5rem_minmax(0,1fr)_5.5rem_5.5rem] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
+              className="row-bleed grid grid-cols-[1.5rem_minmax(0,1fr)_5.5rem_5.5rem] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
             >
               <span
                 className="text-[11px] tnums"

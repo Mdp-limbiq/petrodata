@@ -123,6 +123,24 @@
 }
 
 
+/* Filas de lista a sangre (pedido de Mariano, 2026-08-11): el hover y la
+   línea divisoria tienen que llegar al borde de la card, no quedar
+   flotando adentro de su padding. Compensa el p-5 / md:p-6 de la card y
+   lo devuelve como padding propio, así el contenido no se mueve.
+   Va en las filas Y en su encabezado, para que todas las divisorias
+   queden alineadas. El DataTable del kit no lo necesita: su padding ya
+   vive en las celdas. */
+.row-bleed {
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 48rem) {
+  .row-bleed {
+    margin-inline: -1.5rem;
+    padding-inline: 1.5rem;
+  }
+}
+
 /* Punto vivo (eyebrows de estado): pulso suave, respeta reduced-motion */
 .live-dot {
   animation: live-pulse 2.4s ease-in-out infinite;

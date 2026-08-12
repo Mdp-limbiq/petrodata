@@ -47,7 +47,7 @@ export function OperatorLeaderboard({ operadores }: { operadores: InvOperador[] 
         return (
           <div
             key={op.slug}
-            className="group grid grid-cols-[1.5rem_1fr] items-center gap-3 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
+            className="row-bleed group grid grid-cols-[1.5rem_1fr] items-center gap-3 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
           >
             <span
               className="text-[11px] tnums"

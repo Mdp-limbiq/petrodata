@@ -16,7 +16,7 @@ export function ConcentrationBlock() {
   const max = top[0].pctNacional
   return (
     <div className="rounded-[10px] border bg-surface p-5 md:p-6">
-      <div className="mb-1 flex items-baseline justify-between gap-3 border-b pb-2">
+      <div className="row-bleed mb-1 flex items-baseline justify-between gap-3 border-b pb-2">
         <span className="type-label">Empresa</span>
         <span className="type-label">Participación</span>
       </div>
@@ -55,7 +55,7 @@ export function PerWellBlock() {
   const max = PRODUCTIVIDAD[0].por100
   return (
     <div className="rounded-[10px] border bg-surface p-5 md:p-6">
-      <div className="mb-1 flex items-baseline justify-between gap-3 border-b pb-2">
+      <div className="row-bleed mb-1 flex items-baseline justify-between gap-3 border-b pb-2">
         <span className="type-label">Empresa</span>
         <span className="type-label">Pozos · aporte por 100</span>
       </div>
@@ -98,7 +98,7 @@ export function ListedBlock() {
   const max = Math.max(...COTIZAN.map((c) => c.pctNacional))
   return (
     <div className="rounded-[10px] border bg-surface p-5 md:p-6">
-      <div className="mb-1 grid grid-cols-[1.5rem_minmax(0,1fr)_5rem_6rem] items-baseline gap-x-4 border-b pb-2">
+      <div className="row-bleed mb-1 grid grid-cols-[1.5rem_minmax(0,1fr)_5rem_6rem] items-baseline gap-x-4 border-b pb-2">
         <span className="type-label">#</span>
         <span className="type-label">Empresa</span>
         <span className="type-label text-right">Precio</span>
@@ -111,7 +111,7 @@ export function ListedBlock() {
           return (
             <div
               key={c.slug}
-              className="grid grid-cols-[1.5rem_minmax(0,1fr)_5rem_6rem] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
+              className="row-bleed grid grid-cols-[1.5rem_minmax(0,1fr)_5rem_6rem] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
             >
               <span className="text-[11px] tnums text-tertiary">
                 {String(RANK_BY_SLUG[c.slug]).padStart(2, '0')}

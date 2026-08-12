@@ -74,7 +74,7 @@ export function ContributionTable({ data }: { data: Contribution }) {
           Mariano, 2026-08-08): con repeat(5,auto) cada grilla calculaba
           anchos distintos y nada quedaba alineado. Números y sus títulos
           alineados a la derecha. */}
-      <div className="hidden grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem] items-baseline gap-x-4 border-b pb-2 md:grid">
+      <div className="row-bleed hidden grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem] items-baseline gap-x-4 border-b pb-2 md:grid">
         <span />
         <span className="type-label">{t('colOperator')}</span>
         <span className="type-label text-right">{t('colShare')}</span>
@@ -89,7 +89,7 @@ export function ContributionTable({ data }: { data: Contribution }) {
         return (
           <div
             key={op.operator_slug}
-            className="group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60 md:grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem]"
+            className="row-bleed group grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60 md:grid-cols-[1.5rem_minmax(0,1fr)_5rem_5rem_6rem_6rem_7rem]"
           >
             <span
               className="text-[11px] tnums"

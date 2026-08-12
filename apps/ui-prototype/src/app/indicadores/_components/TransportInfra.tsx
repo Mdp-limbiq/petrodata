@@ -66,7 +66,7 @@ export function TransportInfra() {
 
       {/* Gas transport km by operator */}
       <div>
-        <span className="type-label block border-b pb-2">{t('transportByOperator')}</span>
+        <span className="row-bleed type-label block border-b pb-2">{t('transportByOperator')}</span>
         {/* Receta del 06 (referencia de Mariano): ranking numerado con líder
             destacado, hover por fila, dato + % en la línea del nombre y
             barra redondeada a todo el ancho */}
@@ -78,7 +78,7 @@ export function TransportInfra() {
             return (
               <div
                 key={o.operator}
-                className="group grid grid-cols-[1.5rem_1fr] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
+                className="row-bleed group grid grid-cols-[1.5rem_1fr] items-center gap-x-4 border-b py-3 transition-colors duration-200 hover:bg-raised/60"
               >
                 <span
                   className="text-[11px] tnums"
