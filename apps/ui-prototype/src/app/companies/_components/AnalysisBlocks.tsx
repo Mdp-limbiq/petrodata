@@ -17,35 +17,31 @@ const pct1 = (v: number) => `${formatDecimal(v, 1)}%`
 export function ConcentrationBlock() {
   const top = RANKED.slice(0, 10)
   const max = top[0].pctNacional
-  let acum = 0
   return (
     <div className="rounded-[10px] border bg-surface p-5 md:p-6">
       <div className="mb-1 flex items-baseline justify-between gap-3 border-b pb-2">
         <span className="type-label">Empresa</span>
-        <span className="type-label">Participación · acumulada</span>
+        <span className="type-label">Participación</span>
       </div>
       <div className="flex flex-col">
-        {top.map((c, i) => {
-          acum += c.pctNacional
-          return (
-            <RankedRow
-              key={c.slug}
-              rank={i + 1}
-              name={c.name}
-              index={i}
-              leader={i === 0}
-              pct={(c.pctNacional / max) * 100}
-              right={
-                <>
-                  <span className="font-semibold" style={{ color: i === 0 ? OIL : 'var(--text-primary)' }}>
-                    {pct1(c.pctNacional)}
-                  </span>{' '}
-                  · {pct1(acum)}
-                </>
-              }
-            />
-          )
-        })}
+        {top.map((c, i) => (
+          <RankedRow
+            key={c.slug}
+            rank={i + 1}
+            name={c.name}
+            index={i}
+            leader={i === 0}
+            pct={(c.pctNacional / max) * 100}
+            right={
+              <span
+                className="font-semibold"
+                style={{ color: i === 0 ? OIL : 'var(--text-primary)' }}
+              >
+                {pct1(c.pctNacional)}
+              </span>
+            }
+          />
+        ))}
       </div>
       <p className="mt-3 text-[10px] text-tertiary">
         Participación en la producción nacional. La columna suma {pct1(STATS.baseNacional)} por
