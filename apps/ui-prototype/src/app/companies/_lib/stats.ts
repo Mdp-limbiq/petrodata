@@ -30,23 +30,8 @@ export const RANK_BY_SLUG: Record<string, number> = Object.fromEntries(
 const grandes = RANKED.filter((c) => c.pctNacional >= UMBRAL_GRANDE)
 const cola = RANKED.filter((c) => c.pctNacional < UMBRAL_GRANDE)
 const cotizan = RANKED.filter((c) => c.isPublic)
-const pozosTotales = suma(COMPANIES.map((c) => c.proyectos))
-
-/* Mediana, no promedio: la distribución de pozos está tan sesgada que el
-   promedio (512) no describe a ninguna empresa real — la mitad del padrón
-   opera 102 pozos o menos, y una sola opera 5.725. */
-const pozosOrdenados = COMPANIES.map((c) => c.proyectos).sort((a, b) => a - b)
-const mitad = Math.floor(pozosOrdenados.length / 2)
-const pozosMediana =
-  pozosOrdenados.length % 2
-    ? pozosOrdenados[mitad]
-    : (pozosOrdenados[mitad - 1] + pozosOrdenados[mitad]) / 2
-
 export const STATS = {
   empresas: COMPANIES.length,
-  pozosTotales,
-  pozosMediana,
-  pozosMax: pozosOrdenados[pozosOrdenados.length - 1],
   /** las que superan el umbral: 11 empresas */
   grandes: grandes.length,
   pctGrandes: suma(grandes.map((c) => c.pctNacional)),
@@ -60,12 +45,9 @@ export const STATS = {
   cotizan: cotizan.length,
   pctCotizan: suma(cotizan.map((c) => c.pctNacional)),
   pctValorCotizan: suma(cotizan.map((c) => c.pctValor)),
-  top5: suma(RANKED.slice(0, 5).map((c) => c.pctNacional)),
   top10: suma(RANKED.slice(0, 10).map((c) => c.pctNacional)),
   /** base real de la columna: no suma 100 por redondeo */
   baseNacional: suma(COMPANIES.map((c) => c.pctNacional)),
-  lider: RANKED[0],
-  segunda: RANKED[1],
 }
 
 export type Productividad = {

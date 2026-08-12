@@ -4,14 +4,13 @@ import { EmptyState } from '@/ui/empty-state'
 import { formatDecimal, formatInteger } from '@/lib/format'
 import { readMock, applyEstado } from '@/mock/state'
 import { CompanyList } from './_components/CompanyList'
-import { CompanyBento } from './_components/CompanyBento'
 import { ConcentrationBlock, ListedBlock, PerWellBlock } from './_components/AnalysisBlocks'
 import { RANKED, STATS } from './_lib/stats'
 
 /* EMPRESAS — nació como copia 1:1 de vacamuerta.io/companies (scrape del
-   2026-08-11) y Mariano la pasó de directorio a página-tesis en Estrato:
-   la foto del sector en bento oscuro y cuatro secciones numeradas que
-   explican la concentración, cerrando con el listado completo.
+   2026-08-11) y Mariano la pasó de directorio a página en Estrato: hero y
+   cuatro secciones numeradas que explican la concentración de la cuenca,
+   cerrando con el listado completo de las 52.
    Cada cifra sale de sumas sobre la fixture del ranking (_lib/stats.ts). */
 
 const pct = (v: number) => `${formatDecimal(v, 1)}%`
@@ -60,18 +59,9 @@ export default async function CompaniesPage({
         </section>
       ) : (
         <>
-          {/* La foto del sector — bento oscuro */}
-          <Section
-            first
-            title="El sector en tres datos"
-            note="Update 08-2026"
-            blurb={`Quién produce en Vaca Muerta y cuánto pesa cada uno. El titular es la concentración: ${pct(s.top5)} de la producción nacional está en cinco empresas.`}
-          >
-            <CompanyBento />
-          </Section>
-
           {/* 01 · Concentración */}
           <Section
+            first
             index="01"
             title="La concentración de la producción"
             note={`Top 10 · ${pct(s.top10)}`}
