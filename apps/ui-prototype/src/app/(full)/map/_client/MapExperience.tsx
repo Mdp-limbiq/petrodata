@@ -238,7 +238,7 @@ export function MapExperience({
   )
 
   return (
-    <div>
+    <div className="flex h-full min-h-0 flex-col">
       {/* Tema del popup maplibre: el contenedor .maplibregl-popup-content
           viene blanco de fábrica; acá sigue las vars de Estrato. */}
       <style>{`
@@ -256,7 +256,7 @@ export function MapExperience({
 
       {/* Mobile: 2 chips toggle arriba del mapa; el panel abre en flujo,
           no tapa el mapa ni pierde el foco (fix del patrón de producción). */}
-      <div className="flex flex-col gap-3 px-4 pb-3 md:hidden">
+      <div className="flex max-h-[45%] shrink-0 flex-col gap-3 overflow-y-auto px-4 pb-3 pt-3 md:hidden">
         <div className="flex gap-2">
           <Chip
             selected={mobilePanel === 'resumen'}
@@ -282,7 +282,7 @@ export function MapExperience({
         )}
       </div>
 
-      <div className="relative h-[70dvh] w-full">
+      <div className="relative min-h-0 w-full flex-1">
         <MapShell
           className="h-full w-full"
           label="Mapa de pozos de la cuenca Neuquina"

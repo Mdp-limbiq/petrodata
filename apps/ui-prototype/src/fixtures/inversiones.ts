@@ -2,7 +2,7 @@
    Copia 1:1 del sitio en producción — NO editar a mano los números:
    se regeneran re-scrapeando el sitio. */
 
-import type { InvKpi, InvMundo } from '@/app/indicadores/_lib/types'
+import type { InvKpi, InvMundo } from '@/app/(shell)/indicadores/_lib/types'
 
 /* eslint-disable */
 export const ASOF = '2026-04'

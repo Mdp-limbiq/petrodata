@@ -1,7 +1,7 @@
 'use client'
 
 import { Surface } from '@/ui/surface'
-import { CompanyLogo } from '@/app/companies/_client/company-logo'
+import { CompanyLogo } from '@/app/(shell)/companies/_client/company-logo'
 import { formatCompact, formatDecimal, formatInteger } from '@/lib/format'
 import { HEADLINE } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
@@ -45,36 +45,33 @@ function mes(periodo: string): string {
     según la regla del proyecto: on-dark-3 sólo para metadata. */
 export function OverviewPanel() {
   const h = HEADLINE
+  /* Compacta a propósito: es un panel flotante sobre el mapa, no una card
+     de página. Tres renglones en vez de cuatro —el desglose y la
+     participación de VM comparten línea— con padding y gaps chicos. */
   return (
-    <div className="flex flex-col gap-3 rounded-[10px] border-4 border-black bg-inverse p-5">
+    <div className="flex flex-col gap-1.5 rounded-[10px] border-4 border-black bg-inverse px-4 py-3">
       <span className="type-label !text-on-dark-2">Último mes · {mes(h.period)}</span>
 
-      <span className="flex items-baseline gap-2">
-        <span className="type-kpi text-[2rem] !text-white">{formatCompact(h.boeMonth)}</span>
+      <span className="flex items-baseline gap-1.5">
+        <span className="type-kpi text-[1.6rem] !text-white">{formatCompact(h.boeMonth)}</span>
         <abbr
           title="Barriles equivalentes de petróleo"
           className="type-label cursor-help !text-on-dark-2 no-underline"
         >
           BOE
         </abbr>
-      </span>
-
-      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tnums !text-on-dark-2">
-        <span>{formatCompact(h.oil)} bbl/d petróleo</span>
-        <span className="!text-on-dark-3">·</span>
-        <span>{formatDecimal(h.gas, 1)} MMm³/d gas</span>
-      </span>
-
-      <span className="flex items-center gap-2">
         <span
-          className="type-label rounded-full px-2 py-0.5 !text-oil"
+          className="type-label ml-auto rounded-full px-1.5 py-0.5 !text-oil"
           style={{ background: `color-mix(in srgb, ${OIL} 18%, transparent)` }}
         >
-          VM
+          VM {formatDecimal(h.vmShare * 100, 1)}%
         </span>
-        <span className="text-[11px] tnums !text-on-dark-2">
-          {formatDecimal(h.vmShare * 100, 1)}% del BOE
-        </span>
+      </span>
+
+      <span className="flex flex-wrap items-center gap-x-1.5 text-[10.5px] tnums !text-on-dark-2">
+        <span>{formatCompact(h.oil)} bbl/d</span>
+        <span className="!text-on-dark-3">·</span>
+        <span>{formatDecimal(h.gas, 1)} MMm³/d</span>
       </span>
     </div>
   )

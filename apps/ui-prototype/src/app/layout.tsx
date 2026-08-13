@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 import { Inter_Tight, Schibsted_Grotesk } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
-import { Header } from '@/ui/shell/Header'
-import { Footer } from '@/ui/shell/Footer'
 
 const interTight = Inter_Tight({
   subsets: ['latin'],
@@ -28,6 +26,11 @@ export const metadata: Metadata = {
    actual: si este script no corre, la página se ve igual (en claro). */
 const themeInit = `try{var t=localStorage.getItem('estrato-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)}catch(e){}`
 
+/* El layout raíz sólo monta html/body, fuentes y tema. El chrome vive en
+   los grupos de ruta, porque no todas las secciones lo llevan igual:
+   · (shell) → Header + main + Footer, el layout de todas las páginas.
+   · (full)  → Header + main, sin footer y a alto de viewport: el mapa.
+   Los grupos no cambian las URLs, así que /map sigue siendo /map. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${interTight.variable} ${schibsted.variable}`} suppressHydrationWarning>
@@ -35,11 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="estrato-theme" strategy="beforeInteractive">
           {themeInit}
         </Script>
-        <Header />
-        <main id="contenido" tabIndex={-1} className="flex-1 w-full">
-          {children}
-        </main>
-        <Footer />
+        {children}
       </body>
     </html>
   )

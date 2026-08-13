@@ -54,8 +54,16 @@ export function MapShell({
     })
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
 
+    /* MapLibre sólo escucha el resize de la ventana, así que si el
+       contenedor cambia de alto sin que cambie el viewport —el mapa vive
+       en un flex-1 y el panel móvil lo achica al abrirse— el canvas queda
+       del tamaño viejo y el mapa se ve recortado. */
+    const resizeObserver = new ResizeObserver(() => map.resize())
+    resizeObserver.observe(container.current)
+
     return () => {
       observer.disconnect()
+      resizeObserver.disconnect()
       map.remove()
       mapRef.current = null
     }
