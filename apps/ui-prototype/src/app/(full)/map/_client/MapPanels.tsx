@@ -183,9 +183,22 @@ export function FilterChip({
       onClick={onClick}
       className={CHIP_BASE}
       style={
+        /* `backgroundColor` explícito en AMBAS ramas, nunca el shorthand
+           `background`: React no limpia las abreviadas al cambiar de
+           objeto de estilo y el fondo del seleccionado quedaba pegado */
         selected
-          ? { background: '#fff', color: '#16191d', fontWeight: 500 }
-          : { boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.22)', color: 'var(--on-dark-2)' }
+          ? {
+              backgroundColor: 'rgba(255,255,255,0.16)',
+              boxShadow: 'none',
+              color: 'var(--on-dark)',
+              fontWeight: 500,
+            }
+          : {
+              backgroundColor: 'transparent',
+              boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18)',
+              color: 'var(--on-dark-2)',
+              fontWeight: 400,
+            }
       }
     >
       {children}
@@ -222,8 +235,16 @@ export function FilterSegmented<T extends string>({
             className="flex-1 rounded-[6px] px-2 py-1 text-[11px] transition-colors duration-200"
             style={
               activo
-                ? { background: '#fff', color: '#16191d', fontWeight: 500 }
-                : { color: 'var(--on-dark-2)' }
+                ? {
+                    backgroundColor: 'rgba(255,255,255,0.16)',
+                    color: 'var(--on-dark)',
+                    fontWeight: 500,
+                  }
+                : {
+                    backgroundColor: 'transparent',
+                    color: 'var(--on-dark-2)',
+                    fontWeight: 400,
+                  }
             }
           >
             {o.label}
