@@ -19,6 +19,7 @@ export function MapShell({
   className = 'h-full w-full',
   onReady,
   controlPosition = 'top-right',
+  interactive = true,
   label,
 }: {
   center?: [number, number]
@@ -27,6 +28,8 @@ export function MapShell({
   onReady?: (map: MLMap) => void
   /** esquina de los controles de zoom */
   controlPosition?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
+  /** false = mapa decorativo: sin arrastre, zoom ni controles */
+  interactive?: boolean
   label: string
 }) {
   const container = useRef<HTMLDivElement>(null)
@@ -46,10 +49,13 @@ export function MapShell({
       zoom,
       renderWorldCopies: false,
       attributionControl: { compact: true },
+      interactive,
     })
-    navRef.current = new maplibregl.NavigationControl({ showCompass: false })
-    navCornerRef.current = controlPosition
-    map.addControl(navRef.current, controlPosition)
+    if (interactive) {
+      navRef.current = new maplibregl.NavigationControl({ showCompass: false })
+      navCornerRef.current = controlPosition
+      map.addControl(navRef.current, controlPosition)
+    }
     map.on('load', () => onReadyRef.current?.(map))
     mapRef.current = map
 
