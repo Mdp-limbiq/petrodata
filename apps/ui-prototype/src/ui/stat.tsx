@@ -1,6 +1,7 @@
 'use client'
 
 import { useCountUp, useInView } from '@/lib/motion'
+import { Icon, type IconName } from '@/ui/icon'
 import { formatCompact, formatDelta, formatInteger, formatPercent, type AppLocale } from '@/lib/format'
 
 /* Stat — colapsa las 10 implementaciones de label+valor de producción.
@@ -10,6 +11,11 @@ export type StatProps = {
   label: React.ReactNode
   value: number
   format?: 'compact' | 'integer' | 'percent'
+  /** glifo delante del rótulo (dashboard). Se pasa por nombre: el Stat es
+      cliente y una función no cruza el borde desde el server component. */
+  icon?: IconName
+  /** color del glifo. Por defecto sigue al rótulo. */
+  iconColor?: string
   unit?: React.ReactNode
   delta?: number | null
   footnote?: React.ReactNode
@@ -29,6 +35,8 @@ export function Stat({
   label,
   value,
   format = 'integer',
+  icon,
+  iconColor,
   unit,
   delta = null,
   footnote,
@@ -43,7 +51,16 @@ export function Stat({
 
   return (
     <dl ref={ref} className="flex min-w-0 flex-col gap-2">
-      <dt className={`type-label ${onDark ? '!text-on-dark-3' : ''}`}>{label}</dt>
+      <dt className={`type-label flex items-center gap-2 ${onDark ? '!text-on-dark-3' : ''}`}>
+        {icon && (
+          <Icon
+            name={icon}
+            className="shrink-0"
+            style={iconColor ? { color: iconColor } : undefined}
+          />
+        )}
+        {label}
+      </dt>
       <dd className="m-0 flex items-baseline gap-1.5">
         <span
           className={[

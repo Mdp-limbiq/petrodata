@@ -50,7 +50,10 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         </p>
       </header>
 
-      {/* KPIs del mes */}
+      {/* KPIs del mes. Los glifos son los de vacamuerta.io, pero el color
+          sigue la disciplina de Estrato: color de dato sólo cuando el ícono
+          nombra un fluido —petróleo, gas—; el resto en neutro, porque BOE y
+          pozos no son ni una cosa ni la otra. */}
       <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Surface>
           <Stat
@@ -59,6 +62,8 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             unit="bbl/d"
             delta={HEADLINE.momOil}
             footnote={`vs. ${previo}`}
+            icon="line"
+            iconColor="var(--data-oil)"
             animate
           />
         </Surface>
@@ -70,6 +75,8 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             unit="MMm³/d"
             delta={HEADLINE.momGas}
             footnote={`vs. ${previo}`}
+            icon="droplet"
+            iconColor="var(--data-gas)"
             animate
           />
         </Surface>
@@ -79,6 +86,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             value={HEADLINE.vmShare}
             format="percent"
             footnote="del BOE nacional"
+            icon="bars"
             animate
           />
         </Surface>
@@ -88,6 +96,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             value={HEADLINE.activeWells}
             delta={HEADLINE.momWells}
             footnote={`vs. ${previo}`}
+            icon="doc"
             animate
           />
         </Surface>
