@@ -31,6 +31,8 @@ export function MapShell({
 }) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
+  const navRef = useRef<maplibregl.NavigationControl | null>(null)
+  const navCornerRef = useRef(controlPosition)
   const onReadyRef = useRef(onReady)
   onReadyRef.current = onReady
 
@@ -45,7 +47,9 @@ export function MapShell({
       renderWorldCopies: false,
       attributionControl: { compact: true },
     })
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), controlPosition)
+    navRef.current = new maplibregl.NavigationControl({ showCompass: false })
+    navCornerRef.current = controlPosition
+    map.addControl(navRef.current, controlPosition)
     map.on('load', () => onReadyRef.current?.(map))
     mapRef.current = map
 
@@ -72,6 +76,19 @@ export function MapShell({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  /* Los controles se agregan al crear el mapa, así que sin esto un cambio
+     de esquina no se aplica sobre un mapa ya vivo —típico al recargar en
+     caliente— y el control queda donde estaba, encimándose con los
+     paneles que ahora ocupan esa esquina. */
+  useEffect(() => {
+    const map = mapRef.current
+    const nav = navRef.current
+    if (!map || !nav || navCornerRef.current === controlPosition) return
+    map.removeControl(nav)
+    map.addControl(nav, controlPosition)
+    navCornerRef.current = controlPosition
+  }, [controlPosition])
 
   return <div ref={container} role="application" aria-label={label} className={className} />
 }
