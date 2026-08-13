@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { Surface } from '@/ui/surface'
 import { CompanyLogo } from '@/app/(shell)/companies/_client/company-logo'
 import { formatCompact, formatDecimal, formatInteger } from '@/lib/format'
@@ -157,16 +158,109 @@ export function TopOperatorsPanel({
   )
 }
 
-/** Pie del panel de filtros: cuántos pozos quedan a la vista. */
-export function WellCount({ visibles, total }: { visibles: number; total: number }) {
+/* ── Filtros ──────────────────────────────────────────────────────────
+   En card oscura y compacto. Los controles van con marcado propio en vez
+   de Chip/SegmentedControl/Stat del kit: esos están pensados para fondo
+   claro (el chip seleccionado es negro sólido) y sobre el oscuro no se
+   leen. Acá el seleccionado se invierte a blanco. */
+
+const CHIP_BASE =
+  'rounded-full px-2.5 py-1 text-[11px] transition-colors duration-200 whitespace-nowrap'
+
+export function FilterChip({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean
+  onClick: () => void
+  children: ReactNode
+}) {
   return (
-    <span className="flex items-baseline justify-between gap-2 border-t pt-2.5">
-      <span className="type-label">
-        {formatInteger(visibles)} {visibles === 1 ? 'pozo' : 'pozos'}
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={CHIP_BASE}
+      style={
+        selected
+          ? { background: '#fff', color: '#16191d', fontWeight: 500 }
+          : { boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.22)', color: 'var(--on-dark-2)' }
+      }
+    >
+      {children}
+    </button>
+  )
+}
+
+export function FilterSegmented<T extends string>({
+  value,
+  onChange,
+  options,
+  label,
+}: {
+  value: T
+  onChange: (v: T) => void
+  options: { value: T; label: string }[]
+  label: string
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className="flex rounded-[8px] p-0.5"
+      style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.15)' }}
+    >
+      {options.map((o) => {
+        const activo = o.value === value
+        return (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={activo}
+            onClick={() => onChange(o.value)}
+            className="flex-1 rounded-[6px] px-2 py-1 text-[11px] transition-colors duration-200"
+            style={
+              activo
+                ? { background: '#fff', color: '#16191d', fontWeight: 500 }
+                : { color: 'var(--on-dark-2)' }
+            }
+          >
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** Pie: pozos a la vista y su producción, en una sola línea. */
+export function WellCount({
+  visibles,
+  total,
+  oil,
+  gas,
+}: {
+  visibles: number
+  total: number
+  oil: number
+  gas: number
+}) {
+  return (
+    <div className="flex flex-col gap-1 border-t border-white/10 pt-2">
+      <span className="flex items-baseline justify-between gap-2">
+        <span className="type-label !text-on-dark-2">
+          {formatInteger(visibles)} {visibles === 1 ? 'pozo' : 'pozos'}
+          {visibles !== total && (
+            <span className="!text-on-dark-3"> de {formatInteger(total)}</span>
+          )}
+        </span>
       </span>
-      {visibles !== total && (
-        <span className="type-label !text-tertiary">de {formatInteger(total)}</span>
-      )}
-    </span>
+      <span className="flex flex-wrap items-center gap-x-1.5 text-[11px] tnums !text-white">
+        <span>{formatCompact(oil)} bbl/d</span>
+        <span className="!text-on-dark-3">·</span>
+        <span>{formatCompact(gas)} Mm³/d</span>
+      </span>
+    </div>
   )
 }

@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import maplibregl, { type Map as MLMap, type ExpressionSpecification } from 'maplibre-gl'
 import { MapShell, MapLegend } from '@/ui/map-shell'
-import { Surface } from '@/ui/surface'
 import { Chip } from '@/ui/chip'
-import { SegmentedControl } from '@/ui/segmented'
-import { Stat } from '@/ui/stat'
-import { Button } from '@/ui/button'
-import { OverviewPanel, TopOperatorsPanel, WellCount } from './MapPanels'
+import {
+  FilterChip,
+  FilterSegmented,
+  OverviewPanel,
+  TopOperatorsPanel,
+  WellCount,
+} from './MapPanels'
 import { formatDecimal, formatInteger } from '@/lib/format'
 import { STATUS_COLOR, type WellFeature, type WellStatus } from '@/fixtures/wells'
 import { OPERATORS } from '@/fixtures/operators'
@@ -186,40 +188,45 @@ export function MapExperience({
      reinicio + controles + pie con el conteo), vestida en Estrato. El
      <select> de operadora se fue: ahora se filtra desde el ranking. */
   const filtersPanel = (
-    <Surface variant="overlay" padding="sm" className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2 rounded-[10px] border-4 border-black bg-inverse px-4 py-3">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="type-label">Filtros</span>
+        <span className="type-label !text-on-dark-2">Filtros</span>
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="type-label !text-oil transition-opacity duration-200 hover:opacity-70"
+          >
             Reiniciar
-          </Button>
+          </button>
         )}
       </div>
-      <div role="group" aria-label="Estado del pozo" className="flex flex-wrap gap-1.5">
+      <div role="group" aria-label="Estado del pozo" className="flex flex-wrap gap-1">
         {ALL_STATUSES.map((s) => (
-          <Chip key={s} selected={statuses.includes(s)} onClick={() => toggleStatus(s)}>
+          <FilterChip key={s} selected={statuses.includes(s)} onClick={() => toggleStatus(s)}>
             {STATUS_LABEL[s]}
-          </Chip>
+          </FilterChip>
         ))}
       </div>
-      <SegmentedControl<Commodity>
+      <FilterSegmented<Commodity>
         value={commodity}
         onChange={setCommodity}
-        aria-label="Recurso"
+        label="Recurso"
         options={[
           { value: 'todos', label: 'Todos' },
           { value: 'petroleo', label: 'Petróleo' },
           { value: 'gas', label: 'Gas' },
         ]}
       />
-      <div aria-live="polite" className="flex flex-col gap-3">
-        <WellCount visibles={filtered.length} total={wells.length} />
-        <div className="grid grid-cols-2 gap-4">
-          <Stat label="Petróleo" value={oilTotal} format="compact" unit="bbl/d" size="sm" />
-          <Stat label="Gas" value={Math.round(gasTotal)} format="compact" unit="Mm³/d" size="sm" />
-        </div>
+      <div aria-live="polite">
+        <WellCount
+          visibles={filtered.length}
+          total={wells.length}
+          oil={oilTotal}
+          gas={gasTotal}
+        />
       </div>
-    </Surface>
+    </div>
   )
 
   /* Columna de contexto: qué produjo el país y quién lo produce. */
