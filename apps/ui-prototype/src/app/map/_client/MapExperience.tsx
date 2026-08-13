@@ -6,12 +6,12 @@ import { MapShell, MapLegend } from '@/ui/map-shell'
 import { Surface } from '@/ui/surface'
 import { Chip } from '@/ui/chip'
 import { SegmentedControl } from '@/ui/segmented'
-import { SelectField } from '@/ui/field'
 import { Stat } from '@/ui/stat'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
 import { DataTable, type Column } from '@/ui/data-table'
 import { SectionLabel } from '@/ui/section-label'
+import { OverviewPanel, TopOperatorsPanel, WellCount } from './MapPanels'
 import { formatDecimal, formatInteger } from '@/lib/format'
 import { STATUS_COLOR, type WellFeature, type WellStatus } from '@/fixtures/wells'
 import { OPERATORS } from '@/fixtures/operators'
@@ -229,9 +229,19 @@ export function MapExperience({
     setOperator('')
   }
 
+  /* Panel de filtros — estructura de producción (encabezado con acción de
+     reinicio + controles + pie con el conteo), vestida en Estrato. El
+     <select> de operadora se fue: ahora se filtra desde el ranking. */
   const filtersPanel = (
     <Surface variant="overlay" padding="sm" className="flex flex-col gap-4">
-      <p className="type-label m-0">Filtros</p>
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="type-label">Filtros</span>
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
+            Reiniciar
+          </Button>
+        )}
+      </div>
       <div role="group" aria-label="Estado del pozo" className="flex flex-wrap gap-1.5">
         {ALL_STATUSES.map((s) => (
           <Chip key={s} selected={statuses.includes(s)} onClick={() => toggleStatus(s)}>
@@ -242,48 +252,34 @@ export function MapExperience({
       <SegmentedControl<Commodity>
         value={commodity}
         onChange={setCommodity}
-        aria-label="Commodity"
+        aria-label="Recurso"
         options={[
           { value: 'todos', label: 'Todos' },
           { value: 'petroleo', label: 'Petróleo' },
           { value: 'gas', label: 'Gas' },
         ]}
       />
-      <SelectField
-        label="Operadora"
-        value={operator}
-        onChange={(e) => setOperator(e.target.value)}
-      >
-        <option value="">Todas</option>
-        {OPERATORS.map((op) => (
-          <option key={op.slug} value={op.slug}>
-            {op.name}
-          </option>
-        ))}
-      </SelectField>
-      {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={clearFilters} className="self-start">
-          Limpiar filtros
-        </Button>
-      )}
+      <div aria-live="polite" className="flex flex-col gap-3">
+        <WellCount visibles={filtered.length} total={wells.length} />
+        <div className="grid grid-cols-2 gap-4">
+          <Stat label="Petróleo" value={oilTotal} format="compact" unit="bbl/d" size="sm" />
+          <Stat label="Gas" value={Math.round(gasTotal)} format="compact" unit="Mm³/d" size="sm" />
+        </div>
+      </div>
     </Surface>
   )
 
-  const overviewPanel = (
-    <Surface variant="overlay" padding="sm" className="flex flex-col gap-4">
-      <div aria-live="polite">
-        <Stat label="Pozos visibles" value={filtered.length} />
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <Stat label="Petróleo" value={oilTotal} format="compact" unit="bbl/d" size="sm" />
-        <Stat label="Gas" value={Math.round(gasTotal)} format="compact" unit="Mm³/d" size="sm" />
-      </div>
-    </Surface>
+  /* Columna de contexto: qué produjo el país y quién lo produce. */
+  const contextPanels = (
+    <>
+      <OverviewPanel />
+      <TopOperatorsPanel selected={operator} onSelect={setOperator} />
+    </>
   )
 
   const legend = (
     <MapLegend
-      title="Estado del pozo"
+      title="Referencias"
       items={ALL_STATUSES.map((s) => ({ color: STATUS_COLOR[s], label: STATUS_LABEL[s] }))}
     />
   )
@@ -327,7 +323,7 @@ export function MapExperience({
         {mobilePanel === 'filtros' && filtersPanel}
         {mobilePanel === 'resumen' && (
           <div className="flex flex-col gap-3">
-            {overviewPanel}
+            {contextPanels}
             {legend}
           </div>
         )}
@@ -342,12 +338,15 @@ export function MapExperience({
         {/* Desktop: overlays flotantes. La columna derecha arranca debajo
             del NavigationControl de MapShell (top-right). */}
         <div className="pointer-events-none absolute inset-0 hidden items-start justify-between gap-4 p-4 md:flex">
-          <div className="pointer-events-auto max-h-full w-[19rem] overflow-y-auto">
-            {filtersPanel}
-          </div>
-          <div className="pointer-events-auto mt-[76px] flex max-h-[calc(100%-76px)] w-[17rem] flex-col gap-3 overflow-y-auto">
-            {overviewPanel}
+          {/* Izquierda: contexto del país + ranking de operadoras + leyenda,
+              en el mismo orden que vacamuerta.io */}
+          <div className="pointer-events-auto flex max-h-full w-[19rem] flex-col gap-3 overflow-y-auto">
+            {contextPanels}
             {legend}
+          </div>
+          {/* Derecha: filtros. Arranca debajo del NavigationControl de MapShell */}
+          <div className="pointer-events-auto mt-[76px] max-h-[calc(100%-76px)] w-[17rem] overflow-y-auto">
+            {filtersPanel}
           </div>
         </div>
       </div>
