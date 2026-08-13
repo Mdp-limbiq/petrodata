@@ -34,17 +34,37 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
 
   return (
     <div className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
-      {/* Hero: el número del mes como titular */}
-      <header className="pb-2 pt-10 md:pt-12">
-        <p className="type-label-md mb-3 flex items-center gap-2">
-          <span aria-hidden className="size-1.5 bg-primary" />
-          Vaca Muerta · {periodo}
-        </p>
-        <h1 className="type-display tnums m-0 flex flex-wrap items-baseline gap-x-3 text-[clamp(2.8rem,8vw,4.8rem)]">
+      {/* Hero — la cifra del mes pasa a la card oscura de la familia
+          (rounded-10 · marco negro de 4px · bg-inverse). Mismo contenido y
+          mismo orden que el hero plano: lo único que cambia es el soporte.
+          Es la pieza de más peso de la página y era la única que quedaba
+          fuera de la familia, teniendo la banda del mapa y el footer dentro.
+
+          Contraste: la cifra en blanco, y rótulo, sigla y bajada en
+          on-dark-2 — nada en on-dark-3, que acá no hay metadata: todo se
+          lee. La cabecera va con la firma de las cards oscuras: rombo,
+          rótulo y filete. El rombo va neutro y no en oil, porque el rótulo
+          nombra un período, no un fluido. */}
+      <header className="mt-6 rounded-[10px] border-4 border-black bg-inverse p-6 md:mt-8 md:p-10">
+        <div className="mb-3 flex items-center gap-2.5">
+          <span aria-hidden className="size-2 shrink-0 rotate-45 bg-on-dark" />
+          <span className="type-label-md whitespace-nowrap !tracking-[0.14em] !text-on-dark-2">
+            Vaca Muerta · {periodo}
+          </span>
+          {/* el filete se esconde en pantallas chicas: a 320px quedaría un
+              muñón de dos dígitos de ancho, que se lee como error */}
+          <span aria-hidden className="hidden h-px flex-1 bg-white/10 sm:block" />
+        </div>
+        <h1 className="type-display tnums m-0 flex flex-wrap items-baseline gap-x-3 text-[clamp(2.5rem,8vw,4.8rem)] !text-white">
           {formatInteger(HEADLINE.boeMonth)}
-          <span className="type-label-md !tracking-[0.14em]">BOE</span>
+          <abbr
+            title="Barriles equivalentes de petróleo"
+            className="type-label-md cursor-help no-underline !tracking-[0.14em] !text-on-dark-2"
+          >
+            BOE
+          </abbr>
         </h1>
-        <p className="mt-4 max-w-[44rem] text-[13.5px] text-secondary">
+        <p className="mt-4 max-w-[44rem] text-[13.5px] text-on-dark-2">
           Inteligencia en tiempo real para el petróleo y el gas de Argentina, actualizada
           mensualmente.
         </p>
@@ -54,7 +74,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           sigue la disciplina de Estrato: color de dato sólo cuando el ícono
           nombra un fluido —petróleo, gas—; el resto en neutro, porque BOE y
           pozos no son ni una cosa ni la otra. */}
-      <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Surface>
           <Stat
             label="Petróleo"
