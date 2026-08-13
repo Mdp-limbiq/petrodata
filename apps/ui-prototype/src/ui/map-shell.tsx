@@ -76,41 +76,29 @@ export function MapShell({
   return <div ref={container} role="application" aria-label={label} className={className} />
 }
 
-/* Leyenda de mapa. `tone="dark"` la pasa a la card oscura de la familia,
-   para cuando convive con otros paneles oscuros sobre el mapa. */
+/* Leyenda de mapa, siempre clara: se probó en la card oscura y sobre el
+   mapa se lee mejor en claro (decisión de Mariano, 2026-08-12). */
 export function MapLegend({
   items,
   title,
-  tone = 'light',
   inline = false,
 }: {
   items: { color: string; label: string }[]
   title?: string
-  tone?: 'light' | 'dark'
   /** ítems en una fila que envuelve, en vez de apilados: mucho más
       compacto cuando la leyenda flota sobre el mapa. */
   inline?: boolean
 }) {
-  const dark = tone === 'dark'
   return (
-    <div
-      className={
-        dark
-          ? 'rounded-[10px] border-4 border-black bg-inverse px-4 py-2'
-          : 'rounded-[10px] border bg-surface/90 px-3 py-2.5 shadow-[var(--elevation-overlay)] backdrop-blur-md'
-      }
-    >
-      {title && <p className={`type-label mb-1 ${dark ? '!text-on-dark-2' : ''}`}>{title}</p>}
+    <div className="rounded-[10px] border bg-surface/90 px-3 py-2.5 shadow-[var(--elevation-overlay)] backdrop-blur-md">
+      {title && <p className="type-label mb-1">{title}</p>}
       <ul
         className={`m-0 flex list-none p-0 ${
           inline ? 'flex-wrap gap-x-3 gap-y-1' : 'flex-col gap-1'
         }`}
       >
         {items.map((it) => (
-          <li
-            key={it.label}
-            className={`flex items-center gap-1.5 text-[11px] ${dark ? '!text-on-dark-2' : 'text-secondary'}`}
-          >
+          <li key={it.label} className="flex items-center gap-1.5 text-[11px] text-secondary">
             <span aria-hidden className="size-1.5 rounded-full" style={{ background: it.color }} />
             {it.label}
           </li>

@@ -232,7 +232,6 @@ export function MapExperience({
 
   const legend = (
     <MapLegend
-      tone="dark"
       inline
       title="Referencias"
       items={ALL_STATUSES.map((s) => ({ color: STATUS_COLOR[s], label: STATUS_LABEL[s] }))}
