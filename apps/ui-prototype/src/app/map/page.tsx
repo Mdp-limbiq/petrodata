@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { PageHero } from '@/ui/page-hero'
 import { EmptyState } from '@/ui/empty-state'
 import { readMock, applyEstado, type SearchParams } from '@/mock/state'
 import { WELLS } from '@/fixtures/wells'
@@ -7,7 +6,7 @@ import { MapExperience } from './_client/MapExperience'
 
 export const metadata: Metadata = {
   title: 'Mapa de pozos',
-  description: 'Mapa interactivo de pozos de la cuenca Neuquina con filtros y tabla accesible.',
+  description: 'Mapa interactivo de pozos de la cuenca Neuquina, con filtros por estado, recurso y operadora.',
 }
 
 /* /map — a diferencia de producción, la página tiene h1 visible y una
@@ -21,12 +20,11 @@ export default async function MapPage({ searchParams }: { searchParams: SearchPa
 
   return (
     <div className="pb-14">
-      <div className="mx-auto max-w-[80rem] px-4 md:px-8">
-        <PageHero eyebrow="Cuenca Neuquina" title="Mapa de pozos">
-          Pozos simulados alrededor de Añelo, con estado, operadora y producción. Los mismos datos
-          del mapa están disponibles en la tabla de abajo.
-        </PageHero>
-      </div>
+      {/* Sin hero visible (pedido de Mariano, 2026-08-12): el mapa arranca
+          arriba de todo. El h1 se conserva para lectores de pantalla —
+          sin él la ruta queda sin encabezado, que es el hueco de
+          accesibilidad que tiene producción y acá ya estaba cerrado. */}
+      <h1 className="sr-only">Mapa de pozos de la cuenca Neuquina</h1>
 
       {wells === null ? (
         <div className="mx-auto max-w-[80rem] px-4 md:px-8">

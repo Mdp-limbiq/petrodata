@@ -7,19 +7,15 @@ import { Surface } from '@/ui/surface'
 import { Chip } from '@/ui/chip'
 import { SegmentedControl } from '@/ui/segmented'
 import { Stat } from '@/ui/stat'
-import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
-import { DataTable, type Column } from '@/ui/data-table'
-import { SectionLabel } from '@/ui/section-label'
 import { OverviewPanel, TopOperatorsPanel, WellCount } from './MapPanels'
 import { formatDecimal, formatInteger } from '@/lib/format'
 import { STATUS_COLOR, type WellFeature, type WellStatus } from '@/fixtures/wells'
 import { OPERATORS } from '@/fixtures/operators'
 
 /* MapExperience — réplica Estrato del MapExperience de producción:
-   mapa fullbleed con overlays (filtros / resumen / leyenda), popup por pozo
-   y, como alternativa accesible que producción no tiene (hallazgo A2),
-   la tabla "Pozos en vista" sincronizada con los filtros. */
+   mapa con overlays (contexto del país, ranking de operadoras, filtros y
+   referencias) y popup por pozo. */
 
 type Commodity = 'todos' | 'petroleo' | 'gas'
 
@@ -30,12 +26,6 @@ const STATUS_LABEL: Record<WellStatus, string> = {
   activo: 'Activo',
   perforacion: 'Perforación',
   abandonado: 'Abandonado',
-}
-
-const STATUS_BADGE: Record<WellStatus, 'positive' | 'caution' | 'neutral'> = {
-  activo: 'positive',
-  perforacion: 'caution',
-  abandonado: 'neutral',
 }
 
 const ALL_STATUSES: WellStatus[] = ['activo', 'perforacion', 'abandonado']
@@ -85,43 +75,6 @@ function popupHTML(p: WellFeature['properties']): string {
       </dl>
     </div>`
 }
-
-const COLUMNS: Column<WellFeature>[] = [
-  {
-    key: 'name',
-    header: 'Pozo',
-    cell: (w) => <span className="font-medium text-primary">{w.properties.name}</span>,
-    sort: (w) => w.properties.name,
-  },
-  {
-    key: 'operator',
-    header: 'Operadora',
-    cell: (w) => w.properties.operatorName,
-    sort: (w) => w.properties.operatorName,
-  },
-  {
-    key: 'status',
-    header: 'Estado',
-    cell: (w) => <Badge tone={STATUS_BADGE[w.properties.status]}>{STATUS_LABEL[w.properties.status]}</Badge>,
-    sort: (w) => w.properties.status,
-  },
-  {
-    key: 'oil',
-    header: 'Petróleo (bbl/d)',
-    cell: (w) => formatInteger(w.properties.oil),
-    sort: (w) => w.properties.oil,
-    align: 'right',
-    numeric: true,
-  },
-  {
-    key: 'gas',
-    header: 'Gas (Mm³/d)',
-    cell: (w) => formatDecimal(w.properties.gas, 1),
-    sort: (w) => w.properties.gas,
-    align: 'right',
-    numeric: true,
-  },
-]
 
 export function MapExperience({
   wells,
@@ -351,24 +304,6 @@ export function MapExperience({
         </div>
       </div>
 
-      {/* Alternativa accesible al mapa (hallazgo A2): los mismos pozos,
-          sincronizados con los filtros, en tabla sortable. */}
-      <section className="mx-auto mt-10 max-w-[80rem] px-4 md:px-8">
-        <SectionLabel
-          index="01"
-          title="Pozos en vista"
-          note={`${formatInteger(filtered.length)} pozos`}
-        />
-        <div className="mt-5">
-          <DataTable<WellFeature>
-            columns={COLUMNS}
-            rows={filtered}
-            rowKey={(w) => w.properties.id}
-            defaultSort={{ key: 'oil', dir: 'desc' }}
-            caption="Pozos en vista: nombre, operadora, estado y producción de petróleo y gas"
-          />
-        </div>
-      </section>
     </div>
   )
 }
