@@ -50,7 +50,17 @@ export function OverviewPanel() {
      participación de VM comparten línea— con padding y gaps chicos. */
   return (
     <div className="flex flex-col gap-1.5 rounded-[10px] border-4 border-black bg-inverse px-4 py-3">
-      <span className="type-label !text-on-dark-2">Último mes · {mes(h.period)}</span>
+      {/* el badge va en el ángulo superior derecho, sobre la línea del
+          rótulo — mismo patrón que el ancla de las cards de Indicadores */}
+      <span className="flex items-center justify-between gap-3">
+        <span className="type-label !text-on-dark-2">Último mes · {mes(h.period)}</span>
+        <span
+          className="type-label shrink-0 rounded-full px-1.5 py-0.5 !text-oil"
+          style={{ background: `color-mix(in srgb, ${OIL} 18%, transparent)` }}
+        >
+          VM {formatDecimal(h.vmShare * 100, 1)}%
+        </span>
+      </span>
 
       <span className="flex items-baseline gap-1.5">
         <span className="type-kpi text-[1.6rem] !text-white">{formatCompact(h.boeMonth)}</span>
@@ -60,12 +70,6 @@ export function OverviewPanel() {
         >
           BOE
         </abbr>
-        <span
-          className="type-label ml-auto rounded-full px-1.5 py-0.5 !text-oil"
-          style={{ background: `color-mix(in srgb, ${OIL} 18%, transparent)` }}
-        >
-          VM {formatDecimal(h.vmShare * 100, 1)}%
-        </span>
       </span>
 
       <span className="flex flex-wrap items-center gap-x-1.5 text-[10.5px] tnums !text-on-dark-2">
@@ -88,7 +92,7 @@ export function TopOperatorsPanel({
   const max = Math.max(...TOP_OPERATORS.map((o) => o.boeMonth))
   return (
     <Surface variant="overlay" padding="none" className="overflow-hidden">
-      <div className="border-b px-4 py-3">
+      <div className="border-b px-4 py-2">
         <span className="type-label">Operadoras principales · BOE</span>
       </div>
       <ul className="m-0 flex list-none flex-col p-0">
@@ -101,10 +105,10 @@ export function TopOperatorsPanel({
                 type="button"
                 aria-pressed={activa}
                 onClick={() => onSelect(activa ? '' : op.slug)}
-                className="flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors duration-200 last:border-b-0 hover:bg-raised/60"
+                className="flex w-full items-center gap-2.5 border-b px-4 py-2 text-left transition-colors duration-200 last:border-b-0 hover:bg-raised/60"
               >
                 <span
-                  className="w-4 shrink-0 text-[11px] tnums"
+                  className="w-4 shrink-0 text-[10px] tnums"
                   style={{ color: activa ? OIL : 'var(--text-tertiary)' }}
                 >
                   {String(i + 1).padStart(2, '0')}
@@ -113,12 +117,12 @@ export function TopOperatorsPanel({
                   name={op.name}
                   website={logo?.website}
                   logoUrl={logo?.logoUrl}
-                  size="sm"
+                  size="xs"
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-2">
                     <span
-                      className="truncate text-sm"
+                      className="truncate text-[13px]"
                       style={{
                         color: activa ? OIL : 'var(--text-primary)',
                         fontWeight: activa ? 600 : 400,
@@ -126,11 +130,11 @@ export function TopOperatorsPanel({
                     >
                       {op.name}
                     </span>
-                    <span className="shrink-0 text-[11px] tnums text-secondary">
+                    <span className="shrink-0 text-[10px] tnums text-secondary">
                       {formatCompact(op.boeMonth)}
                     </span>
                   </span>
-                  <span className="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-line">
+                  <span className="mt-1 block h-1 w-full overflow-hidden rounded-full bg-line">
                     <span
                       className="block h-full rounded-full transition-[width] duration-500"
                       style={{
@@ -146,7 +150,7 @@ export function TopOperatorsPanel({
           )
         })}
       </ul>
-      <p className="type-label m-0 border-t px-4 py-2.5">
+      <p className="type-label m-0 border-t px-4 py-2">
         {selected ? 'Clic de nuevo para quitar el filtro' : 'Clic para filtrar el mapa'}
       </p>
     </Surface>

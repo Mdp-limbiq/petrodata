@@ -18,8 +18,18 @@ import { useState } from 'react'
    El fondo blanco de la placa es funcional: los favicons se diseñan
    asumiendo fondo claro y un PNG transparente desaparecería en oscuro. */
 
-const DIM: Record<'sm' | 'md' | 'lg', string> = { sm: 'size-7', md: 'size-9', lg: 'size-12' }
-const TXT: Record<'sm' | 'md' | 'lg', string> = { sm: 'text-[11px]', md: 'text-sm', lg: 'text-lg' }
+const DIM: Record<'xs' | 'sm' | 'md' | 'lg', string> = {
+  xs: 'size-5',
+  sm: 'size-7',
+  md: 'size-9',
+  lg: 'size-12',
+}
+const TXT: Record<'xs' | 'sm' | 'md' | 'lg', string> = {
+  xs: 'text-[9px]',
+  sm: 'text-[11px]',
+  md: 'text-sm',
+  lg: 'text-lg',
+}
 
 function faviconFrom(website: string | null | undefined): string | null {
   if (!website) return null
@@ -51,7 +61,7 @@ export function CompanyLogo({
   name: string
   website?: string | null
   logoUrl?: string | null
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   className?: string
 }) {
   const [failed, setFailed] = useState(false)
