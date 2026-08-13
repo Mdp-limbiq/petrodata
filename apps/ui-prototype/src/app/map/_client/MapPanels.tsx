@@ -39,41 +39,44 @@ function mes(periodo: string): string {
   return `${MESES[Number(m) - 1].slice(0, 3)} ${y}`
 }
 
-/** Contexto del país: cuánto produjo el último mes y cuánto pesa VM. */
+/** Contexto del país: cuánto produjo el último mes y cuánto pesa VM.
+    Va en la card oscura de la familia (pedido de Mariano, 2026-08-12):
+    la oscuridad es jerarquía, y este es el titular del mapa. Contraste
+    según la regla del proyecto: on-dark-3 sólo para metadata. */
 export function OverviewPanel() {
   const h = HEADLINE
   return (
-    <Surface variant="overlay" padding="sm" className="flex flex-col gap-3">
-      <span className="type-label">Último mes · {mes(h.period)}</span>
+    <div className="flex flex-col gap-3 rounded-[10px] border-4 border-black bg-inverse p-5">
+      <span className="type-label !text-on-dark-2">Último mes · {mes(h.period)}</span>
 
       <span className="flex items-baseline gap-2">
-        <span className="type-kpi text-[2rem]">{formatCompact(h.boeMonth)}</span>
+        <span className="type-kpi text-[2rem] !text-white">{formatCompact(h.boeMonth)}</span>
         <abbr
           title="Barriles equivalentes de petróleo"
-          className="type-label cursor-help !text-tertiary no-underline"
+          className="type-label cursor-help !text-on-dark-2 no-underline"
         >
           BOE
         </abbr>
       </span>
 
-      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tnums text-secondary">
+      <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] tnums !text-on-dark-2">
         <span>{formatCompact(h.oil)} bbl/d petróleo</span>
-        <span className="text-tertiary">·</span>
+        <span className="!text-on-dark-3">·</span>
         <span>{formatDecimal(h.gas, 1)} MMm³/d gas</span>
       </span>
 
       <span className="flex items-center gap-2">
         <span
-          className="type-label rounded-full px-2 py-0.5 !text-primary"
-          style={{ background: `color-mix(in srgb, ${OIL} 22%, transparent)` }}
+          className="type-label rounded-full px-2 py-0.5 !text-oil"
+          style={{ background: `color-mix(in srgb, ${OIL} 18%, transparent)` }}
         >
           VM
         </span>
-        <span className="text-[11px] tnums text-secondary">
+        <span className="text-[11px] tnums !text-on-dark-2">
           {formatDecimal(h.vmShare * 100, 1)}% del BOE
         </span>
       </span>
-    </Surface>
+    </div>
   )
 }
 
