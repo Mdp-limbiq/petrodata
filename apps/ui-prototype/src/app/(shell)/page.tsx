@@ -8,11 +8,11 @@ import { EmptyState } from '@/ui/empty-state'
 import { formatCompact, formatInteger, formatMonth, formatPercent } from '@/lib/format'
 import { HEADLINE, PREV } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
-import { WELLS } from '@/fixtures/wells'
 import { NEWS } from '@/fixtures/news'
 import { applyEstado, readMock, type SearchParams } from '@/mock/state'
 import { OperatorAreaChart } from './_home/OperatorChart'
 import { MapPreview } from './_home/MapPreview'
+import { MapBand } from './_home/MapBand'
 import { NewsCardGrid } from './noticias/_components/NewsCard'
 
 /* DASHBOARD — gemelo del home de vacamuerta.io con sus datos reales
@@ -159,24 +159,9 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
       {/* Banda del mapa: la invitación a la herramienta */}
       <section className="mt-14">
         <SectionLabel title="El mapa" />
-        <Surface variant="photo" className="mt-5 overflow-hidden">
-          <div className="flex min-h-[15rem] flex-col justify-end gap-3 p-2 md:min-h-[17rem] md:p-4">
-            <span className="type-label !text-on-dark-2">Mapa interactivo</span>
-            <h2 className="type-display max-w-xl text-balance !text-white !text-[1.7rem] md:!text-[2.1rem]">
-              La actividad de la cuenca. Pozo por pozo.
-            </h2>
-            <p className="max-w-lg text-[13.5px] text-on-dark-2">
-              {formatInteger(HEADLINE.catalogWells)} pozos en el catálogo,{' '}
-              {formatInteger(WELLS.length)} muestreados en vivo sobre la cuenca Neuquina.
-            </p>
-            <Link
-              href="/map"
-              className="mt-2 inline-flex w-fit items-center gap-2 rounded-[8px] bg-surface px-4 py-2 text-[12px] font-medium text-primary transition-opacity duration-200 hover:opacity-85"
-            >
-              Abrir el mapa →
-            </Link>
-          </div>
-        </Surface>
+        <div className="mt-5">
+          <MapBand />
+        </div>
       </section>
 
       {/* Producción por operadora — el sitio lo tiene oculto pero
