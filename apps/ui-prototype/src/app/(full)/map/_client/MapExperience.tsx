@@ -232,6 +232,8 @@ export function MapExperience({
 
   const legend = (
     <MapLegend
+      tone="dark"
+      inline
       title="Referencias"
       items={ALL_STATUSES.map((s) => ({ color: STATUS_COLOR[s], label: STATUS_LABEL[s] }))}
     />
@@ -286,6 +288,7 @@ export function MapExperience({
         <MapShell
           className="h-full w-full"
           label="Mapa de pozos de la cuenca Neuquina"
+          controlPosition="bottom-right"
           onReady={handleReady}
         />
         {/* Desktop: overlays flotantes. La columna derecha arranca debajo
@@ -297,8 +300,9 @@ export function MapExperience({
             {contextPanels}
             {legend}
           </div>
-          {/* Derecha: filtros. Arranca debajo del NavigationControl de MapShell */}
-          <div className="pointer-events-auto mt-[76px] max-h-[calc(100%-76px)] w-[17rem] overflow-y-auto">
+          {/* Derecha: filtros. Con los controles de zoom abajo, el panel
+              ya puede arrancar al ras del borde superior */}
+          <div className="pointer-events-auto max-h-full w-[17rem] overflow-y-auto">
             {filtersPanel}
           </div>
         </div>

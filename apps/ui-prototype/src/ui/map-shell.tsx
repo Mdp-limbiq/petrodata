@@ -18,12 +18,15 @@ export function MapShell({
   zoom = 6.4,
   className = 'h-full w-full',
   onReady,
+  controlPosition = 'top-right',
   label,
 }: {
   center?: [number, number]
   zoom?: number
   className?: string
   onReady?: (map: MLMap) => void
+  /** esquina de los controles de zoom */
+  controlPosition?: 'top-right' | 'bottom-right' | 'top-left' | 'bottom-left'
   label: string
 }) {
   const container = useRef<HTMLDivElement>(null)
@@ -42,7 +45,7 @@ export function MapShell({
       renderWorldCopies: false,
       attributionControl: { compact: true },
     })
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), controlPosition)
     map.on('load', () => onReadyRef.current?.(map))
     mapRef.current = map
 
@@ -73,14 +76,42 @@ export function MapShell({
   return <div ref={container} role="application" aria-label={label} className={className} />
 }
 
-export function MapLegend({ items, title }: { items: { color: string; label: string }[]; title?: string }) {
+/* Leyenda de mapa. `tone="dark"` la pasa a la card oscura de la familia,
+   para cuando convive con otros paneles oscuros sobre el mapa. */
+export function MapLegend({
+  items,
+  title,
+  tone = 'light',
+  inline = false,
+}: {
+  items: { color: string; label: string }[]
+  title?: string
+  tone?: 'light' | 'dark'
+  /** ítems en una fila que envuelve, en vez de apilados: mucho más
+      compacto cuando la leyenda flota sobre el mapa. */
+  inline?: boolean
+}) {
+  const dark = tone === 'dark'
   return (
-    <div className="rounded-[10px] border bg-surface/90 px-4 py-3 backdrop-blur-md shadow-[var(--elevation-overlay)]">
-      {title && <p className="type-label mb-2">{title}</p>}
-      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+    <div
+      className={
+        dark
+          ? 'rounded-[10px] border-4 border-black bg-inverse px-4 py-2'
+          : 'rounded-[10px] border bg-surface/90 px-3 py-2.5 shadow-[var(--elevation-overlay)] backdrop-blur-md'
+      }
+    >
+      {title && <p className={`type-label mb-1 ${dark ? '!text-on-dark-2' : ''}`}>{title}</p>}
+      <ul
+        className={`m-0 flex list-none p-0 ${
+          inline ? 'flex-wrap gap-x-3 gap-y-1' : 'flex-col gap-1'
+        }`}
+      >
         {items.map((it) => (
-          <li key={it.label} className="flex items-center gap-2 text-[11.5px] text-secondary">
-            <span aria-hidden className="size-2 rounded-full" style={{ background: it.color }} />
+          <li
+            key={it.label}
+            className={`flex items-center gap-1.5 text-[11px] ${dark ? '!text-on-dark-2' : 'text-secondary'}`}
+          >
+            <span aria-hidden className="size-1.5 rounded-full" style={{ background: it.color }} />
             {it.label}
           </li>
         ))}
