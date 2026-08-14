@@ -71,7 +71,6 @@ export default function V2Operadoras() {
         n="03"
         titulo="Valor"
         desc="Millones de dólares generados, regalías y exportaciones por operadora."
-        ancho="suelto"
       >
         <Card>
           <CardHead titulo="Contribución" nota="MUSD" />

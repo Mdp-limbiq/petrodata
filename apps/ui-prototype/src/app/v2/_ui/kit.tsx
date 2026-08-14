@@ -11,31 +11,36 @@ import { formatDelta } from '@/lib/format'
 
 /** Cabecera de sección: número, título y descripción en UNA línea alineada
     por línea de base. Es lo que permite repetir la plantilla sin que se lea
-    como un formulario: la sección gasta un renglón en presentarse. */
+    como un formulario: la sección gasta un renglón en presentarse.
+
+    La cabecera va DENTRO del marco (pedido de Mariano, 2026-08-14). Afuera
+    quedaba flotando sobre el fondo y el marco arrancaba huérfano; adentro, el
+    marco pasa a contener la sección entera —rótulo, contenido y aclaración—
+    y se lee como una unidad. El marco es ahora universal: si el rótulo vive
+    adentro, no puede haber secciones sin marco donde no tenga dónde vivir. */
 export function Seccion({
   n,
   titulo,
   desc,
   children,
-  ancho = 'marco',
 }: {
   n: string
   titulo: string
   desc: string
   children: ReactNode
-  /** 'marco' envuelve en el contenedor de 14px; 'suelto' lo deja al aire */
-  ancho?: 'marco' | 'suelto'
 }) {
   return (
     <section className="s-seccion" id={`s${n}`}>
-      <header className="mb-3 flex flex-wrap items-baseline gap-2">
-        <span className="s-mono shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
-          {n}
-        </span>
-        <h2 className="s-titulo m-0 whitespace-nowrap">{titulo}</h2>
-        <p className="s-desc s-desc-trunca m-0 min-w-0 flex-1">{desc}</p>
-      </header>
-      {ancho === 'marco' ? <div className="s-marco">{children}</div> : children}
+      <div className="s-marco">
+        <header className="mb-3 flex flex-wrap items-baseline gap-2 px-1">
+          <span className="s-mono shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
+            {n}
+          </span>
+          <h2 className="s-titulo m-0 whitespace-nowrap">{titulo}</h2>
+          <p className="s-desc s-desc-trunca m-0 min-w-0 flex-1">{desc}</p>
+        </header>
+        {children}
+      </div>
     </section>
   )
 }
@@ -196,7 +201,7 @@ export function Chip({
     proyecto (SISTEMA.md §10.1) reserva ink-3 para metadata pura. */
 export function Pie({ children }: { children: ReactNode }) {
   return (
-    <p className="s-micro m-0 mt-2.5" style={{ color: 'var(--ink-2)' }}>
+    <p className="s-micro m-0 mt-2.5 px-1" style={{ color: 'var(--ink-2)' }}>
       {children}
     </p>
   )

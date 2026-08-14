@@ -185,7 +185,6 @@ export default function V2Inicio() {
         n="05"
         titulo="Noticias"
         desc="Últimas publicaciones, con fecha, fuente y categoría."
-        ancho="suelto"
       >
         <Card>
           {ultimas.map((n) => (

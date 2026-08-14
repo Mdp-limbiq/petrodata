@@ -23,7 +23,6 @@ export default function V2Indicadores() {
         n="01"
         titulo="Tesis"
         desc="Los seis datos que sostienen el caso, con su variación interanual."
-        ancho="suelto"
       >
         <Card>
           {TESIS.map((t) => (

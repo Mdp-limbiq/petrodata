@@ -54,7 +54,6 @@ export default function V2Empresas() {
         n="02"
         titulo="Ranking"
         desc="Las 52 empresas por participación en la producción nacional."
-        ancho="suelto"
       >
         <Card>
           <CardHead titulo="Participación nacional" nota={`${COMPANIES.length} empresas`} />

@@ -43,7 +43,6 @@ export default function V2Noticias() {
         n="02"
         titulo="Publicaciones"
         desc="Todas las notas por fecha, con su fuente y su categoría."
-        ancho="suelto"
       >
         <Card>
           <CardHead titulo="Últimas primero" nota={`${orden.length} notas`} />
