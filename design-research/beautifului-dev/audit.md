@@ -1142,6 +1142,137 @@ aparecen en el bloque `:host,:root`.
 
 ---
 
+## K bis. Composición de la página y diseño de contenido
+
+Esta sección no mira componentes sino **cómo está armada la página**: el ritmo, la
+plantilla que se repite y cómo está escrito el texto. Es, probablemente, lo más
+transferible de toda la auditoría — más que los valores de color.
+
+### La plantilla, repetida 19 veces sin una sola excepción
+
+**[MEDIDO]** Las 19 secciones usan **exactamente** la misma estructura, en el mismo orden:
+
+```
+[ 01 ]  [ Título ]  [ descripción de una línea ]      ← cabecera, 12px de margen inferior
+┌──────────────────────────────────────────────┐
+│                                              │
+│              demo en vivo                    │      ← marco de 14px, min-height 272px
+│                                              │
+│        [ segmentado flotante abajo ]         │      ← controles de la demo
+└──────────────────────────────────────────────┘
+──────────── línea punteada ────────────────────      ← y arranca la siguiente, sin margen
+```
+
+Los tres elementos de la cabecera van **en una sola línea, alineados por línea de base**
+(`display:flex; align-items:baseline; gap:8px`), no apilados. El número, el título y la
+descripción se leen como una frase continua. **[INFERIDO]** Eso es lo que permite que 19
+repeticiones no se sientan como un formulario: cada sección ocupa un solo renglón de
+"encabezado" y todo el resto es la demo.
+
+**[MEDIDO]** La numeración es explícita (`01`…`19`), en mono, en el gris más tenue, con
+`tabular-nums`. No es decorativa: convierte la página en un **índice recorrible**, y es lo
+que hace que el panel lateral pueda funcionar como tabla de contenidos.
+
+### El ritmo
+
+**[MEDIDO]** Cero variación. No hay secciones destacadas, ni de ancho completo, ni con
+fondo distinto, ni intercaladas con bloques editoriales. Las 19 miden lo mismo de ancho
+(672px), tienen el mismo padding (`40px 32px`) y el mismo alto mínimo de demo (272px).
+
+**[INFERIDO]** Es una decisión fuerte y contraintuitiva: la mayoría de las páginas largas
+rompen el ritmo cada tantas secciones para que no canse. Esta hace lo contrario — apuesta a
+que **la regularidad absoluta sea el efecto**. Funciona porque lo que varía es el contenido
+de las demos, que se mueve. El marco es un metrónomo; el contenido, la melodía.
+
+### El orden de las 19 secciones
+
+**[INFERIDO]** No es alfabético ni arbitrario: va **del ciclo de vida de una respuesta hacia
+las piezas especializadas**.
+
+| Bloque | Secciones | Qué agrupa |
+|---|---|---|
+| 01–06 | Loading State, Thinking, Streaming Text, Approval Card, Tool Chips, Task Rows | El agente trabajando, en orden temporal: carga → razona → responde → pide permiso → ejecuta → reporta |
+| 07–08 | Chat, Prompt Bar | La conversación y su entrada |
+| 09–10 | Recommendation Card, Context Cards | Salida estructurada |
+| 11–13 | Diff Table, Records Table, Filter Table | Datos tabulares |
+| 14–15 | Sidebar Nav, Search | Navegación |
+| 16–19 | Insight Cards, Code Block, Fine-tune Card, Selection Actions | Casos especializados |
+
+**Lo primero que se ve es un estado de carga.** Es la pieza menos glamorosa del catálogo y
+está en el puesto uno. **[INFERIDO]** La página se abre demostrando que se ocuparon del
+momento en que el producto todavía no tiene nada que mostrar — que es exactamente donde se
+nota si alguien pensó la interfaz.
+
+### El texto — hay una regla y se cumple
+
+**[MEDIDO]** Sobre los 19 títulos y las 19 descripciones:
+
+| | |
+|---|---|
+| Palabras por título | **1,84 de media; 16 de 19 tienen exactamente 2** |
+| Largo de la descripción | 39–64 caracteres, **media 51** |
+| Descripciones que terminan en punto | 17 de 19 |
+| Descripciones que arrancan con sustantivo (no artículo ni verbo) | 13 de 19 |
+| Descripciones que nombran al agente / la IA | 8 de 19 |
+
+**[INFERIDO]** Las reglas de escritura, deducidas de los datos:
+
+1. **El título son dos palabras.** Siempre sustantivo, nunca verbo, nunca una frase.
+   "Approval Card", "Tool Chips", "Task Rows". Cuando el concepto entra en una, se usa una
+   ("Thinking", "Chat", "Search"); nunca se estira a tres para sonar más completo.
+2. **La descripción es una línea que explica el mecanismo, no el beneficio.**
+   "Pixel-grid loader with shimmer and elapsed time" dice **qué hace la pieza**, no por qué
+   te conviene. No hay una sola descripción de venta en las 19.
+3. **~50 caracteres, y por una razón medible:** la descripción vive en la misma línea que
+   el título y a 12,5px tiene que entrar en el ancho restante. Se pasa de largo y el CSS la
+   trunca con puntos suspensivos (`sm:truncate`, medido). **El límite de longitud está
+   impuesto por el layout, no por estilo.**
+4. **Arrancan con el sustantivo.** "Human-in-the-loop questions…", "Retrieved knowledge
+   chunks…", "Status chips that…". Casi nunca con "The" ni con un verbo.
+
+**[INFERIDO]** El conjunto describe una voz **de ficha técnica**: nombra la pieza, dice cómo
+funciona, se calla. La misma disciplina que el sistema visual — cada cosa dice lo que es y
+nada más.
+
+### Lo que la página NO hace
+
+**[MEDIDO]** Buscados literalmente en el HTML servido y con **cero apariciones**: `pricing`,
+`testimonial`, `trusted by`, `faq`, `frequently asked`, `get started`, `sign up`,
+`free trial`. **No hay hero**: la página abre directamente con la sección 01.
+
+Lo que sí hay, y conviene ser exacto:
+
+- **Un `<h1>`**, el titular del panel lateral: *"Beautiful UI for AI-native interfaces."*
+  Es el único de la página; las 19 secciones usan `<h3>`.
+- **Un `<h2>`**, para una captura de correo: *"New components, in your inbox."*
+- **Un `<footer>`**, pero de 284 caracteres: el aviso de copyright y **un solo enlace**
+  (la licencia MIT). Clase medida:
+  `flex items-center justify-between gap-4 border-t border-dashed border-line px-8 py-6`
+  — o sea, el mismo punteado que separa las secciones, con `32px 24px` de padding.
+  **No hay columnas de enlaces.**
+- **Cinco enlaces salientes reales** en todo el sitio (el resto son dominios `example.com`
+  de las demos): el estudio que lo hizo, su agenda de llamadas, y tres productos.
+
+**[INFERIDO]** Es una página de producto que **decidió no ser una landing**. El único
+llamado a la acción es un pill de 28px al pie del panel lateral. El argumento de venta es
+la calidad de las 19 demos: si funcionan, se vendió; si no, ninguna sección de testimonios
+lo iba a arreglar.
+
+### Lo transferible a un producto de datos
+
+**[INFERIDO]** De todo lo anterior, lo que se puede llevar tal cual:
+
+- **La cabecera de una línea** (número + título de dos palabras + descripción del mecanismo)
+  como plantilla para cada sección de una página larga.
+- **Numerar explícitamente** para que la página sea recorrible y el índice lateral tenga
+  sentido.
+- **El ritmo invariante**: mismo ancho, mismo padding, mismo alto mínimo, siempre.
+- **Poner primero lo menos glamoroso**, si es donde se demuestra el criterio.
+- **Describir el mecanismo, no el beneficio**, y dejar que el dato hable.
+- **Dejar que el límite de longitud lo imponga el layout**, no una guía de estilo.
+
+---
+
 ## K. Las reglas de la identidad
 
 Veinte principios accionables. Cada uno sale de una medición de este informe.
