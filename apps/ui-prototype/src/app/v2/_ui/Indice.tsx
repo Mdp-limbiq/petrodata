@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { CardCuenca } from './CardCuenca'
 import { HEADLINE } from '@/fixtures/production'
 import { formatMonth } from '@/lib/format'
 
@@ -29,38 +30,39 @@ export function Indice() {
 
   return (
     <aside
-      className="flex flex-col px-7 pt-10 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-hidden lg:pt-[clamp(2.5rem,8vh,5rem)]"
+      className="flex flex-col px-7 pt-10 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:pt-[clamp(2.5rem,8vh,5rem)]"
       style={{ borderColor: 'var(--line)' }}
     >
-      <div className="shrink-0">
-        <div className="flex items-start justify-between gap-3">
-          {/* La marca es un cuadrado con el radio de card: el sistema no tiene
-              logotipos, tiene piezas con el mismo vocabulario que el resto. */}
+      {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
+          la palabra. Va pegada al ángulo superior izquierdo. */}
+      <div className="flex shrink-0 items-center justify-between gap-3">
+        <Link href="/v2" className="flex min-w-0 items-center gap-2.5 no-underline">
           <span
-            className="grid size-11 shrink-0 place-items-center rounded-[10px] text-[15px] font-semibold"
-            style={{ background: 'var(--accent)', color: '#fff', letterSpacing: '-0.02em' }}
+            aria-hidden
+            className="size-2 shrink-0 rotate-45"
+            style={{ background: 'var(--ink)' }}
+          />
+          <span
+            className="s-micro truncate font-medium uppercase"
+            style={{ color: 'var(--ink-2)', letterSpacing: '0.14em' }}
           >
-            VM
+            Vacamuerta.io
           </span>
-          <span className="s-chip s-chip--neutro s-mono mt-0.5">
-            {formatMonth(`${HEADLINE.period}-01`)}
-          </span>
-        </div>
-
-        <h1 className="s-titular mt-7 text-balance">
-          La cuenca en números, actualizada cada mes.
-        </h1>
+        </Link>
+        <span className="s-chip s-chip--neutro s-mono">
+          {formatMonth(`${HEADLINE.period}-01`)}
+        </span>
       </div>
 
-      <div className="my-6 shrink-0" />
+      <div className="mt-7 shrink-0" />
 
-      <nav
-        className="relative min-h-0 flex-1 lg:overflow-hidden"
-        style={{
-          maskImage: 'linear-gradient(180deg,#000 82%,transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(180deg,#000 82%,transparent 100%)',
-        }}
-      >
+      {/* Sin flex-1: con siete ítems, estirar la lista abría un hueco de 400px
+          entre el último ítem y la card. Ahora todo se apila arriba y el aire
+          sobrante queda al pie, que es como se lee una columna normal.
+          Se va también la máscara de desvanecido: servía cuando la lista
+          desbordaba, y sobre una lista corta lo único que hacía era borronear
+          el último ítem. */}
+      <nav className="relative shrink-0">
         <p className="s-etq mb-1 pl-1.5">Secciones</p>
         {SECCIONES.map((s) => {
           const activa = s.href === '/v2' ? ruta === '/v2' : ruta.startsWith(s.href)
@@ -75,7 +77,14 @@ export function Indice() {
         })}
       </nav>
 
-      <div className="mt-8 shrink-0">
+      {/* La card va entre el índice y el bloque de datos: cierra la columna
+          con la cifra que resume todo, en el lugar donde antes había un
+          titular que no aportaba dato. */}
+      <div className="mt-7 shrink-0">
+        <CardCuenca />
+      </div>
+
+      <div className="mt-6 shrink-0">
         <p className="m-0 text-[12.5px] font-medium">Datos públicos</p>
         <p className="s-desc m-0 mt-0.5">
           Secretaría de Energía y balances de las operadoras. Corte mensual.
