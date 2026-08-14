@@ -8,12 +8,29 @@ import { EmptyState } from '@/ui/empty-state'
 import { formatCompact, formatInteger, formatMonth, formatPercent } from '@/lib/format'
 import { HEADLINE, PREV } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
+import { COMPANIES } from '@/fixtures/companies'
 import { NEWS } from '@/fixtures/news'
 import { applyEstado, readMock, type SearchParams } from '@/mock/state'
 import { OperatorAreaChart } from './_home/OperatorChart'
 import { MapPreview } from './_home/MapPreview'
 import { MapBand } from './_home/MapBand'
 import { NewsCardGrid } from './noticias/_components/NewsCard'
+
+/* Mini card del hero: rótulo, valor y una nota al pie. Vive sobre la card
+   oscura, así que va translúcida —no una superficie opaca más— para que el
+   fondo de estratos se siga leyendo por detrás. Contraste: valor en blanco,
+   rótulo en on-dark-2 y sólo la nota en on-dark-3, que ahí sí es metadata. */
+function MiniDato({ label, valor, nota }: { label: string; valor: string; nota: string }) {
+  return (
+    <div className="rounded-[8px] border border-white/10 bg-white/[0.04] px-3 py-2.5 backdrop-blur-[2px]">
+      <dt className="type-label !text-on-dark-2">{label}</dt>
+      <dd className="m-0 mt-1 flex items-baseline gap-1.5">
+        <span className="type-kpi tnums truncate text-[15px] !text-white">{valor}</span>
+        <span className="shrink-0 text-[10.5px] text-on-dark-3">{nota}</span>
+      </dd>
+    </div>
+  )
+}
 
 /* DASHBOARD — gemelo del home de vacamuerta.io con sus datos reales
    (MAY 2026). El orden y las piezas siguen al sitio: hero con la cifra
@@ -32,6 +49,12 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const periodo = formatMonth(`${HEADLINE.period}-01`)
   const previo = formatMonth(`${PREV.period}-01`)
 
+  /* La operadora que encabeza el mes y cuánto pesa. El ranking del sitio
+     suma exactamente el BOE del mes, así que la participación sale de ahí
+     y no de un supuesto. */
+  const lider = TOP_OPERATORS[0]
+  const liderShare = lider.boeMonth / HEADLINE.boeMonth
+
   return (
     <div className="mx-auto max-w-[80rem] px-4 pb-16 md:px-8">
       {/* Hero — la cifra del mes pasa a la card oscura de la familia
@@ -45,29 +68,58 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           lee. La cabecera va con la firma de las cards oscuras: rombo,
           rótulo y filete. El rombo va neutro y no en oil, porque el rótulo
           nombra un período, no un fluido. */}
-      <header className="mt-6 rounded-[10px] border-4 border-black bg-inverse p-6 md:mt-8 md:p-10">
-        <div className="mb-3 flex items-center gap-2.5">
-          <span aria-hidden className="size-2 shrink-0 rotate-45 bg-on-dark" />
-          <span className="type-label-md whitespace-nowrap !tracking-[0.14em] !text-on-dark-2">
-            Vaca Muerta · {periodo}
-          </span>
-          {/* el filete se esconde en pantallas chicas: a 320px quedaría un
-              muñón de dos dígitos de ancho, que se lee como error */}
-          <span aria-hidden className="hidden h-px flex-1 bg-white/10 sm:block" />
+      <header className="relative mt-6 overflow-hidden rounded-[10px] border-4 border-black bg-inverse md:mt-8">
+        {/* fondo de estratos: dos capas de roca que derivan muy lento y se
+            apagan hacia la izquierda, así la cifra cae sobre negro limpio */}
+        <span aria-hidden className="estratos" />
+
+        <div className="relative grid gap-7 p-6 md:p-10 lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-end lg:gap-10">
+          <div className="min-w-0">
+            <div className="mb-3 flex items-center gap-2.5">
+              <span aria-hidden className="size-2 shrink-0 rotate-45 bg-on-dark" />
+              <span className="type-label-md whitespace-nowrap !tracking-[0.14em] !text-on-dark-2">
+                Vaca Muerta · {periodo}
+              </span>
+              {/* el filete se esconde en pantallas chicas: a 320px quedaría un
+                  muñón de dos dígitos de ancho, que se lee como error */}
+              <span aria-hidden className="hidden h-px flex-1 bg-white/10 sm:block" />
+            </div>
+            <h1 className="type-display tnums m-0 flex flex-wrap items-baseline gap-x-3 text-[clamp(2.5rem,7vw,4.4rem)] !text-white">
+              {formatInteger(HEADLINE.boeMonth)}
+              <abbr
+                title="Barriles equivalentes de petróleo"
+                className="type-label-md cursor-help no-underline !tracking-[0.14em] !text-on-dark-2"
+              >
+                BOE
+              </abbr>
+            </h1>
+            <p className="mt-4 max-w-[34rem] text-[13.5px] text-on-dark-2">
+              Inteligencia en tiempo real para el petróleo y el gas de Argentina, actualizada
+              mensualmente.
+            </p>
+          </div>
+
+          {/* Mini cards: el contexto que la cifra sola no da —quién produce,
+              cuánto se sigue— sin repetir los cuatro KPI de abajo. En fila
+              hasta lg y apiladas cuando hay columna propia. */}
+          <dl className="m-0 grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            <MiniDato
+              label="Operadora líder"
+              valor={lider.name.replace(/ S\.A\.?U?$/i, '')}
+              nota={`${formatPercent(liderShare)} del BOE`}
+            />
+            <MiniDato
+              label="Pozos en el catálogo"
+              valor={formatInteger(HEADLINE.catalogWells)}
+              nota="cuenca Neuquina"
+            />
+            <MiniDato
+              label="Empresas seguidas"
+              valor={formatInteger(COMPANIES.length)}
+              nota="con ficha propia"
+            />
+          </dl>
         </div>
-        <h1 className="type-display tnums m-0 flex flex-wrap items-baseline gap-x-3 text-[clamp(2.5rem,8vw,4.8rem)] !text-white">
-          {formatInteger(HEADLINE.boeMonth)}
-          <abbr
-            title="Barriles equivalentes de petróleo"
-            className="type-label-md cursor-help no-underline !tracking-[0.14em] !text-on-dark-2"
-          >
-            BOE
-          </abbr>
-        </h1>
-        <p className="mt-4 max-w-[44rem] text-[13.5px] text-on-dark-2">
-          Inteligencia en tiempo real para el petróleo y el gas de Argentina, actualizada
-          mensualmente.
-        </p>
       </header>
 
       {/* KPIs del mes. Los glifos son los de vacamuerta.io, pero el color

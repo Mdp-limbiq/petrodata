@@ -159,3 +159,94 @@
     animation: none;
   }
 }
+
+/* Estratos: fondo de las cards oscuras grandes. Dos capas de "roca" con
+   espesores irregulares, apenas inclinadas, que derivan muy lento y en
+   sentidos opuestos — la diferencia de velocidad entre las dos es lo que
+   da la profundidad. A ~2px por segundo: es atmósfera, no un efecto.
+
+   Todo en CSS y nada en JS, así la textura existe aunque el script no
+   corra. Con reduced-motion se frena, pero NO se apaga: el fondo no
+   depende del movimiento para estar.
+
+   Cada capa se desplaza exactamente un período de su trama, así el ciclo
+   cierra sin salto. La inclinación va en `rotate` y el desplazamiento en
+   `transform`, que son propiedades distintas: el navegador aplica primero
+   la rotación, así que la capa deriva en el sentido de sus vetas y no en
+   el de la pantalla. */
+.estratos {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* se apaga hacia la izquierda, donde vive la cifra: el número grande
+     siempre cae sobre negro limpio */
+  -webkit-mask-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.22) 32%,
+    rgba(0, 0, 0, 0.85) 70%,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.22) 32%,
+    rgba(0, 0, 0, 0.85) 70%,
+    #000 100%
+  );
+}
+.estratos::before,
+.estratos::after {
+  content: '';
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  rotate: -6deg;
+  will-change: transform;
+}
+/* capa gruesa: vetas de distinto espesor, período 96px */
+.estratos::before {
+  top: -96px;
+  bottom: -96px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.11) 0 1px,
+    transparent 1px 13px,
+    rgba(255, 255, 255, 0.055) 13px 14px,
+    transparent 14px 32px,
+    rgba(255, 255, 255, 0.09) 32px 33px,
+    transparent 33px 60px,
+    rgba(255, 255, 255, 0.045) 60px 61px,
+    transparent 61px 96px
+  );
+  animation: estratos-baja 46s linear infinite;
+}
+/* capa fina: trama pareja, período 61px, en sentido contrario */
+.estratos::after {
+  top: -61px;
+  bottom: -61px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0 1px,
+    transparent 1px 22px,
+    rgba(255, 255, 255, 0.035) 22px 23px,
+    transparent 23px 61px
+  );
+  animation: estratos-sube 71s linear infinite;
+}
+@keyframes estratos-baja {
+  to {
+    transform: translateY(96px);
+  }
+}
+@keyframes estratos-sube {
+  to {
+    transform: translateY(-61px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .estratos::before,
+  .estratos::after {
+    animation: none;
+  }
+}
