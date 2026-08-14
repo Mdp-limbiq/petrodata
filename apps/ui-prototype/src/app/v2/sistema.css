@@ -139,10 +139,19 @@
 .s-mono { font-family: var(--font-jetbrains), ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
 .s-num { font-variant-numeric: tabular-nums; }
 
-/* ── Sección: cero margen entre secciones, separa una línea PUNTEADA ───── */
-.s-seccion { padding: 40px 32px; border-bottom: 1px dashed var(--line); }
+/* ── Sección: cero margen entre secciones, separa una línea PUNTEADA ─────
+      El vertical baja de 40 a 20 (pedido de Mariano, 2026-08-14): entre marco
+      y marco quedaban 81px —40 abajo + 1 de línea + 40 arriba— medidos de la
+      referencia, donde cada sección es una demo de 272px de alto y necesita
+      ese aire. Las nuestras son filas de datos, mucho más bajas, y 81px
+      pesaba de más. Con 20 quedan 41.
+
+      Efecto lateral que conviene notar: ahora el padding horizontal (32)
+      supera al vertical (20), que es la relación que el sistema usa en todos
+      los demás componentes. La sección era la única que la invertía. */
+.s-seccion { padding: 20px 32px; border-bottom: 1px dashed var(--line); }
 .s-seccion:last-child { border-bottom: 0; }
-@media (max-width: 639px) { .s-seccion { padding: 28px 20px; } }
+@media (max-width: 639px) { .s-seccion { padding: 16px 20px; } }
 
 /* la descripción comparte renglón con el título: el layout impone su largo */
 @media (min-width: 640px) {
