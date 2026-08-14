@@ -1,0 +1,327 @@
+/* ============================================================================
+   Sistema V2 — la identidad medida en beautifului.dev, aplicada a Vaca Muerta.
+   La guía completa está en design-research/beautifului-dev/SISTEMA.md.
+
+   Todo va colgado de .sistema para no filtrarse al prototipo Estrato, que
+   convive en las mismas rutas. Por eso la trama vive acá y no en el <body>.
+   ========================================================================= */
+
+.sistema {
+  /* Superficies — del fondo hacia adelante */
+  --page: #fafafb;
+  --canvas: #f1f2f3;
+  --surface: #fff;
+  --inset: #f7f8f9;
+  --hover: #f4f5f6;
+  --hover-2: #e7e9eb;
+
+  /* Tinta — tres niveles, nunca un cuarto */
+  --ink: #1f2124;
+  --ink-2: #62656b;
+  --ink-3: #9a9da3;
+
+  --line: #ecedef;
+  --line-strong: #e0e2e5;
+  --field: #f2f2f3;
+
+  --stripe: #49494913;
+  --stripe-bg: #f5f5f5;
+
+  --accent: #0285ff;
+  --accent-ink: #0170dd;
+  --accent-tint: #e9f3ff;
+
+  --green: #189a4d;
+  --green-tint: #e8f5ed;
+  --orange: #ef720c;
+  --orange-tint: #fdf1e5;
+  --red: #e3474c;
+  --red-tint: #fcecec;
+
+  --shadow-hairline: 0 0 0 1px var(--line);
+  --shadow-btn: 0 0 0 1px var(--line-strong), 0 1px 2px #1018280d;
+  --shadow-card: 0 0 0 1px var(--line), 0 1px 2px #1018280a, 0 2px 6px #10182808;
+
+  --radius-chip: 6px;
+  --radius-control: 8px;
+  --radius-card: 10px;
+  --radius-window: 14px;
+
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+
+  --dur-instant: 100ms;
+  --dur-fast: 120ms;
+  --dur-base: 150ms;
+  --dur-slow: 300ms;
+  --dur-slower: 400ms;
+}
+
+[data-theme='dark'] .sistema {
+  --page: #17181a;
+  --canvas: #1c1d1f;
+  --surface: #232427;
+  --inset: #1f2022;
+  --hover: #2a2b2e;
+  --hover-2: #313236;
+  --ink: #f2f3f4;
+  --ink-2: #a5a8ad;
+  --ink-3: #6c6f75;
+  --line: #2e3033;
+  --line-strong: #3a3c40;
+  --field: #2b2c2f;
+  --stripe: #ffffff0e;
+  --stripe-bg: #1b1c1e;
+  --accent: #3d9aff;
+  --accent-ink: #7ec0ff;
+  --accent-tint: #3d9aff29;
+  --green: #3dbb72;
+  --green-tint: #3dbb7224;
+  --orange: #f68f3c;
+  --orange-tint: #f68f3c24;
+  --red: #ee5c61;
+  --red-tint: #ee5c6124;
+  --shadow-hairline: 0 0 0 1px var(--line);
+  --shadow-btn: 0 0 0 1px var(--line-strong), 0 1px 2px #0000004d;
+  --shadow-card: 0 0 0 1px var(--line), 0 1px 2px #0003, 0 2px 6px #0003;
+}
+
+/* ── LA TRAMA. −45°, período de 8px, fija al scroll: el contenido pasa por
+      delante de una textura que no se mueve. Es la firma del sistema. ───── */
+.sistema {
+  min-height: 100dvh;
+  background-color: var(--stripe-bg);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 7px,
+    var(--stripe) 7px,
+    var(--stripe) 8px
+  );
+  background-attachment: fixed;
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.01em; /* tracking negativo global */
+}
+
+/* ── EL FOCO. Una sola regla, no se define por componente. ─────────────── */
+.sistema :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.sistema input:focus-visible,
+.sistema textarea:focus-visible,
+.sistema select:focus-visible {
+  outline: none; /* el campo se marca por su contenedor */
+}
+
+/* ── Tipografía. Nada por encima de 21px: la jerarquía es peso y tinta. ── */
+.s-titular { font-size: 21px; font-weight: 600; line-height: 1.25; letter-spacing: -0.02em; }
+.s-cifra { font-size: 21px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.s-cifra-sm { font-size: 16px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.s-titulo { font-size: 13px; font-weight: 600; }
+.s-cuerpo { font-size: 13px; line-height: 19.5px; }
+/* Acá el sistema se aparta de la referencia a propósito. En beautifului.dev
+   las descripciones y los rótulos van en la tinta más tenue, que no llega a
+   AA sobre ninguna superficie (2,4-3,5:1). Es la trampa documentada en
+   SISTEMA.md §10.1: ink-3 queda SÓLO para metadata que nadie precisa leer
+   —números de sección, fechas, unidades— y todo lo legible sube a ink-2. */
+.s-desc { font-size: 12.5px; line-height: 18.75px; color: var(--ink-2); text-wrap: pretty; }
+.s-etq { font-size: 12px; line-height: 18px; color: var(--ink-2); }
+.s-micro { font-size: 11.5px; line-height: 17.25px; }
+.s-mono { font-family: var(--font-jetbrains), ui-monospace, "SF Mono", monospace; font-variant-numeric: tabular-nums; }
+.s-num { font-variant-numeric: tabular-nums; }
+
+/* ── Sección: cero margen entre secciones, separa una línea PUNTEADA ───── */
+.s-seccion { padding: 40px 32px; border-bottom: 1px dashed var(--line); }
+.s-seccion:last-child { border-bottom: 0; }
+@media (max-width: 639px) { .s-seccion { padding: 28px 20px; } }
+
+/* la descripción comparte renglón con el título: el layout impone su largo */
+@media (min-width: 640px) {
+  .s-desc-trunca { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+/* ── El marco: el contenedor de contenido de cada sección ──────────────── */
+.s-marco {
+  border-radius: var(--radius-window);
+  background: var(--canvas);
+  box-shadow: var(--shadow-hairline);
+  padding: 12px;
+  overflow: hidden;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+.s-card {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* ── Filas de datos: divisorias SÓLIDAS (adentro de un componente) ─────── */
+.s-fila {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--dur-slower) var(--ease-in-out);
+}
+.s-fila:last-child { border-bottom: 0; }
+.s-fila-hover:hover { background: var(--hover); }
+
+/* ── Controles ────────────────────────────────────────────────────────── */
+.s-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--field);
+  box-shadow: var(--shadow-btn);
+  color: var(--ink);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--dur-base), transform var(--dur-base);
+}
+.s-pill:hover { background: var(--hover); }
+.s-pill:active { transform: scale(0.98); }
+
+.s-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background-color var(--dur-instant), color var(--dur-instant);
+}
+.s-icono:hover { background: var(--hover); color: var(--ink); }
+
+/* el realce sobresale del texto sin que el texto se mueva */
+.s-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% + 12px);
+  margin-inline: -6px;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 12.5px;
+  line-height: 18.75px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--dur-base), color var(--dur-base);
+}
+.s-item:hover { color: var(--ink); }
+.s-item[aria-current] { color: var(--ink); font-weight: 500; background: var(--hover); }
+
+/* ── Chips de estado. El tinte es opaco en claro y con alfa en oscuro. ─── */
+.s-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--radius-chip);
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.s-chip--ok { background: var(--green-tint); color: var(--green); }
+.s-chip--warn { background: var(--orange-tint); color: var(--orange); }
+.s-chip--bad { background: var(--red-tint); color: var(--red); }
+.s-chip--info { background: var(--accent-tint); color: var(--accent-ink); }
+.s-chip--neutro { background: var(--field); color: var(--ink-2); }
+
+/* ── Barra de proporción: neutra, y el líder en acento (es un detalle) ─── */
+/* riel visible: sobre la card, --field casi no se despega. Con --line-strong
+   se entiende que hay una escala y no una raya suelta. */
+.s-barra { height: 4px; border-radius: 999px; background: var(--line-strong); overflow: hidden; }
+.s-barra > i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ink-3);
+  transition: width var(--dur-slower) var(--ease-out-strong);
+}
+.s-barra--lider > i { background: var(--accent); }
+
+/* ── Tabla ────────────────────────────────────────────────────────────── */
+.s-tabla { width: 100%; border-collapse: collapse; text-align: left; }
+.s-tabla th,
+.s-tabla td { padding: 10px 12px; }
+.s-tabla th { font-size: 12px; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
+.s-tabla td { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.s-tabla tbody tr {
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--dur-slower) var(--ease-in-out);
+}
+.s-tabla tbody tr:last-child { border-bottom: 0; }
+.s-tabla tbody tr:hover { background: var(--hover); }
+
+/* ── Estados de dato ──────────────────────────────────────────────────── */
+.s-sube { color: var(--green); }
+.s-baja { color: var(--red); }
+
+/* ── Movimiento. Corte global y total. ────────────────────────────────── */
+.s-entra { animation: s-fade-up var(--dur-slow) var(--ease-out-strong) both; }
+@keyframes s-fade-up {
+  0% { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes s-pixel-on {
+  0%, to { opacity: 0.15; }
+  18%, 42% { opacity: 1; }
+  62% { opacity: 0.15; }
+}
+.s-pixel { animation: s-pixel-on 1.6s var(--ease-in-out) infinite; }
+@keyframes s-eq {
+  0%, to { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+.s-eq > i { display: block; width: 2px; height: 100%; border-radius: 1px; background: var(--ink-3);
+  animation: s-eq 900ms var(--ease-in-out) infinite; transform-origin: bottom; }
+.s-eq > i:nth-child(2) { animation-delay: 150ms; }
+.s-eq > i:nth-child(3) { animation-delay: 300ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sistema *,
+  .sistema *::before,
+  .sistema *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* ── Pie de página: cierra con el mismo punteado que separa las secciones ── */
+.s-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 32px;
+  border-top: 1px dashed var(--line);
+}
+
+/* ── Entrada de sección. El sistema pide movimiento; este es el suyo
+      (fade-up), escalonado por sección. No simula datos en vivo: sólo
+      evita que la página aterrice muerta. ─────────────────────────────── */
+.s-seccion { animation: s-fade-up var(--dur-slow) var(--ease-out-strong) both; }
