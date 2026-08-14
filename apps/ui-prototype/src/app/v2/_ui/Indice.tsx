@@ -29,7 +29,7 @@ export function Indice() {
 
   return (
     <aside
-      className="flex flex-col border-b border-dashed px-7 pt-10 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-hidden lg:border-r lg:border-b-0 lg:pt-[clamp(2.5rem,8vh,5rem)]"
+      className="flex flex-col px-7 pt-10 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-hidden lg:pt-[clamp(2.5rem,8vh,5rem)]"
       style={{ borderColor: 'var(--line)' }}
     >
       <div className="shrink-0">
@@ -52,7 +52,7 @@ export function Indice() {
         </h1>
       </div>
 
-      <div className="my-6 h-px shrink-0 border-t border-dashed" style={{ borderColor: 'var(--line)' }} />
+      <div className="my-6 shrink-0" />
 
       <nav
         className="relative min-h-0 flex-1 lg:overflow-hidden"

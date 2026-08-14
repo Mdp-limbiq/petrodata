@@ -95,14 +95,15 @@
   --shadow-card: 0 0 0 1px var(--line), 0 1px 2px #0003, 0 2px 6px #0003;
 }
 
-/* ── EL FONDO. Grilla de puntos de 1px cada 18px, fija al scroll: el
-      contenido pasa por delante de una textura que no se mueve. ────────── */
+/* ── EL FONDO. Sin textura (prueba de Mariano, 2026-08-14): el fondo queda
+      plano y lo único que separa el marco del suelo es el anillo de 1px.
+      Para volver a la grilla, descomentar las tres líneas de abajo. ────── */
 .sistema {
   min-height: 100dvh;
   background-color: var(--dot-bg);
-  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+  /* background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
   background-size: 18px 18px;
-  background-attachment: fixed;
+  background-attachment: fixed; */
   color: var(--ink);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-size: 14px;
@@ -140,18 +141,17 @@
 .s-num { font-variant-numeric: tabular-nums; }
 
 /* ── Sección: cero margen entre secciones, separa una línea PUNTEADA ─────
-      El vertical baja de 40 a 20 (pedido de Mariano, 2026-08-14): entre marco
+      El vertical baja de 40 a 16 (pedido de Mariano, 2026-08-14): entre marco
       y marco quedaban 81px —40 abajo + 1 de línea + 40 arriba— medidos de la
       referencia, donde cada sección es una demo de 272px de alto y necesita
       ese aire. Las nuestras son filas de datos, mucho más bajas, y 81px
-      pesaba de más. Con 20 quedan 41.
+      pesaba de más. Con 16 quedan 33.
 
       Efecto lateral que conviene notar: ahora el padding horizontal (32)
       supera al vertical (20), que es la relación que el sistema usa en todos
       los demás componentes. La sección era la única que la invertía. */
-.s-seccion { padding: 20px 32px; border-bottom: 1px dashed var(--line); }
-.s-seccion:last-child { border-bottom: 0; }
-@media (max-width: 639px) { .s-seccion { padding: 16px 20px; } }
+.s-seccion { padding: 16px 32px; }
+@media (max-width: 639px) { .s-seccion { padding: 12px 20px; } }
 
 /* la descripción comparte renglón con el título: el layout impone su largo */
 @media (min-width: 640px) {
@@ -324,14 +324,13 @@
   }
 }
 
-/* ── Pie de página: cierra con el mismo punteado que separa las secciones ── */
+/* ── Pie de página ────────────────────────────────────────────────────── */
 .s-pie {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 24px 32px;
-  border-top: 1px dashed var(--line);
 }
 
 /* ── Entrada de sección. El sistema pide movimiento; este es el suyo
