@@ -32,6 +32,10 @@ export function FilaProvincia({
   lider,
   tagColor,
   operadoras,
+  pctPozos,
+  puestoPozos,
+  puestoExpo,
+  total,
 }: {
   p: Province
   n: number
@@ -41,6 +45,12 @@ export function FilaProvincia({
   tagColor: string
   /** nombres ya resueltos: una función no cruza de server a client component */
   operadoras: string[]
+  /** porcentaje de los pozos del país que aporta la provincia */
+  pctPozos: number
+  /** puesto en cada ranking, y cuántas provincias hay */
+  puestoPozos: number
+  puestoExpo: number
+  total: number
 }) {
   const [abierta, setAbierta] = useState(false)
   const id = useId()
@@ -104,41 +114,43 @@ export function FilaProvincia({
         }}
       >
         <div style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '0 12px 12px 12px' }}>
+          <div style={{ padding: '0 12px 12px 44px' }}>
             <p className="s-desc m-0">{p.blurb}</p>
 
-            <div className="mt-2.5 grid gap-2 sm:grid-cols-3">
-              <Lectura rotulo="Pozos activos" valor={formatInteger(p.wells)} />
-              <Lectura
+            {/* Dos cápsulas —la fila-píldora de "Task Rows"— en vez de tres
+                cards: mismo dato en la mitad del alto, y cada una cierra con
+                el puesto que ocupa la provincia en ese ranking, que es
+                información que antes no estaba. */}
+            <div className="mt-2.5 flex flex-col gap-1.5">
+              <Capsula
+                icono="pozo"
+                rotulo="Pozos activos"
+                valor={formatInteger(p.wells)}
+                nota={`${formatDecimal(pctPozos, 1)}% del país`}
+                puesto={`${String(puestoPozos).padStart(2, '0')} de ${total}`}
+              />
+              <Capsula
+                icono="expo"
                 rotulo="Exportaciones"
                 valor={formatInteger(p.exportsMUSD)}
                 unidad="MUSD"
-              />
-              <Lectura
-                rotulo="Part. exportadora"
-                valor={`${formatDecimal(p.expSharePct, 1)}%`}
-                nota="del total nacional"
+                nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
+                puesto={`${String(puestoExpo).padStart(2, '0')} de ${total}`}
               />
             </div>
 
             {operadoras.length > 0 && (
-              <>
-                <p className="s-micro m-0 mt-3 mb-1.5" style={{ color: 'var(--ink-2)' }}>
-                  Empresas que operan
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {operadoras.map((nombre) => (
-                    <span
-                      key={nombre}
-                      className="s-micro flex items-center gap-1.5 rounded-[6px] px-2 py-1"
-                      style={{ background: 'var(--field)', color: 'var(--ink-2)' }}
-                    >
-                      <Marca nombre={nombre} />
-                      {nombre}
-                    </span>
-                  ))}
-                </div>
-              </>
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
+                  Operan
+                </span>
+                {operadoras.map((nombre) => (
+                  <span key={nombre} className="s-chip-tool">
+                    <Marca nombre={nombre} />
+                    {nombre}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         </div>
@@ -147,36 +159,69 @@ export function FilaProvincia({
   )
 }
 
-/** Lectura chica: la card del sistema con su cuerpo de 12px. */
-function Lectura({
+/** Cápsula: la fila-píldora del sistema. Rótulo, cifra, una nota y el puesto. */
+function Capsula({
+  icono,
   rotulo,
   valor,
   unidad,
   nota,
+  puesto,
 }: {
+  icono: 'pozo' | 'expo'
   rotulo: string
   valor: string
   unidad?: string
-  nota?: string
+  nota: string
+  puesto: string
 }) {
   return (
-    <div className="s-card">
-      <div style={{ padding: 12 }}>
-        <p className="s-etq m-0">{rotulo}</p>
-        <p className="m-0 mt-1 flex items-baseline gap-1.5">
-          <span className="s-cifra-sm">{valor}</span>
-          {unidad && (
-            <span className="text-[11px]" style={{ color: 'var(--ink-3)' }}>
-              {unidad}
-            </span>
-          )}
-        </p>
-        {nota && (
-          <p className="s-micro m-0 mt-1" style={{ color: 'var(--ink-3)' }}>
-            {nota}
-          </p>
+    <div className="s-capsula">
+      {/* Ícono y no un punto de color: un círculo de color sin significado
+          contradice la regla del sistema —el color significa algo— y además
+          la referencia usa íconos de trazo, no manchas. 14px con trazo 2, que
+          es lo que le toca a esa caja. */}
+      <svg
+        aria-hidden
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="ml-1 shrink-0"
+        style={{ color: 'var(--ink-3)' }}
+      >
+        {icono === 'pozo' ? (
+          <>
+            <path d="M12 21V8" />
+            <path d="M7 21h10" />
+            <path d="m8 8 4-5 4 5" />
+          </>
+        ) : (
+          <>
+            <path d="M4 20h16" />
+            <path d="M7 16V9" />
+            <path d="M12 16V5" />
+            <path d="M17 16v-4" />
+          </>
         )}
-      </div>
+      </svg>
+      <span className="s-micro shrink-0" style={{ color: 'var(--ink-2)' }}>
+        {rotulo}
+      </span>
+      <span className="s-num shrink-0 text-[13px] font-medium">{valor}</span>
+      {unidad && (
+        <span className="text-[11px] shrink-0" style={{ color: 'var(--ink-3)' }}>
+          {unidad}
+        </span>
+      )}
+      <span className="s-micro s-num min-w-0 flex-1 truncate" style={{ color: 'var(--ink-3)' }}>
+        {nota}
+      </span>
+      <span className="s-chip s-chip--neutro s-mono shrink-0 !px-2 !text-[10px]">{puesto}</span>
     </div>
   )
 }

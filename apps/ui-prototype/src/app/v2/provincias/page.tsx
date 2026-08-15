@@ -70,6 +70,10 @@ export default function V2Provincias() {
               lider={i === 0}
               tagColor={colorCuenca.get(p.basin)!}
               operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
+              pctPozos={(p.wells / totalPozos) * 100}
+              puestoPozos={i + 1}
+              puestoExpo={porExpo.findIndex((x) => x.slug === p.slug) + 1}
+              total={PROVINCES.length}
             />
           ))}
         </Card>

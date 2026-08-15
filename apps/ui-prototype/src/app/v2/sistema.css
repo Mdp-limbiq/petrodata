@@ -452,3 +452,36 @@
   font-size: 10px;
   font-weight: 650;
 }
+
+/* ── Cápsula ────────────────────────────────────────────────────────────
+   La fila-píldora de "Task Rows": 44px de alto con radio 22, o sea
+   completamente redondeada, sobre superficie y con su anillo. Acá va a 32px
+   con radio 16 —la mitad del alto, que es lo que la mantiene redonda— porque
+   nuestras filas son de dato y no de tarea. */
+.s-capsula {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px 0 6px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+/* ── Chip compacto ──────────────────────────────────────────────────────
+   El de "Tool Chips": radio de control, padding 4×6, 12,5px en tinta media.
+   Es el más chico del sistema que todavía admite un ícono al lado del texto,
+   y sirve donde una card sería demasiada ceremonia. */
+.s-chip-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: var(--radius-control);
+  background: var(--field);
+  color: var(--ink-2);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
