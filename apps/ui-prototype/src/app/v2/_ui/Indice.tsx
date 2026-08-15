@@ -37,8 +37,14 @@ export function Indice() {
     >
       {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
           la palabra. Usa el marco, igual que la card de la cuenca: mismo
-          fondo de canvas, mismo radio 14 y mismo anillo de 1px. Así las dos
-          piezas de la columna son del mismo color.
+          fondo de canvas y mismo anillo de 1px.
+
+          El radio SÍ cambia: 10 y no los 14 del marco. La regla del sistema
+          es que el radio crece con la caja para que la esquina se vea igual,
+          no para que el número sea igual. Con 42px de alto, 14 de radio son
+          el 33% del alto —la pieza más redonda del sistema, más incluso que
+          un chip— mientras que en el marco de sección son el 4%. Con 10
+          queda en 24%, en línea con el chip (27%) y los controles.
 
           El padding va por estilo inline y no por clase: el marco define 12px
           y acá hacen falta 10. Con 12 la fila pide 216px sobre 208 y la
@@ -49,7 +55,7 @@ export function Indice() {
           12 y 10 a 8, el tracking de 0,14 a 0,10em y el chip a 10,5px. */}
       <div
         className="s-marco flex shrink-0 items-center justify-between gap-2"
-        style={{ padding: '10px' }}
+        style={{ padding: '10px', borderRadius: 'var(--radius-card)' }}
       >
         <Link href="/v2" className="flex min-w-0 items-center gap-2 no-underline">
           <span
