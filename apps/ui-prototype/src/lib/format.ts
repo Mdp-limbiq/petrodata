@@ -63,3 +63,21 @@ export function formatDelta(mom: number | null, locale: AppLocale = 'es'): {
     label: `${formatDecimal(Math.abs(mom * 100), 1, locale)}%`,
   }
 }
+
+/** Compacto a la argentina: NUNCA "K".
+ *
+ *  `Intl` en notación compacta abrevia los miles con "K" —"6,9 K"—, que no se
+ *  usa en Argentina y que encima de una unidad que ya tiene magnitud produce
+ *  lecturas absurdas: "6,9 K MUSD" son miles de millones de dólares escritos
+ *  de la forma más confusa posible.
+ *
+ *  Acá los miles van con separador de miles, que es como se escriben, y sólo
+ *  de un millón para arriba se abrevia con "M", que sí es de uso corriente.
+ *
+ *    6.900        y no  6,9 K
+ *    557.149      y no  557,1 k
+ *    17 M         igual que antes
+ */
+export function formatCompactAR(value: number, locale: AppLocale = 'es'): string {
+  return Math.abs(value) < 1_000_000 ? formatInteger(value, locale) : formatCompact(value, locale)
+}

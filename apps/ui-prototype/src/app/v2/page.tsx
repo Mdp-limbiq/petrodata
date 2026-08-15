@@ -4,7 +4,7 @@ import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
 import { NEWS } from '@/fixtures/news'
-import { formatCompact, formatDecimal, formatInteger, formatMonth, formatPercent } from '@/lib/format'
+import { formatCompactAR, formatDecimal, formatInteger, formatMonth, formatPercent } from '@/lib/format'
 
 /* PRODUCCIÓN — el inicio, rederivado.
 
@@ -85,7 +85,7 @@ export default function V2Inicio() {
         <Card>
           <CardHead
             titulo="Petróleo · bbl/d"
-            nota={`${formatCompact(minOil)} – ${formatCompact(maxOil)}`}
+            nota={`${formatCompactAR(minOil)} – ${formatCompactAR(maxOil)}`}
           />
           <div className="px-3 py-3">
             {/* Barras horizontales y no un gráfico de área: el sistema no tiene
@@ -145,7 +145,7 @@ export default function V2Inicio() {
               key={op.slug}
               n={i + 1}
               nombre={op.name}
-              valor={formatCompact(op.boeMonth)}
+              valor={formatCompactAR(op.boeMonth)}
               pct={op.boeMonth / maxOp}
               lider={i === 0}
               nota={`${formatPercent(op.boeMonth / HEADLINE.boeMonth)} del BOE del mes`}

@@ -1,7 +1,7 @@
 import { Seccion, Card, CardHead, FilaDato, FilaRanking, Dato, Pie, Chip } from '../_ui/kit'
 import { DAY_VALUE, BRENT, VM, TESIS, RIGI, TRANSPORT, BREAKEVEN, EXPORTS_SUMMARY, CONTRIBUTION } from '@/fixtures/indicadores'
 import { OIL_PRODUCERS } from '@/fixtures/operators'
-import { formatCompact, formatDecimal, formatInteger } from '@/lib/format'
+import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
 /* INDICADORES — la sección más larga, y la que más se beneficia del sistema.
 
@@ -210,9 +210,9 @@ export default function V2Indicadores() {
                       {String(i + 1).padStart(2, '0')}
                     </td>
                     <td className="truncate">{c.operator}</td>
-                    <td className="text-right">{formatCompact(c.valorMUSD)}</td>
-                    <td className="text-right">{formatCompact(c.regaliasMUSD)}</td>
-                    <td className="text-right">{formatCompact(c.expoMUSD)}</td>
+                    <td className="text-right">{formatCompactAR(c.valorMUSD)}</td>
+                    <td className="text-right">{formatCompactAR(c.regaliasMUSD)}</td>
+                    <td className="text-right">{formatCompactAR(c.expoMUSD)}</td>
                   </tr>
                 ))}
               </tbody>

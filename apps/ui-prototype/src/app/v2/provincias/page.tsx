@@ -1,6 +1,6 @@
 import { Seccion, Card, CardHead, FilaRanking, Dato, Pie } from '../_ui/kit'
 import { PROVINCES } from '@/fixtures/provinces'
-import { formatCompact, formatDecimal, formatInteger } from '@/lib/format'
+import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
 /* PROVINCIAS — pocas filas, así que acá SÍ va la barra en cada una: con ocho
    ítems la magnitud relativa es el mensaje, y una barra lo dice más rápido
@@ -29,7 +29,7 @@ export default function V2Provincias() {
           </Card>
           <Card>
             <div className="px-3 py-3">
-              <Dato rotulo="Exportaciones" valor={formatCompact(totalExpo)} unidad="MUSD" />
+              <Dato rotulo="Exportaciones" valor={formatCompactAR(totalExpo)} unidad="MUSD" />
             </div>
           </Card>
           <Card>
@@ -67,13 +67,13 @@ export default function V2Provincias() {
         desc="Millones de dólares exportados y su peso en el total nacional."
       >
         <Card>
-          <CardHead titulo="Por exportaciones" nota={`${formatCompact(totalExpo)} MUSD`} />
+          <CardHead titulo="Por exportaciones" nota={`${formatCompactAR(totalExpo)} MUSD`} />
           {porExpo.map((p, i) => (
             <FilaRanking
               key={p.slug}
               n={i + 1}
               nombre={p.name}
-              valor={formatCompact(p.exportsMUSD)}
+              valor={formatCompactAR(p.exportsMUSD)}
               pct={p.exportsMUSD / maxExpo}
               lider={i === 0}
               nota={`${formatDecimal(p.expSharePct, 1)}% del total nacional`}
