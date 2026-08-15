@@ -70,7 +70,9 @@ export function FilaProvincia({
         </span>
         <Marca nombre={p.name} />
         <span className="flex min-w-0 flex-1 items-center gap-2">
-          <span className="s-cuerpo min-w-0 truncate font-medium">{p.name}</span>
+          {/* shrink-0: el nombre no cede, cede el tag. Cabe siempre —el más
+              largo mide 100 sobre una ranura de 137 a 375—. */}
+          <span className="s-cuerpo max-w-full shrink-0 truncate font-medium">{p.name}</span>
           <Tag color={tagColor}>{p.basin}</Tag>
         </span>
         <span
@@ -79,7 +81,10 @@ export function FilaProvincia({
         >
           <i style={{ width: `${Math.max(3, pct * 100)}%` }} />
         </span>
-        <span className="s-num w-16 shrink-0 text-right text-[13px] font-medium">
+        {/* 48px abajo de sm y 64 arriba. El número más ancho de la lista mide
+            37 (medido con un Range sobre las once filas), así que los 64 fijos
+            eran 27 de aire que a 375 le faltaban al nombre de la provincia. */}
+        <span className="s-num w-12 shrink-0 text-right text-[13px] font-medium sm:w-16">
           {formatInteger(p.wells)}
         </span>
         {/* chevron: 14px con trazo 2,2 — el mismo de la traza expandible de la
@@ -114,62 +119,62 @@ export function FilaProvincia({
         }}
       >
         <div style={{ overflow: 'hidden' }}>
-          {/* El riel arranca bajo el centro de la pastilla de la fila: 12 de
-              padding + 20 del rango + 10 de gap + 10 de media pastilla = 52.
-              Menos los 3 del riel, el contenedor va a 49. */}
-          <div
-            className="s-rama flex flex-col gap-1.5"
-            style={{ padding: '2px 12px 12px 49px' }}
-          >
-            <p className="s-desc m-0">{p.blurb}</p>
+          {/* El contenido arranca en 59, que deja el riel en 52: el centro
+              exacto de la pastilla de la fila (12 de padding + 20 del rango +
+              10 de gap + 10 de media pastilla). */}
+          <div style={{ padding: '2px 12px 12px 59px' }}>
+            {/* La descripción va FUERA del riel, y con los 6px de padding del
+                paso para que su texto arranque en la misma x que los íconos.
 
-            {/* Las cápsulas van como hijas DIRECTAS del riel, no envueltas en
-                un contenedor: si no, el codo se engancharía al contenedor y
-                habría un solo codo para las dos. */}
-            <Capsula
-              icono="pozo"
-              rotulo="Pozos activos"
-              valor={formatInteger(p.wells)}
-              nota={`${formatDecimal(pctPozos, 1)}% del país`}
-              puesto={`${String(puestoPozos).padStart(2, '0')} de ${total}`}
-            />
-            <Capsula
-              icono="expo"
-              rotulo="Exportaciones"
-              valor={formatInteger(p.exportsMUSD)}
-              unidad="MUSD"
-              nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
-              puesto={`${String(puestoExpo).padStart(2, '0')} de ${total}`}
-            />
+                Estaba adentro y era el problema de jerarquía: prosa de ancho
+                completo colgando del mismo riel que tres lecturas de dato, o
+                sea dos cosas distintas presentadas como pares. La descripción
+                no es un ítem del desglose, es lo que lo presenta. */}
+            <p className="s-desc m-0 pb-1.5 pl-1.5">{p.blurb}</p>
 
-            {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
-                destacadas e ilustrativas, no como la lista completa. Decir
-                "Operan" afirmaba algo que el dato no sostiene.
+            {/* Los pasos van como hijos DIRECTOS del riel, no envueltos en un
+                contenedor: si no, el codo se engancharía al contenedor y
+                habría un solo codo para los tres. */}
+            <div className="s-rama flex flex-col gap-1">
+              <Paso
+                icono="pozo"
+                rotulo="Pozos activos"
+                valor={formatInteger(p.wells)}
+                nota={`${formatDecimal(pctPozos, 1)}% del país`}
+                detalle={`${String(puestoPozos).padStart(2, '0')} de ${total}`}
+              />
+              <Paso
+                icono="expo"
+                rotulo="Exportaciones"
+                valor={formatInteger(p.exportsMUSD)}
+                unidad="MUSD"
+                nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
+                detalle={`${String(puestoExpo).padStart(2, '0')} de ${total}`}
+              />
 
-                El corte en tres es legítimo: el fixture las trae en el orden
-                del ranking por BOE, así que los primeros tres SON los tres
-                primeros. Las provincias con menos muestran las que tienen,
-                que es como se comporta cualquier top-N cuando el conjunto es
-                más chico.
+              {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
+                  destacadas e ilustrativas, no como la lista completa. Decir
+                  "Operan" afirmaba algo que el dato no sostiene.
 
-                Los chips van SIN la pastilla de inicial. Adentro de un chip
-                que ya muestra el nombre completo, la letra repite el primer
-                carácter del texto que tiene al lado: no ancla nada y engorda
-                cada chip 26px, lo suficiente para que los cuatro no entren en
-                una línea. La pastilla sirve en una fila de tabla, donde el
-                ojo baja por una columna de iniciales; acá no hay columna. */}
-            {operadoras.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="s-micro shrink-0" style={{ color: 'var(--ink-3)' }}>
-                  Top 3 operadoras
-                </span>
-                {operadoras.slice(0, 3).map((nombre) => (
-                  <span key={nombre} className="s-chip-tool">
-                    {nombre}
-                  </span>
-                ))}
-              </div>
-            )}
+                  El corte en tres es legítimo: el fixture las trae en el orden
+                  del ranking por BOE, así que los primeros tres SON los tres
+                  primeros. Las provincias con menos muestran las que tienen,
+                  que es como se comporta cualquier top-N cuando el conjunto es
+                  más chico.
+
+                  Los nombres van como texto y no como chips sobre --field: un
+                  chip es otra caja, y era la tercera forma distinta colgando
+                  del mismo riel. En ink-2 y no en ink-3 porque son contenido
+                  que hay que leer, no metadata. */}
+              {operadoras.length > 0 && (
+                <Paso
+                  icono="operadora"
+                  rotulo="Top 3 operadoras"
+                  nota={operadoras.slice(0, 3).join(' · ')}
+                  notaLegible
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -177,28 +182,39 @@ export function FilaProvincia({
   )
 }
 
-/** Cápsula: la fila-píldora del sistema. Rótulo, cifra, una nota y el puesto. */
-function Capsula({
+/* Paso: la fila del riel, con la escala MEDIDA en la traza de la referencia.
+
+   Allá son tres ranuras —ícono 14, texto flexible de 12,5/500 en tinta plena
+   y un detalle de 11,5/400 en ink-3, tipo "6 flavors"—. Acá la ranura del
+   medio se abre en rótulo y cifra, que es lo que pide una fila de dato: el
+   rótulo baja a ink-2 y la cifra se queda con el peso 500 y la tinta plena,
+   porque la cifra es el punto de la línea. Es jerarquía por peso y tinta, que
+   es la única que el sistema permite.
+
+   Sin caja, sin anillo y sin fondo: ver el comentario de .s-paso. */
+function Paso({
   icono,
   rotulo,
   valor,
   unidad,
   nota,
-  puesto,
+  notaLegible = false,
+  detalle,
 }: {
-  icono: 'pozo' | 'expo'
+  icono: 'pozo' | 'expo' | 'operadora'
   rotulo: string
-  valor: string
+  valor?: string
   unidad?: string
   nota: string
-  puesto: string
+  /** la nota es contenido y no metadata: sube a ink-2 para que se lea */
+  notaLegible?: boolean
+  detalle?: string
 }) {
   return (
-    <div className="s-capsula">
+    <div className="s-paso">
       {/* Ícono y no un punto de color: un círculo de color sin significado
           contradice la regla del sistema —el color significa algo— y además
-          la referencia usa íconos de trazo, no manchas. 14px con trazo 2, que
-          es lo que le toca a esa caja. */}
+          la referencia usa íconos de trazo, no manchas. */}
       <svg
         aria-hidden
         width="14"
@@ -209,16 +225,17 @@ function Capsula({
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="ml-1 shrink-0"
+        className="shrink-0"
         style={{ color: 'var(--ink-3)' }}
       >
-        {icono === 'pozo' ? (
+        {icono === 'pozo' && (
           <>
             <path d="M12 21V8" />
             <path d="M7 21h10" />
             <path d="m8 8 4-5 4 5" />
           </>
-        ) : (
+        )}
+        {icono === 'expo' && (
           <>
             <path d="M4 20h16" />
             <path d="M7 16V9" />
@@ -226,20 +243,42 @@ function Capsula({
             <path d="M17 16v-4" />
           </>
         )}
+        {icono === 'operadora' && (
+          <>
+            <path d="M4 21V8l8-5 8 5v13" />
+            <path d="M3 21h18" />
+            <path d="M10 21v-5h4v5" />
+          </>
+        )}
       </svg>
-      <span className="s-micro shrink-0" style={{ color: 'var(--ink-2)' }}>
+      {/* El rótulo cede DESPUÉS que la nota y antes de desbordar. A 375 las
+          partes fijas del paso de exportaciones sumaban 260 en 240 de ancho:
+          la nota ya colapsaba a cero —es la flexible— pero el resto no entraba
+          y la fila se desbordaba 26px. Con esto la nota se va primero, que es
+          lo correcto, y recién después el rótulo recorta. */}
+      <span className="min-w-0 truncate text-[12.5px]" style={{ color: 'var(--ink-2)' }}>
         {rotulo}
       </span>
-      <span className="s-num shrink-0 text-[13px] font-medium">{valor}</span>
+      {valor && <span className="s-num shrink-0 text-[12.5px] font-medium">{valor}</span>}
       {unidad && (
-        <span className="text-[11px] shrink-0" style={{ color: 'var(--ink-3)' }}>
+        <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
           {unidad}
         </span>
       )}
-      <span className="s-micro s-num min-w-0 flex-1 truncate" style={{ color: 'var(--ink-3)' }}>
+      {/* flex-auto y no flex-1: con base 0 el navegador nunca la envuelve
+          —su tamaño hipotético es cero— y la nota terminaba aplastada en la
+          misma línea. Con base automática, si no entra baja de renglón. */}
+      <span
+        className="min-w-0 flex-auto truncate text-[11.5px]"
+        style={{ color: notaLegible ? 'var(--ink-2)' : 'var(--ink-3)' }}
+      >
         {nota}
       </span>
-      <span className="s-chip s-chip--neutro s-mono shrink-0 !px-2 !text-[10px]">{puesto}</span>
+      {detalle && (
+        <span className="s-mono shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
+          {detalle}
+        </span>
+      )}
     </div>
   )
 }

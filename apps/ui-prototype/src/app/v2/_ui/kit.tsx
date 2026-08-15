@@ -434,7 +434,11 @@ export function Tag({ children, color }: { children: string; color: string }) {
   return (
     <span className="s-tag" style={{ ['--tag-color' as string]: color }}>
       <i aria-hidden />
-      {children}
+      {/* El texto va en su propio span porque .s-tag es un contenedor flex y
+          ahí text-overflow no aplica: el nodo de texto suelto se vuelve un
+          ítem anónimo y el recorte quedaba a hachazo limpio, sin los puntos
+          suspensivos. Se ve a 375, donde el tag cede espacio al nombre. */}
+      <span className="min-w-0 truncate">{children}</span>
     </span>
   )
 }

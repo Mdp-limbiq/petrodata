@@ -409,10 +409,21 @@
    "Neuquén" con "Cuenca Neuquina" al lado, y el tag terminaba pesando más que
    el dato. Con 19 entra en la caja de línea del nombre (19,5px) y vuelve a
    leerse como anotación. El radio baja con la caja, como manda la regla. */
+/* El tag cede TODO el espacio antes que el nombre. Con flex-shrink:0 pasaba
+   lo contrario: a 375 el tag se quedaba con sus 140px y "Neuquén" quedaba en
+   "N.". El nombre es la identidad de la fila y el tag es la anotación, así
+   que el orden de cesión tiene que ser ese.
+
+   Medido a 375: la ranura de nombre+tag da 137px. El nombre más largo de las
+   once provincias es "Tierra del Fuego" con 100, así que el piso del tag son
+   34px y no hay desborde en ninguna fila. En esa fila el tag queda reducido a
+   su punto de color y poco más; es el precio de que el nombre nunca se corte,
+   y es el reparto correcto. De 640 para arriba nada de esto se activa. */
 .s-tag {
   display: inline-flex;
   align-items: center;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 34px;
   height: 19px;
   max-width: 140px;
   padding: 0 6px;
@@ -453,50 +464,57 @@
   font-weight: 650;
 }
 
-/* ── Cápsula ────────────────────────────────────────────────────────────
-   La fila-píldora de "Task Rows": 44px de alto con radio 22, o sea
-   completamente redondeada, sobre superficie y con su anillo. Acá va a 32px
-   con radio 16 —la mitad del alto, que es lo que la mantiene redonda— porque
-   nuestras filas son de dato y no de tarea. */
-.s-capsula {
+/* ── Paso ───────────────────────────────────────────────────────────────
+   La fila que cuelga del riel. MEDIDA en la traza "Thinking" de la
+   referencia, que es el único lugar donde el riel aparece:
+
+     .flex.min-h-7.w-full.items-center.gap-2.rounded-[6px].px-1.5.py-0.5
+       ├─ svg 14 · trazo 2,5 · ink-3 · shrink-0
+       ├─ span 12,5px · peso 500 · ink · min-w-0 truncate     ← el flexible
+       └─ span 11,5px · peso 400 · ink-3 · shrink-0           ← el detalle
+
+   Lo importante es lo que NO tiene: fondo transparente, sin anillo y sin
+   sombra. El radio de 6 está para el hover, no para dibujar una caja. Todos
+   los hijos del riel son ESTA pieza, sin excepción —28px cada uno—, y ahí
+   está la mitad del valor: cuatro cosas que cuelgan del mismo riel se leen
+   como pares porque tienen la misma forma.
+
+   Antes yo tenía tres formas distintas colgando del mismo riel: un párrafo
+   suelto, dos píldoras con anillo y una fila de chips sobre --field. Además
+   de la jerarquía rota, la píldora traía un anillo a 3px del riel y el codo
+   le entraba 14px adentro. Las dos cosas se arreglan con la misma decisión:
+   una sola forma, sin caja.
+
+   El paso envuelve. De 640 para arriba nunca lo hace —medido, cero desbordes
+   en 640, 1024 y 1440—, pero a 375 la fila tiene 240px para seis piezas y sin
+   envolver la nota quedaba reducida a un muñón ilegible: "32,5% del país" se
+   veía como "3..". Envolver mantiene todo el contenido, que es lo que manda
+   la regla de no esconder nada en mobile. */
+.s-paso {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 10px 0 6px;
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: var(--shadow-card);
-}
-
-/* ── Chip compacto ──────────────────────────────────────────────────────
-   El de "Tool Chips" de la referencia, achicado: allá es 12,5px con padding
-   4×6 y radio de control, y acá va a 10,5 con padding 2×6 y radio de chip.
-
-   El motivo es el mismo que con los tags: en la referencia estos chips son
-   el contenido principal de su sección, y acá son una anotación adentro de
-   una fila desplegada. A 19px de alto quedan a la par del tag, que es el
-   otro accesorio del sistema, y el radio baja con la caja como corresponde. */
-.s-chip-tool {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  gap: 2px 8px;
+  width: 100%;
+  min-height: 28px;
   padding: 2px 6px;
-  border-radius: var(--radius-chip);
-  background: var(--field);
-  color: var(--ink-2);
-  font-size: 10.5px;
-  white-space: nowrap;
+  border-radius: 6px;
+  background: transparent;
 }
-
 
 /* ── Riel de desglose ───────────────────────────────────────────────────
    El riel de las trazas de "Thinking": medido en el sitio, es un span
-   absoluto de 1px en left:3px sobre --line, con el contenido corrido 16px.
+   absoluto de 1px en left:3px sobre --line, con el contenido corrido 16px
+   —o sea 13px de separación entre el riel y el texto—.
 
    Acá se le suma un codo por línea, que la referencia no tiene: pedido de
-   Mariano, y ayuda a leer qué cuelga de qué cuando las líneas son de altura
-   distinta —un párrafo, dos cápsulas y una fila de chips—.
+   Mariano.
+
+   Geometría: el contenedor arranca el contenido en 59 y el riel queda en 52,
+   que es el centro exacto de la pastilla de la fila. El codo va de 52 a 58 y
+   muere 1px antes de la caja del paso; con los 6px de padding del paso, el
+   ícono cae en 65 y quedan los mismos 13px de la referencia entre riel y
+   contenido.
 
    El segmento vertical va en CADA hijo en vez de en el contenedor, y el
    último se corta a la mitad. Es la forma de que el riel termine en el codo
@@ -504,15 +522,14 @@
    el contenedor habría que saber de antemano cuánto mide la última fila. */
 .s-rama > * {
   position: relative;
-  padding-left: 16px;
 }
-/* El segmento sube 6px —el gap de la lista— para tapar el corte que quedaba
+/* El segmento sube 4px —el gap de la lista— para tapar el corte que quedaba
    entre línea y línea: sin eso el riel se ve punteado. */
 .s-rama > *::before {
   content: '';
   position: absolute;
-  left: 3px;
-  top: -6px;
+  left: -7px;
+  top: -4px;
   bottom: 0;
   width: 1px;
   background: var(--line);
@@ -520,15 +537,15 @@
 .s-rama > *:first-child::before { top: 0; }
 .s-rama > *:last-child::before {
   bottom: auto;
-  height: calc(50% + 6px);
+  height: calc(50% + 4px);
 }
 .s-rama > *:first-child:last-child::before { height: 50%; }
 .s-rama > *::after {
   content: '';
   position: absolute;
-  left: 3px;
+  left: -7px;
   top: 50%;
-  width: 11px;
+  width: 6px;
   height: 1px;
   background: var(--line);
 }
