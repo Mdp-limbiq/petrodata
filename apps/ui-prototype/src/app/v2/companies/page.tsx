@@ -28,8 +28,8 @@ export default function V2Empresas() {
     <>
       <Seccion
         n="01"
-        titulo="Concentración"
-        desc="Cuánto del total nacional explican las diez primeras del ranking."
+        titulo="Aporte al país"
+        desc="Cuánto del total nacional explican las diez primeras."
       >
         <div className="grid gap-3 sm:grid-cols-3">
           <Card>
@@ -52,8 +52,8 @@ export default function V2Empresas() {
 
       <Seccion
         n="02"
-        titulo="Ranking"
-        desc="Las 52 empresas por participación en la producción nacional."
+        titulo="Empresas de petróleo y gas"
+        desc="Las 52, por participación en la producción nacional."
       >
         <Card>
           <CardHead titulo="Participación nacional" nota={`${COMPANIES.length} empresas`} />
@@ -122,7 +122,7 @@ export default function V2Empresas() {
         </Pie>
       </Seccion>
 
-      <Seccion n="03" titulo="Proyectos" desc="Total de proyectos declarados por el conjunto.">
+      <Seccion n="03" titulo="Proyectos" desc="Total declarado por el conjunto de empresas.">
         <Card>
           <div className="px-3 py-3">
             <Dato rotulo="Proyectos en el conjunto" valor={formatInteger(proyectos)} grande />

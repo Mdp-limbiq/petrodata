@@ -20,7 +20,7 @@ export default function V2Mapa() {
     <>
       <Seccion
         n="01"
-        titulo="Actividad"
+        titulo="Mapa de actividad"
         desc="Pozos muestreados sobre la cuenca, agrupados por densidad."
       >
         <div className="h-[420px] overflow-hidden rounded-[10px]">
@@ -34,7 +34,7 @@ export default function V2Mapa() {
 
       <Seccion
         n="02"
-        titulo="Catálogo"
+        titulo="Pozos en el catálogo"
         desc="Tamaño del catálogo completo y de la muestra que se dibuja."
       >
         <Card>

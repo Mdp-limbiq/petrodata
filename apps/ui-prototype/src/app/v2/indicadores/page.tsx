@@ -5,6 +5,12 @@ import { formatCompact, formatDecimal, formatInteger } from '@/lib/format'
 
 /* INDICADORES — la sección más larga, y la que más se beneficia del sistema.
 
+   Los títulos salen de src/messages/es.json del sitio —thesisLabel,
+   dayValue.label, breakevenTitle, vmCard.label, operatorsTitle,
+   contribution.title, transportTitle— y no de las reglas de escritura del
+   sistema, que pedían dos palabras. Son más largos que eso a propósito: es
+   la nomenclatura del producto y no se toca.
+
    Once secciones numeradas, todas con la misma plantilla y el mismo ritmo:
    mismo ancho, mismo padding, misma línea punteada al cierre. Es la apuesta
    del sistema —que la regularidad absoluta sea el efecto— y acá se nota:
@@ -29,8 +35,8 @@ export default function V2Indicadores() {
     <>
       <Seccion
         n="01"
-        titulo="Tesis"
-        desc="Los seis datos que sostienen el caso, con su variación interanual."
+        titulo="La tesis en seis datos"
+        desc="Con su variación interanual y su mes de corte."
       >
         <Card>
           {TESIS.map((t) => (
@@ -50,8 +56,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="02"
-        titulo="Valor"
-        desc="Cuánto genera la cuenca por día y por año, y su peso en el PBI."
+        titulo="Valor de un día de Vaca Muerta"
+        desc="Por día, por año y su peso en el PBI."
       >
         <div className="grid gap-3 sm:grid-cols-3">
           <Card>
@@ -78,8 +84,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="03"
-        titulo="Margen"
-        desc="Brent contra el costo de equilibrio del barril en la formación."
+        titulo="Margen sobre el breakeven"
+        desc="Brent contra el costo de equilibrio del barril."
       >
         <Card>
           <CardHead titulo="Precio y equilibrio" nota="US$/bbl" />
@@ -100,8 +106,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="04"
-        titulo="Equilibrio"
-        desc="Diez años de costo de equilibrio, comparados dentro de su rango."
+        titulo="Breakeven por año"
+        desc="Diez años, comparados dentro de su rango."
       >
         <Card>
           <CardHead titulo="Costo de equilibrio por año" nota={`US$ ${maxBe} → ${minBe}`} />
@@ -142,7 +148,7 @@ export default function V2Indicadores() {
       <Seccion
         n="05"
         titulo="Formación"
-        desc="Peso de Vaca Muerta dentro de la producción nacional de cada fluido."
+        desc="Peso de Vaca Muerta en la producción nacional de cada fluido."
       >
         <Card>
           <CardHead titulo={`Corte ${VM.dataDate}`} />
@@ -156,8 +162,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="06"
-        titulo="Petróleo"
-        desc="Barriles por día de los principales productores del país."
+        titulo="Operadores principales"
+        desc="Barriles por día de los mayores productores del país."
       >
         <Card>
           <CardHead titulo="Productores de petróleo" nota="bbl/d" />
@@ -181,8 +187,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="07"
-        titulo="Contribución"
-        desc="Millones de dólares generados, regalías y exportaciones por operadora."
+        titulo="Contribución económica"
+        desc="Valor bruto, regalías y exportaciones por operadora."
       >
         <Card>
           <CardHead titulo="Por operadora" nota="MUSD" />
@@ -217,8 +223,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="08"
-        titulo="Brecha"
-        desc="Diferencia entre el peso en valor y el peso en producción, en puntos."
+        titulo="Part. US$ menos part. BOE"
+        desc="La brecha entre peso en valor y peso en producción, en puntos."
       >
         <Card>
           <CardHead titulo="Valor menos producción" nota="puntos porcentuales" />
@@ -251,8 +257,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="09"
-        titulo="Inversión"
-        desc="Proyectos aprobados bajo el régimen, por monto comprometido."
+        titulo="Proyectos RIGI"
+        desc="Aprobados bajo el régimen, por monto comprometido."
       >
         <Card>
           <CardHead titulo="Proyectos RIGI" nota={`${formatDecimal(RIGI.totalBUSD, 1)} BUSD`} />
@@ -272,8 +278,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="10"
-        titulo="Transporte"
-        desc="Kilómetros de ducto de gas por operadora, sobre la red total."
+        titulo="Infraestructura de transporte"
+        desc="Gasoductos por operador, sobre la red troncal."
       >
         <Card>
           <CardHead titulo="Red de gas" nota={`${formatInteger(TRANSPORT.gasKm)} km`} />
@@ -296,8 +302,8 @@ export default function V2Indicadores() {
 
       <Seccion
         n="11"
-        titulo="Exportaciones"
-        desc="Miles de millones de dólares exportados por sector, y su reparto."
+        titulo="Exportaciones de energía"
+        desc="Miles de millones de dólares por sector, y su reparto."
       >
         <Card>
           <CardHead titulo="Por sector" nota={`${formatDecimal(EXPORTS_SUMMARY.totalBUSD, 1)} BUSD`} />

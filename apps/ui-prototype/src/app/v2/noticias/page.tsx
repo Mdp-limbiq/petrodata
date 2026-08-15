@@ -24,8 +24,8 @@ export default function V2Noticias() {
     <>
       <Seccion
         n="01"
-        titulo="Cobertura"
-        desc="Cuántas notas hay por categoría en el período cargado."
+        titulo="Cobertura de la cuenca"
+        desc="Cuántas notas hay por tema en el período cargado."
       >
         <div className="flex flex-wrap gap-2">
           {categorias.map(([cat, n]) => (
@@ -41,8 +41,8 @@ export default function V2Noticias() {
 
       <Seccion
         n="02"
-        titulo="Publicaciones"
-        desc="Todas las notas por fecha, con su fuente y su categoría."
+        titulo="Principales noticias"
+        desc="Todas, por fecha, con su fuente y su tema."
       >
         <Card>
           <CardHead titulo="Últimas primero" nota={`${orden.length} notas`} />

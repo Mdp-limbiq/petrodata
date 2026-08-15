@@ -33,7 +33,7 @@ export default function V2Inicio() {
     <>
       <Seccion
         n="01"
-        titulo="Producción"
+        titulo="Vaca Muerta"
         desc={`BOE del mes con su desglose en petróleo, gas y pozos, contra ${previo}.`}
       >
         <Card>
@@ -79,8 +79,8 @@ export default function V2Inicio() {
 
       <Seccion
         n="02"
-        titulo="Serie"
-        desc="Doce meses de petróleo por día, con el mes de corte marcado al final."
+        titulo="Producción mensual"
+        desc="Doce meses de petróleo por día, con el mes de corte al final."
       >
         <Card>
           <CardHead
@@ -135,8 +135,8 @@ export default function V2Inicio() {
 
       <Seccion
         n="03"
-        titulo="Operadoras"
-        desc="Las cinco que producen el mes, ordenadas por BOE y con su peso relativo."
+        titulo="Operadores principales"
+        desc="Las cinco del mes, por BOE y con su peso relativo."
       >
         <Card>
           <CardHead titulo="Ranking del mes" nota="BOE" />
@@ -159,7 +159,7 @@ export default function V2Inicio() {
 
       <Seccion
         n="04"
-        titulo="Cobertura"
+        titulo="Mapa de actividad"
         desc="Tamaño del catálogo y de las series que alimentan estas pantallas."
       >
         <div className="grid gap-3 sm:grid-cols-3">
@@ -183,8 +183,8 @@ export default function V2Inicio() {
 
       <Seccion
         n="05"
-        titulo="Noticias"
-        desc="Últimas publicaciones, con fecha, fuente y categoría."
+        titulo="Últimas noticias"
+        desc="Con fecha, fuente y categoría."
       >
         <Card>
           {ultimas.map((n) => (

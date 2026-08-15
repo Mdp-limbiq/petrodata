@@ -13,6 +13,11 @@ import { formatMonth } from '@/lib/format'
    distintos en vez de dos diseños del mismo. La nomenclatura se discute
    aparte, con el diseño ya decidido.
 
+   Los rótulos salen de src/messages/es.json del sitio, que es la fuente
+   canónica: nav.dashboardFull = "Dashboard" y nav.companiesFull = "Empresas".
+   El header que habíamos copiado en Estrato mostraba "Inicio" y "Companies",
+   que no coinciden con las traducciones propias del sitio.
+
    Índice — el panel de la izquierda: marca arriba, lista de secciones, la
    card de la cuenca y el bloque de cierre. Es sticky y de alto de viewport
    desde 1024px; abajo de eso se apila, que es el único reordenamiento que el
@@ -30,10 +35,10 @@ import { formatMonth } from '@/lib/format'
    fuera de v2. */
 
 const SECCIONES = [
-  { href: '/v2', n: '01', label: 'Inicio' },
+  { href: '/v2', n: '01', label: 'Dashboard' },
   { href: '/v2/mapa', n: '02', label: 'Mapa' },
   { href: '/v2/provincias', n: '03', label: 'Provincias' },
-  { href: '/v2/companies', n: '04', label: 'Companies' },
+  { href: '/v2/companies', n: '04', label: 'Empresas' },
   { href: '/v2/indicadores', n: '05', label: 'Indicadores' },
   { href: '/v2/noticias', n: '06', label: 'Noticias' },
 ]

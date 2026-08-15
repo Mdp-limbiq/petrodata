@@ -18,8 +18,8 @@ export default function V2Provincias() {
     <>
       <Seccion
         n="01"
-        titulo="Reparto"
-        desc="Pozos y exportaciones sumados sobre las provincias con actividad."
+        titulo="Provincias de Argentina"
+        desc="Pozos y exportaciones sumados sobre las que tienen actividad."
       >
         <div className="grid gap-3 sm:grid-cols-3">
           <Card>
@@ -42,8 +42,8 @@ export default function V2Provincias() {
 
       <Seccion
         n="02"
-        titulo="Pozos"
-        desc="Cuántos pozos aporta cada provincia, sobre el total del país."
+        titulo="Pozos activos"
+        desc="Cuántos aporta cada provincia, sobre el total del país."
       >
         <Card>
           <CardHead titulo="Por cantidad de pozos" nota={formatInteger(totalPozos)} />
@@ -63,7 +63,7 @@ export default function V2Provincias() {
 
       <Seccion
         n="03"
-        titulo="Exportaciones"
+        titulo="Perfil exportador"
         desc="Millones de dólares exportados y su peso en el total nacional."
       >
         <Card>
