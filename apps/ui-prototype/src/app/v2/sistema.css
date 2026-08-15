@@ -470,18 +470,22 @@
 }
 
 /* ── Chip compacto ──────────────────────────────────────────────────────
-   El de "Tool Chips": radio de control, padding 4×6, 12,5px en tinta media.
-   Es el más chico del sistema que todavía admite un ícono al lado del texto,
-   y sirve donde una card sería demasiada ceremonia. */
+   El de "Tool Chips" de la referencia, achicado: allá es 12,5px con padding
+   4×6 y radio de control, y acá va a 10,5 con padding 2×6 y radio de chip.
+
+   El motivo es el mismo que con los tags: en la referencia estos chips son
+   el contenido principal de su sección, y acá son una anotación adentro de
+   una fila desplegada. A 19px de alto quedan a la par del tag, que es el
+   otro accesorio del sistema, y el radio baja con la caja como corresponde. */
 .s-chip-tool {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px;
-  border-radius: var(--radius-control);
+  padding: 2px 6px;
+  border-radius: var(--radius-chip);
   background: var(--field);
   color: var(--ink-2);
-  font-size: 12.5px;
+  font-size: 10.5px;
   white-space: nowrap;
 }
 

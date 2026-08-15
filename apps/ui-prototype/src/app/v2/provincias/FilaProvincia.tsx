@@ -139,7 +139,14 @@ export function FilaProvincia({
               />
             </div>
 
-            {/* Los chips van SIN la pastilla de inicial. Adentro de un chip
+            {/* El rótulo dice "Principales" y no "Operan": el fixture las
+                marca como destacadas e ilustrativas, no como la lista
+                completa —Neuquén trae cuatro y el resto una o dos—, así que
+                "Operan" afirmaba algo que el dato no sostiene. "Operadores
+                principales" es además el término que usa el sitio para un
+                subconjunto.
+
+                Los chips van SIN la pastilla de inicial. Adentro de un chip
                 que ya muestra el nombre completo, la letra repite el primer
                 carácter del texto que tiene al lado: no ancla nada y engorda
                 cada chip 26px, lo suficiente para que los cuatro no entren en
@@ -148,7 +155,7 @@ export function FilaProvincia({
             {operadoras.length > 0 && (
               <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                 <span className="s-micro shrink-0" style={{ color: 'var(--ink-3)' }}>
-                  Operan
+                  Principales
                 </span>
                 {operadoras.map((nombre) => (
                   <span key={nombre} className="s-chip-tool">
