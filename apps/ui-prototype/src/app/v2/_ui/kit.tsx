@@ -220,7 +220,13 @@ export function Pie({ children }: { children: ReactNode }) {
 
    Van en blanco y negro lavado, el mismo tratamiento que la card del
    índice: veinte miniaturas a todo color competirían con los datos, que es
-   lo único que en este sistema tiene permitido llevar color. */
+   lo único que en este sistema tiene permitido llevar color.
+
+   El título se recorta a dos líneas y el resumen también. No es sólo estética:
+   con texto de alto libre cada fila medía distinto y la foto —de alto fijo—
+   terminaba en un lugar distinto en cada una. Recortado, todas las filas
+   miden lo mismo y la foto, que se estira al alto de la fila, mide lo mismo
+   en todas. Es además el ritmo invariante que pide el sistema. */
 
 const FOTOS = [
   'news-produccion-rig',
@@ -238,6 +244,20 @@ const FOTO_POR_CATEGORIA: Record<string, string> = {
   exportacion: 'news-gnl-buque',
   rigi: 'news-infraestructura-oleoducto',
   laboral: 'news-empresas-refineria',
+}
+
+/** Recorte a N líneas con alto fijo de N líneas: el bloque mide siempre lo
+    mismo, entre el título en una línea o en cuatro. Va inline y no con la
+    utilidad line-clamp de Tailwind, que en estas filas no llegaba a aplicarse
+    —el display computaba flow-root y el recorte necesita -webkit-box—. */
+function recorte(lineas: number, alturaLinea: number): React.CSSProperties {
+  return {
+    display: '-webkit-box',
+    WebkitBoxOrient: 'vertical',
+    WebkitLineClamp: lineas,
+    overflow: 'hidden',
+    height: alturaLinea * lineas,
+  }
 }
 
 /** Suma determinista del id: la misma nota muestra siempre la misma foto. */
@@ -289,6 +309,11 @@ export function FilaNoticia({
       className="s-fila s-fila-hover no-underline"
       style={{ color: 'inherit', alignItems: 'flex-start' }}
     >
+      {/* Cuadrado fijo, con aspectRatio 1 explícito. Las seis fotos tienen
+          proporciones distintas —hay apaisadas y verticales— así que dejarle
+          el alto libre las dibujaba de alturas distintas: una fila medía 115
+          y la de al lado 81. El recorte a 1:1 las iguala, y como el texto
+          también tiene alto fijo, todas las filas terminan midiendo lo mismo. */}
       <img
         src={src}
         alt=""
@@ -300,14 +325,21 @@ export function FilaNoticia({
         style={{
           width: 56,
           height: 56,
+          aspectRatio: '1 / 1',
           objectFit: 'cover',
           borderRadius: 'var(--radius-control)',
           filter: 'grayscale(1) contrast(0.9)',
         }}
       />
       <span className="min-w-0 flex-1">
-        <span className="s-cuerpo block font-medium">{titulo}</span>
-        {resumen && <span className="s-desc mt-0.5 block">{resumen}</span>}
+        <span className="s-cuerpo font-medium" style={recorte(2, 19.5)}>
+          {titulo}
+        </span>
+        {resumen && (
+          <span className="s-desc mt-0.5" style={{ ...recorte(2, 18.75), marginTop: 2 }}>
+            {resumen}
+          </span>
+        )}
         <span className="s-micro mt-1 flex flex-wrap items-center gap-x-1.5" style={{ color: 'var(--ink-2)' }}>
           {fuente}
           <span style={{ color: 'var(--ink-3)' }}>·</span>
