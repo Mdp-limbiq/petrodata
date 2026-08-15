@@ -26,6 +26,11 @@ export default function V2Provincias() {
       .sort((a, b) => b.exportsMUSD - a.exportsMUSD)
       .map((p, i) => [p.slug, i + 1]),
   )
+  const puestoPozosProvDe = new Map(
+    SOLO_PROVINCIAS.slice()
+      .sort((a, b) => b.wells - a.wells)
+      .map((p, i) => [p.slug, i + 1]),
+  )
   const cuencas = [...SOLO_PROVINCIAS.reduce((m, p) => {
     const x = m.get(p.basin) ?? { nombre: p.basin, provincias: 0, pozos: 0 }
     x.provincias++
@@ -91,7 +96,10 @@ export default function V2Provincias() {
               lider={i === 0}
               tagColor={colorCuenca.get(p.basin)}
               operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
+              metrica="pozos"
               pctPozos={(p.wells / totalPozos) * 100}
+              pctExpo={(p.exportsMUSD / totalExpo) * 100}
+              puestoPozos={puestoPozosProvDe.get(p.slug)}
               puestoExpo={puestoExpoDe.get(p.slug)}
               totalProvincias={SOLO_PROVINCIAS.length}
               serie={serieProvincia(p.slug, p.wells)}
@@ -147,7 +155,10 @@ export default function V2Provincias() {
               delta={(puestoPozosDe.get(p.slug) ?? i + 1) - (i + 1)}
               tagColor={colorCuenca.get(p.basin)}
               operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
+              metrica="exportaciones"
               pctPozos={(p.wells / totalPozos) * 100}
+              pctExpo={(p.exportsMUSD / totalExpo) * 100}
+              puestoPozos={puestoPozosProvDe.get(p.slug)}
               puestoExpo={puestoExpoDe.get(p.slug)}
               totalProvincias={SOLO_PROVINCIAS.length}
               serie={serieProvincia(p.slug, p.wells)}

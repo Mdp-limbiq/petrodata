@@ -45,7 +45,10 @@ export function FilaProvincia({
   delta,
   tagColor,
   operadoras,
+  metrica,
   pctPozos,
+  pctExpo,
+  puestoPozos,
   puestoExpo,
   totalProvincias,
   serie,
@@ -66,10 +69,18 @@ export function FilaProvincia({
   tagColor?: string
   /** nombres ya resueltos: una función no cruza de server a client component */
   operadoras: string[]
+  /** qué ordena la lista donde vive esta fila. Decide qué lectura encabeza el
+      desglose y a qué ranking se refiere el badge de puesto. */
+  metrica: 'pozos' | 'exportaciones'
   /** porcentaje de los pozos del país que aporta la provincia */
   pctPozos: number
-  /** puesto en el ranking de exportaciones. Sin valor en el Estado Nacional,
-      que aparece en la lista pero no es una provincia y no tiene puesto. */
+  /** participación en la COLUMNA de exportaciones, la que cierra contra el
+      total de la cabecera. No confundir con Province.expSharePct, que tiene
+      otro denominador: ver el comentario del fixture. */
+  pctExpo: number
+  /** puestos en cada ranking. Sin valor en el Estado Nacional, que aparece en
+      las listas pero no es una provincia y no tiene puesto. */
+  puestoPozos?: number
   puestoExpo?: number
   totalProvincias: number
   /** doce meses de producción de petróleo, bbl/d. Ver serieProvincia(). */
@@ -79,6 +90,11 @@ export function FilaProvincia({
 }) {
   const [abierta, setAbierta] = useState(false)
   const id = useId()
+  /* Producción queda pegada a pozos en los dos órdenes: se deriva de ellos. */
+  const pasos =
+    metrica === 'pozos'
+      ? (['pozos', 'produccion', 'exportaciones'] as const)
+      : (['exportaciones', 'pozos', 'produccion'] as const)
 
   return (
     <div style={{ borderBottom: '1px solid var(--line)' }}>
@@ -219,53 +235,71 @@ export function FilaProvincia({
                 </p>
               </div>
 
-              {/* Sin puesto: el ranking de pozos es el orden de esta misma
-                  lista, así que el puesto ya está impreso a la izquierda de la
-                  fila. Repetirlo abajo era decir dos veces lo mismo. */}
-              <Paso
-                icono="pozo"
-                rotulo="Pozos activos"
-                valor={formatInteger(p.wells)}
-                badges={[`${formatDecimal(pctPozos, 1)}% del país`]}
-              />
-              {/* La historia de producción. Va acá y no al final porque es la
-                  otra cara del renglón de arriba: cuántos pozos hay y cuánto
-                  sacan.
+              {/* El orden de las lecturas lo manda la métrica que ordena la
+                  lista: la sección que habla de exportaciones abre con
+                  exportaciones, no con pozos. Antes las dos listas mostraban el
+                  mismo desglose empezando por "Pozos activos", así que en
+                  "Perfil exportador" la primera cifra del desglose no era la
+                  que la sección estaba ordenando.
 
-                  Doce meses y no veinticuatro: la serie nacional tiene 24, pero
-                  a 3px por barra son 118px de ancho contra 58, y adentro de un
-                  renglón de 28 la diferencia decide si el paso envuelve o no.
-                  Doce es además la ventana que ya usa el dashboard.
+                  Y el badge de puesto va SIEMPRE en la lectura que la lista NO
+                  ordena: el puesto del ranking que estás viendo ya está impreso
+                  a la izquierda de la fila, y repetirlo abajo es decir dos
+                  veces lo mismo. El que no se ve es el que vale la pena. */}
+              {pasos.map((clave) =>
+                clave === 'pozos' ? (
+                  <Paso
+                    key="pozos"
+                    icono="pozo"
+                    rotulo="Pozos activos"
+                    valor={formatInteger(p.wells)}
+                    badges={[
+                      `${formatDecimal(pctPozos, 1)}% del país`,
+                      ...(metrica === 'exportaciones' && puestoPozos
+                        ? [`${puestoPozos}ª de ${totalProvincias} en pozos`]
+                        : []),
+                    ]}
+                  />
+                ) : clave === 'exportaciones' ? (
+                  <Paso
+                    key="expo"
+                    icono="expo"
+                    rotulo="Exportaciones"
+                    valor={formatInteger(p.exportsMUSD)}
+                    unidad="MUSD"
+                    badges={[
+                      `${formatDecimal(pctExpo, 1)}% del país`,
+                      ...(metrica === 'pozos' && puestoExpo
+                        ? [`${puestoExpo}ª de ${totalProvincias} en exportaciones`]
+                        : []),
+                    ]}
+                  />
+                ) : (
+                  /* La historia de producción. Va pegada a pozos porque es su
+                     otra cara —cuántos hay y cuánto sacan— y porque de ahí
+                     sale: la serie se deriva escalando la nacional por los
+                     pozos de la provincia.
 
-                  El badge dice la ventana y NO la variación del período. La
-                  tenía puesta y la saqué: con la serie inventada, los doce
-                  meses daban desde −11,4% hasta +80,0% según la provincia, y un
-                  "+80,0% en 12 meses" en un badge se lee como un hallazgo. La
-                  cifra del mes de corte al menos es proporcional a los pozos,
-                  que son reales; el delta no se apoya en nada. La variación
-                  mensual real que sí publica el sitio es nacional, no por
-                  provincia. */}
-              <Paso
-                icono="produccion"
-                rotulo="Producción"
-                unidad="bbl/d"
-                serie={serie}
-                meses={meses}
-                badges={[]}
-              />
-              {/* Acá sí: el orden por exportaciones NO es el de esta lista y no
-                  se ve en ningún otro lado de la sección. Escrito como puesto
-                  ordinal y no como "04 de 10", que no decía qué era. */}
-              <Paso
-                icono="expo"
-                rotulo="Exportaciones"
-                valor={formatInteger(p.exportsMUSD)}
-                unidad="MUSD"
-                badges={[
-                  `${formatDecimal(p.expSharePct, 1)}% nacional`,
-                  ...(puestoExpo ? [`${puestoExpo}ª de ${totalProvincias} provincias`] : []),
-                ]}
-              />
+                     Doce meses y no veinticuatro: la serie nacional tiene 24,
+                     pero a 3px por barra son 118px de ancho contra 58, y
+                     adentro de un renglón de 28 la diferencia decide si el paso
+                     envuelve o no. Doce es además la ventana del dashboard.
+
+                     El badge dice la ventana y NO la variación del período: con
+                     la serie inventada daba de −11,4% a +80,0% según la
+                     provincia, y un "+80,0%" en un badge se lee como un
+                     hallazgo. */
+                  <Paso
+                    key="prod"
+                    icono="produccion"
+                    rotulo="Producción"
+                    unidad="bbl/d"
+                    serie={serie}
+                    meses={meses}
+                    badges={[]}
+                  />
+                ),
+              )}
 
               {/* "Operadoras" y no "Top 3 operadoras": el rótulo prometía tres y
                   el fixture sólo las tiene cargadas para cinco provincias —y

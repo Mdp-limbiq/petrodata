@@ -6,6 +6,14 @@ export type Province = {
   basin: string
   wells: number
   exportsMUSD: number
+  /* OJO con este campo: NO es la participación de la provincia en la columna
+     exportsMUSD. Los once exportsMUSD suman 6.879 y los once expSharePct suman
+     40,4%, no 100. El denominador es otro —las exportaciones totales del país,
+     no las del complejo—, así que Neuquén es 28,1% acá y 69,6% de la columna.
+
+     Las dos cifras son reales y las dos sirven, pero mezclarlas en una misma
+     tabla no: v2 usa la participación en la columna, que es la que cierra
+     contra el total que muestra la cabecera. */
   expSharePct: number
   featured?: boolean
   /** operadoras destacadas (ilustrativo, para la ficha) */
