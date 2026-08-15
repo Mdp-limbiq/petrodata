@@ -1,4 +1,4 @@
-import { Seccion, Card, CardHead, FilaRanking, Dato, Pie, Tag, asignarColores } from '../_ui/kit'
+import { Seccion, Card, CardHead, Dato, Pie, Tag, asignarColores } from '../_ui/kit'
 import { FilaProvincia } from './FilaProvincia'
 import { COMPANIES } from '@/fixtures/companies'
 import { PROVINCES, SOLO_PROVINCIAS } from '@/fixtures/provinces'
@@ -86,6 +86,7 @@ export default function V2Provincias() {
               key={p.slug}
               p={p}
               n={i + 1}
+              valor={formatInteger(p.wells)}
               pct={p.wells / maxPozos}
               lider={i === 0}
               tagColor={colorCuenca.get(p.basin)}
@@ -128,17 +129,29 @@ export default function V2Provincias() {
       >
         <Card>
           <CardHead titulo="Por exportaciones" nota={`${formatCompactAR(totalExpo)} MUSD`} />
+          {/* La MISMA fila que la sección 02. Antes era FilaRanking con la nota
+              en un segundo renglón, y entre las dos listas no coincidía nada:
+              60px de alto contra 40, dos renglones contra uno, sin tag de
+              cuenca y las cinco columnas corridas entre 24 y 28px. El "% del
+              total nacional" que estaba en ese segundo renglón no se pierde:
+              ya vivía adentro del desglose, como badge del paso de
+              exportaciones. */}
           {porExpo.map((p, i) => (
-            <FilaRanking
+            <FilaProvincia
               key={p.slug}
+              p={p}
               n={i + 1}
-              nombre={p.name}
               valor={formatCompactAR(p.exportsMUSD)}
               pct={p.exportsMUSD / maxExpo}
               lider={i === 0}
-              marca
-              nota={`${formatDecimal(p.expSharePct, 1)}% del total nacional`}
               delta={(puestoPozosDe.get(p.slug) ?? i + 1) - (i + 1)}
+              tagColor={colorCuenca.get(p.basin)}
+              operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
+              pctPozos={(p.wells / totalPozos) * 100}
+              puestoExpo={puestoExpoDe.get(p.slug)}
+              totalProvincias={SOLO_PROVINCIAS.length}
+              serie={serieProvincia(p.slug, p.wells)}
+              meses={meses}
             />
           ))}
         </Card>

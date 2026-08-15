@@ -418,16 +418,23 @@
    "N.". El nombre es la identidad de la fila y el tag es la anotación, así
    que el orden de cesión tiene que ser ese.
 
-   Medido a 375: la ranura de nombre+tag da 137px. El nombre más largo de las
-   once provincias es "Tierra del Fuego" con 100, así que el piso del tag son
-   34px y no hay desborde en ninguna fila. En esa fila el tag queda reducido a
-   su punto de color y poco más; es el precio de que el nombre nunca se corte,
-   y es el reparto correcto. De 640 para arriba nada de esto se activa. */
+   Medido a 375: la ranura de nombre+tag da 137px en la lista de pozos y 117 en
+   la de exportaciones, que tiene una columna más —el movimiento de puesto—. El
+   nombre más largo de las once provincias es "Tierra del Fuego" con 100, así
+   que en la lista angosta al tag le quedan 9px.
+
+   El piso son 18px: 4 del punto + 12 de padding + 2 de borde, o sea lo justo
+   para que el punto de color siga estando. Debajo de eso el tag no sería una
+   etiqueta corta sino un recorte roto. En esas dos filas queda como una marca
+   de color sin texto, que sigue diciendo a qué cuenca pertenece.
+
+   Con 34, que era el piso anterior, el tag se montaba 14px sobre la cifra en
+   la lista de exportaciones. De 640 para arriba nada de esto se activa. */
 .s-tag {
   display: inline-flex;
   align-items: center;
   flex-shrink: 1;
-  min-width: 34px;
+  min-width: 18px;
   height: 19px;
   max-width: 140px;
   padding: 0 6px;

@@ -22,14 +22,27 @@ import type { Province } from '@/fixtures/provinces'
    y por eso el gesto se siente responder al clic y no arrastrarse.
 
    El contenido de adentro es el de la página de provincia del sitio, servido
-   con las piezas del sistema: la descripción, tres lecturas y las operadoras
-   que trabajan ahí. */
+   con las piezas del sistema: la descripción, cuatro lecturas y las operadoras
+   que trabajan ahí.
+
+   La MISMA fila sirve para las dos listas de la página. Antes "Perfil
+   exportador" tenía su propia pieza y no coincidía en nada con esta: 60px de
+   alto contra 40, dos renglones contra uno, sin el tag de cuenca, y las cinco
+   columnas corridas entre 24 y 28px. Eran dos listas de las mismas once
+   provincias, una debajo de la otra, con geometrías distintas.
+
+   Por eso la cifra de cabecera y la proporción de la barra entran por prop: la
+   fila no sabe si la están ordenando por pozos o por exportaciones. Lo único
+   que cambia entre listas es qué número muestra y si trae la columna de
+   movimiento. */
 
 export function FilaProvincia({
   p,
   n,
+  valor,
   pct,
   lider,
+  delta,
   tagColor,
   operadoras,
   pctPozos,
@@ -40,9 +53,15 @@ export function FilaProvincia({
 }: {
   p: Province
   n: number
+  /** cifra de cabecera de ESTA lista, ya formateada: pozos en una, MUSD en la
+      otra. La fila es la misma pieza en las dos y no sabe cuál está mirando. */
+  valor: string
   /** 0..1 sobre el máximo de la lista */
   pct: number
   lider: boolean
+  /** puestos que se mueve respecto del otro ranking de la página. Sin valor,
+      la columna no se dibuja. */
+  delta?: number
   /** sin valor cuando la cuenca no es una cuenca; el tag va neutro */
   tagColor?: string
   /** nombres ya resueltos: una función no cruza de server a client component */
@@ -74,6 +93,21 @@ export function FilaProvincia({
         <span className="s-mono w-5 shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
           {String(n).padStart(2, '0')}
         </span>
+        {/* El delta va pegado al puesto porque es del PUESTO: al final de la
+            fila, contra la cifra, se leería como una variación de la cifra.
+            Ancho fijo aunque esté vacío —cinco de las once no se mueven— para
+            que los nombres no arranquen en x distintas. El cero no se dibuja:
+            un "0" verde o rojo sería color sin significado. */}
+        {delta !== undefined && (
+          <span
+            className={`shrink-0 text-right ${
+              delta === 0 ? '' : delta > 0 ? 's-delta s-delta--sube' : 's-delta s-delta--baja'
+            }`}
+            style={{ width: 18 }}
+          >
+            {delta === 0 ? '' : delta > 0 ? `+${delta}` : `\u2212${Math.abs(delta)}`}
+          </span>
+        )}
         <Marca nombre={p.name} />
         <span className="flex min-w-0 flex-1 items-center gap-2">
           {/* shrink-0: el nombre no cede, cede el tag. Cabe siempre —el más
@@ -87,11 +121,12 @@ export function FilaProvincia({
         >
           <i style={{ width: `${Math.max(3, pct * 100)}%` }} />
         </span>
-        {/* 48px abajo de sm y 64 arriba. El número más ancho de la lista mide
-            37 (medido con un Range sobre las once filas), así que los 64 fijos
-            eran 27 de aire que a 375 le faltaban al nombre de la provincia. */}
-        <span className="s-num w-12 shrink-0 text-right text-[13px] font-medium sm:w-16">
-          {formatInteger(p.wells)}
+        {/* 40px abajo de sm y 64 arriba. El número más ancho de las dos listas
+            mide 37 (medido con un Range sobre las once filas de cada una), así
+            que arriba sobra aire de propósito y abajo se le da lo justo: a 375
+            esos píxeles los necesita el nombre de la provincia. */}
+        <span className="s-num w-10 shrink-0 text-right text-[13px] font-medium sm:w-16">
+          {valor}
         </span>
         {/* chevron: 14px con trazo 2,2 — el mismo de la traza expandible de la
             referencia. Rota en 300ms, cien menos que el panel. */}
@@ -125,10 +160,17 @@ export function FilaProvincia({
         }}
       >
         <div style={{ overflow: 'hidden' }}>
-          {/* El contenido arranca en 59, que deja el riel en 52: el centro
-              exacto de la pastilla de la fila (12 de padding + 20 del rango +
-              10 de gap + 10 de media pastilla). */}
-          <div style={{ padding: '2px 12px 12px 59px' }}>
+          {/* El riel tiene que caer en el centro de la pastilla, y la pastilla
+              se corre cuando la lista trae columna de movimiento. Se calcula en
+              vez de quedar fijo en 59:
+
+                12 de padding + 20 del rango + 10 de gap
+                (+ 18 del delta + 10 de gap, si lo hay)
+                + 10 de media pastilla = 52 u 80
+
+              y el contenido arranca 7px a la derecha del riel, que es la
+              separación medida en la referencia. */}
+          <div style={{ padding: `2px 12px 12px ${(delta === undefined ? 52 : 80) + 7}px` }}>
             {/* Todo cuelga como hijo DIRECTO del riel, sin envolver nada en un
                 contenedor: si no, el codo se engancharía al contenedor y habría
                 un solo codo para los cuatro. */}
