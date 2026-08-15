@@ -93,18 +93,26 @@ export default function V2Provincias() {
             />
           ))}
         </Card>
+        {/* El pie dice de dónde sale cada dato y nada más. Llegó a tener 824
+            caracteres —siete veces la mediana de los otros veinte pies de v2—
+            porque le fui apilando cosas, y la mitad no le hablaba al lector:
+
+            - por qué la fila se despliega en el lugar en vez de navegar: es la
+              justificación de una decisión de diseño, o sea un comentario de
+              código que se me escapó a la pantalla;
+            - que las barras se comparan dentro del rango y no desde cero: si
+              ya dije que la serie es inventada, cómo la escalé no cambia nada;
+            - qué es «Estado Nacional»: la propia fila lo dice al desplegarse
+              («Áreas bajo administración del Estado Nacional») y su tag es
+              neutro justamente porque no es una categoría;
+            - que «sin dato» es un hueco nuestro: lo dice el badge, en su fila.
+
+            Una advertencia va donde está lo que advierte. Al pie sólo queda lo
+            que no tiene dónde vivir en la pantalla: la procedencia. */}
         <Pie>
-          Cada fila se despliega en el lugar en vez de llevarte a otra página: la ficha de
-          una provincia son cinco datos, y perder el contexto de la lista para verlos
-          cuesta más de lo que aporta. Pozos y exportaciones son datos reales del sitio.
-          La serie de doce meses es <strong>ilustrativa</strong>: el sitio no publica
-          producción por provincia, así que se deriva de la nacional escalada por los pozos
-          de cada una; sirve para comparar formas, no para citar cifras. Sus barras se
-          comparan dentro del rango del período, no desde cero. Las operadoras son las
-          destacadas del fixture, no el listado completo, y donde dice «sin dato» es un
-          hueco nuestro y no una provincia sin operadoras. «Estado Nacional» son áreas bajo
-          administración nacional y no una provincia: suma a los totales del país, pero no
-          cuenta como provincia ni tiene puesto en el ranking.
+          Pozos y exportaciones salen del sitio. La producción mensual no: no se publica
+          por provincia y esta serie es ilustrativa. Las operadoras son las destacadas,
+          no todas las que operan.
         </Pie>
       </Seccion>
 
@@ -154,12 +162,15 @@ export default function V2Provincias() {
             </div>
           ))}
         </Card>
+        {/* Misma poda que el pie de la sección 02, que es de donde salió el
+            problema: la explicación de por qué el color es categórico y no
+            semántico es una regla del sistema, no un dato de esta tabla. Vive
+            en SISTEMA.md, que es donde alguien la va a buscar. Acá queda la
+            reconciliación de la suma, que es lo único que el lector no puede
+            deducir mirando. */}
         <Pie>
           Suman {formatInteger(pozosEnCuencas)} pozos y no {formatInteger(totalPozos)}: los{' '}
           {totalPozos - pozosEnCuencas} del Estado Nacional no están asignados a una cuenca.
-          El color de cada cuenca es el mismo en toda la web: es categórico, no dice si algo
-          está bien o mal. Los colores que sí significan —verde, naranja y rojo— quedan
-          reservados para eso.
         </Pie>
       </Seccion>
     </>
