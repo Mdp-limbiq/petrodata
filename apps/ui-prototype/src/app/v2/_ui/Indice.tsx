@@ -22,7 +22,13 @@ import { formatMonth } from '@/lib/format'
    fila de la marca arranque a la misma altura que el primer marco de la
    página. Antes era un clamp de 40 a 80px heredado de la referencia —donde el
    panel no tenía nada con qué alinearse— y dejaba la columna 58px más abajo
-   que el contenido. */
+   que el contenido.
+
+   Lleva una divisoria fina de 1px en --line: a la derecha desde 1024px y
+   abajo cuando se apila. Es SÓLIDA y no punteada —el punteado quedó fuera de
+   v2— y hace falta porque, sin trama de fondo, el panel y la columna de
+   contenido comparten exactamente el mismo suelo y no había nada que marcara
+   dónde termina uno. */
 
 const SECCIONES = [
   { href: '/v2', n: '01', label: 'Inicio' },
@@ -38,7 +44,7 @@ export function Indice() {
 
   return (
     <aside
-      className="flex flex-col px-7 pt-4 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto"
+      className="flex flex-col border-b px-7 pt-4 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r lg:border-b-0"
       style={{ borderColor: 'var(--line)' }}
     >
       {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
