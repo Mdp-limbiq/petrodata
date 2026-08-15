@@ -369,3 +369,24 @@
   background-size: 12px 12px;
   background-attachment: fixed;
 }
+
+/* ── Campo de búsqueda ─────────────────────────────────────────────────
+   La regla del sistema: el input es transparente y sin borde, y quien dibuja
+   el estado es el contenedor. Va como clase y no inline porque :focus-within
+   no existe en un style attribute. */
+.s-buscador {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  transition: border-color var(--dur-base), background-color var(--dur-base);
+}
+.s-buscador:focus-within {
+  border-color: var(--line-strong);
+  background: var(--hover);
+}
+.s-buscador input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; color: var(--ink); }
+.s-buscador input::placeholder { color: var(--ink-3); }

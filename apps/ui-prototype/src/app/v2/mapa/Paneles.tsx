@@ -1,8 +1,7 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { HEADLINE } from '@/fixtures/production'
-import { TOP_OPERATORS } from '@/fixtures/operators'
 import { formatCompact, formatDecimal, formatInteger, formatPercent } from '@/lib/format'
 
 /* Paneles flotantes del mapa — con la receta de card MEDIDA de la referencia,
@@ -207,21 +206,64 @@ export function PanelFiltros({
   )
 }
 
-/** Operadores principales — clic para filtrar; la ayuda baja al pie. */
+/** Operadores principales — la lista sale de los pozos que hay en el mapa,
+    no del ranking fijo del dashboard. Con el sorteo pesado por participación
+    nacional son 20 operadoras sobre 220 pozos, así que el buscador filtra de
+    verdad: sobre cinco habría sido un control decorativo.
+
+    El campo va con la receta del sistema: el input es transparente y sin
+    borde, y quien dibuja el estado es su contenedor con :focus-within. */
 export function PanelOperadores({
+  operadoras,
   seleccionada,
   onSeleccionar,
 }: {
+  /** slug, nombre y pozos de cada operadora presente en el mapa */
+  operadoras: { slug: string; nombre: string; pozos: number }[]
   seleccionada: string
   onSeleccionar: (slug: string) => void
 }) {
-  const max = Math.max(...TOP_OPERATORS.map((o) => o.boeMonth))
+  const [busca, setBusca] = useState('')
+  const max = Math.max(1, ...operadoras.map((o) => o.pozos))
+  const filtradas = useMemo(() => {
+    const q = busca.trim().toLowerCase()
+    return q ? operadoras.filter((o) => o.nombre.toLowerCase().includes(q)) : operadoras
+  }, [busca, operadoras])
+
   return (
     <Panel className="w-[268px]">
       <Cuerpo>
         <Titulo>Operadores principales</Titulo>
-        <ul className="m-0 mt-2 flex list-none flex-col gap-0.5 p-0">
-          {TOP_OPERATORS.map((op, i) => {
+
+        <label className="s-buscador mt-2">
+          <span aria-hidden className="s-micro" style={{ color: 'var(--ink-3)' }}>
+            ⌕
+          </span>
+          <input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar operador…"
+            aria-label="Buscar operador"
+            className="s-micro"
+          />
+          {busca && (
+            <button
+              type="button"
+              onClick={() => setBusca('')}
+              aria-label="Limpiar búsqueda"
+              className="s-micro shrink-0"
+              style={{ border: 0, background: 'none', color: 'var(--ink-3)', cursor: 'pointer', padding: 0 }}
+            >
+              ✕
+            </button>
+          )}
+        </label>
+
+        <ul
+          className="m-0 mt-1.5 flex list-none flex-col gap-0.5 p-0"
+          style={{ maxHeight: 168, overflowY: 'auto' }}
+        >
+          {filtradas.map((op, i) => {
             const on = op.slug === seleccionada
             return (
               <li key={op.slug}>
@@ -229,7 +271,7 @@ export function PanelOperadores({
                   type="button"
                   aria-pressed={on}
                   onClick={() => onSeleccionar(on ? '' : op.slug)}
-                  className="flex w-full items-center gap-2 rounded-[7px] px-1.5 py-1 text-left transition-colors"
+                  className="flex items-center gap-2 rounded-[7px] px-1.5 py-1 text-left transition-colors"
                   style={{
                     background: on ? 'var(--hover)' : 'transparent',
                     border: 0,
@@ -248,18 +290,23 @@ export function PanelOperadores({
                     className="s-micro min-w-0 flex-1 truncate"
                     style={{ color: 'var(--ink)', fontWeight: on ? 500 : 400 }}
                   >
-                    {op.name}
+                    {op.nombre}
                   </span>
                   <span className={`s-barra hidden w-10 shrink-0 sm:block ${on ? 's-barra--lider' : ''}`} aria-hidden>
-                    <i style={{ width: `${Math.max(3, (op.boeMonth / max) * 100)}%` }} />
+                    <i style={{ width: `${Math.max(3, (op.pozos / max) * 100)}%` }} />
                   </span>
-                  <span className="s-num s-micro w-10 shrink-0 text-right" style={{ fontWeight: 500 }}>
-                    {formatCompact(op.boeMonth)}
+                  <span className="s-num s-micro w-6 shrink-0 text-right" style={{ fontWeight: 500 }}>
+                    {op.pozos}
                   </span>
                 </button>
               </li>
             )
           })}
+          {filtradas.length === 0 && (
+            <li className="s-micro py-2" style={{ color: 'var(--ink-2)' }}>
+              Ninguna operadora coincide.
+            </li>
+          )}
         </ul>
       </Cuerpo>
       <Pie>
@@ -267,7 +314,7 @@ export function PanelOperadores({
           {seleccionada ? 'Clic de nuevo para quitarlo' : 'Haz clic para filtrar el mapa'}
         </span>
         <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>
-          BOE
+          {filtradas.length === operadoras.length ? `${operadoras.length}` : `${filtradas.length}/${operadoras.length}`}
         </span>
       </Pie>
     </Panel>

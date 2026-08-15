@@ -33,6 +33,21 @@ export function MapaV2() {
   const mapaRef = useRef<MLMap | null>(null)
   const [listo, setListo] = useState(false)
 
+  /* La lista del panel sale de los pozos del mapa, no de un ranking fijo:
+     así lo que se puede filtrar es exactamente lo que se está viendo. Se
+     cuenta sobre TODOS los pozos y no sobre los visibles, para que elegir una
+     operadora no borre a las demás de la lista. */
+  const operadoras = useMemo(() => {
+    const m = new Map<string, { slug: string; nombre: string; pozos: number }>()
+    for (const w of WELLS) {
+      const { operator, operatorName } = w.properties
+      const x = m.get(operator) ?? { slug: operator, nombre: operatorName, pozos: 0 }
+      x.pozos++
+      m.set(operator, x)
+    }
+    return [...m.values()].sort((a, b) => b.pozos - a.pozos)
+  }, [])
+
   const visibles = useMemo(
     () =>
       WELLS.filter((w) => {
@@ -141,7 +156,11 @@ export function MapaV2() {
       <div className="pointer-events-none absolute inset-0 z-10 flex justify-between gap-3 p-4">
         <div className="flex flex-col justify-between">
           <PanelResumen />
-          <PanelOperadores seleccionada={operadora} onSeleccionar={setOperadora} />
+          <PanelOperadores
+            operadoras={operadoras}
+            seleccionada={operadora}
+            onSeleccionar={setOperadora}
+          />
         </div>
         <div className="flex flex-col gap-3">
           <PanelFiltros
