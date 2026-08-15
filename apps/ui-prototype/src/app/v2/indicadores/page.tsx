@@ -36,6 +36,7 @@ export default function V2Indicadores() {
       <Seccion
         n="01"
         titulo="La tesis en seis datos"
+        ancho="completo"
         desc="Con su variación interanual y su mes de corte."
       >
         <Card>
@@ -107,6 +108,7 @@ export default function V2Indicadores() {
       <Seccion
         n="04"
         titulo="Breakeven por año"
+        ancho="completo"
         desc="Diez años, comparados dentro de su rango."
       >
         <Card>
@@ -188,6 +190,7 @@ export default function V2Indicadores() {
       <Seccion
         n="07"
         titulo="Contribución económica"
+        ancho="completo"
         desc="Valor bruto, regalías y exportaciones por operadora."
       >
         <Card>

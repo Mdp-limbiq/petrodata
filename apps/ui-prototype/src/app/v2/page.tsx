@@ -80,6 +80,7 @@ export default function V2Inicio() {
       <Seccion
         n="02"
         titulo="Producción mensual"
+        ancho="completo"
         desc="Doce meses de petróleo por día, con el mes de corte al final."
       >
         <Card>
@@ -184,6 +185,7 @@ export default function V2Inicio() {
       <Seccion
         n="05"
         titulo="Últimas noticias"
+        ancho="completo"
         desc="Con fecha, fuente y categoría."
       >
         <Card>
