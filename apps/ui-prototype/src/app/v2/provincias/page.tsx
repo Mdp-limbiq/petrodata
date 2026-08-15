@@ -2,6 +2,7 @@ import { Seccion, Card, CardHead, FilaRanking, Dato, Pie, Tag, asignarColores } 
 import { FilaProvincia } from './FilaProvincia'
 import { COMPANIES } from '@/fixtures/companies'
 import { PROVINCES, SOLO_PROVINCIAS } from '@/fixtures/provinces'
+import { serieProvincia } from '@/fixtures/production'
 import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
 /* PROVINCIAS — pocas filas, así que acá SÍ va la barra en cada una: con ocho
@@ -84,17 +85,22 @@ export default function V2Provincias() {
               pctPozos={(p.wells / totalPozos) * 100}
               puestoExpo={puestoExpoDe.get(p.slug)}
               totalProvincias={SOLO_PROVINCIAS.length}
+              serie={serieProvincia(p.slug, p.wells)}
             />
           ))}
         </Card>
         <Pie>
           Cada fila se despliega en el lugar en vez de llevarte a otra página: la ficha de
-          una provincia son cuatro datos, y perder el contexto de la lista para verlos
-          cuesta más de lo que aporta. Las operadoras que se listan son las tres primeras por
-          producción, no todas las que operan: el dato completo por provincia todavía no
-          lo tenemos. «Estado Nacional» son áreas bajo administración nacional y no una
-          provincia: suma a los totales del país, pero no cuenta como provincia ni tiene
-          puesto en el ranking.
+          una provincia son cinco datos, y perder el contexto de la lista para verlos
+          cuesta más de lo que aporta. Pozos y exportaciones son datos reales del sitio.
+          La serie de doce meses es <strong>ilustrativa</strong>: el sitio no publica
+          producción por provincia, así que se deriva de la nacional escalada por los pozos
+          de cada una; sirve para comparar formas, no para citar cifras. Sus barras se
+          comparan dentro del rango del período, no desde cero. Las operadoras son las
+          destacadas del fixture, no el listado completo, y donde dice «sin dato» es un
+          hueco nuestro y no una provincia sin operadoras. «Estado Nacional» son áreas bajo
+          administración nacional y no una provincia: suma a los totales del país, pero no
+          cuenta como provincia ni tiene puesto en el ranking.
         </Pie>
       </Seccion>
 

@@ -35,6 +35,7 @@ export function FilaProvincia({
   pctPozos,
   puestoExpo,
   totalProvincias,
+  serie,
 }: {
   p: Province
   n: number
@@ -51,6 +52,8 @@ export function FilaProvincia({
       que aparece en la lista pero no es una provincia y no tiene puesto. */
   puestoExpo?: number
   totalProvincias: number
+  /** doce meses de producción de petróleo, bbl/d. Ver serieProvincia(). */
+  serie: number[]
 }) {
   const [abierta, setAbierta] = useState(false)
   const id = useId()
@@ -180,6 +183,31 @@ export function FilaProvincia({
                 valor={formatInteger(p.wells)}
                 badges={[`${formatDecimal(pctPozos, 1)}% del país`]}
               />
+              {/* La historia de producción. Va acá y no al final porque es la
+                  otra cara del renglón de arriba: cuántos pozos hay y cuánto
+                  sacan.
+
+                  Doce meses y no veinticuatro: la serie nacional tiene 24, pero
+                  a 3px por barra son 118px de ancho contra 58, y adentro de un
+                  renglón de 28 la diferencia decide si el paso envuelve o no.
+                  Doce es además la ventana que ya usa el dashboard.
+
+                  El badge dice la ventana y NO la variación del período. La
+                  tenía puesta y la saqué: con la serie inventada, los doce
+                  meses daban desde −11,4% hasta +80,0% según la provincia, y un
+                  "+80,0% en 12 meses" en un badge se lee como un hallazgo. La
+                  cifra del mes de corte al menos es proporcional a los pozos,
+                  que son reales; el delta no se apoya en nada. La variación
+                  mensual real que sí publica el sitio es nacional, no por
+                  provincia. */}
+              <Paso
+                icono="produccion"
+                rotulo="Producción"
+                valor={formatInteger(serie[serie.length - 1])}
+                unidad="bbl/d"
+                serie={serie}
+                badges={['12 meses']}
+              />
               {/* Acá sí: el orden por exportaciones NO es el de esta lista y no
                   se ve en ningún otro lado de la sección. Escrito como puesto
                   ordinal y no como "04 de 10", que no decía qué era. */}
@@ -194,28 +222,25 @@ export function FilaProvincia({
                 ]}
               />
 
-              {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
-                  destacadas e ilustrativas, no como la lista completa. Decir
-                  "Operan" afirmaba algo que el dato no sostiene.
+              {/* "Operadoras" y no "Top 3 operadoras": el rótulo prometía tres y
+                  el fixture sólo las tiene cargadas para cinco provincias —y
+                  con tres solamente en Neuquén—. Santa Cruz, Chubut y Mendoza
+                  mostraban UNA sola debajo de un título que anunciaba un
+                  ranking de tres. El campo está declarado como "operadoras
+                  destacadas (ilustrativo)": nunca pretendió ser el listado
+                  completo ni un top-N.
 
-                  El corte en tres es legítimo: el fixture las trae en el orden
-                  del ranking por BOE, así que los primeros tres SON los tres
-                  primeros. Las provincias con menos muestran las que tienen,
-                  que es como se comporta cualquier top-N cuando el conjunto es
-                  más chico.
-
-                  Cada operadora es su propio badge, igual que el porcentaje y
-                  el puesto de las otras dos filas: el badge es el tratamiento
-                  de todo lo secundario del paso, no la excepción de una fila.
-                  Cuando eran texto corrido separado por puntos medios, las tres
-                  filas anotaban con formas distintas. */}
-              {operadoras.length > 0 && (
-                <Paso
-                  icono="operadora"
-                  rotulo="Top 3 operadoras"
-                  badges={operadoras.slice(0, 3)}
-                />
-              )}
+                  Y la fila se muestra SIEMPRE, aunque no haya dato. Ocultarla
+                  hacía que la ausencia se leyera como "esta provincia no tiene
+                  operadoras", que es falso: La Pampa tiene 272 pozos activos.
+                  Con el badge de "Sin dato" la ausencia se lee como lo que es,
+                  un hueco nuestro. No se puede completar desde otro lado: el
+                  fixture de pozos cubre sólo la Neuquina. */}
+              <Paso
+                icono="operadora"
+                rotulo="Operadoras"
+                badges={operadoras.length > 0 ? operadoras.slice(0, 3) : ['Sin dato']}
+              />
             </div>
           </div>
         </div>
@@ -239,12 +264,15 @@ function Paso({
   rotulo,
   valor,
   unidad,
+  serie,
   badges,
 }: {
-  icono: 'pozo' | 'expo' | 'operadora'
+  icono: 'pozo' | 'expo' | 'operadora' | 'produccion'
   rotulo: string
   valor?: string
   unidad?: string
+  /** si viene, se dibuja la serie compacta entre la unidad y los badges */
+  serie?: number[]
   /** todo lo secundario del paso, cada cosa en su badge */
   badges: string[]
 }) {
@@ -281,6 +309,12 @@ function Paso({
             <path d="M17 16v-4" />
           </>
         )}
+        {icono === 'produccion' && (
+          <>
+            <path d="M3 17l5.5-5.5 3.5 3.5L21 6" />
+            <path d="M15 6h6v6" />
+          </>
+        )}
         {icono === 'operadora' && (
           <>
             <path d="M4 21V8l8-5 8 5v13" />
@@ -301,6 +335,23 @@ function Paso({
       {unidad && (
         <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
           {unidad}
+        </span>
+      )}
+      {/* Las barras se comparan DENTRO del rango de los doce meses y no desde
+          cero: la serie va de 177k a 211k en Neuquén, así que desde cero las
+          doce barras se verían iguales y la forma no diría nada. Queda
+          declarado al pie de la sección, que es la única forma honesta.
+          El piso de 15% es para que el mes más bajo siga siendo una barra y no
+          un punto. */}
+      {serie && serie.length > 0 && (
+        <span className="s-serie" aria-hidden>
+          {(() => {
+            const min = Math.min(...serie)
+            const max = Math.max(...serie)
+            return serie.map((v, i) => (
+              <i key={i} style={{ height: `${15 + ((v - min) / (max - min || 1)) * 85}%` }} />
+            ))
+          })()}
         </span>
       )}
       {/* Ninguno crece: si estiraran, el primero empujaría al resto contra el

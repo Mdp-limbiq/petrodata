@@ -513,6 +513,36 @@
   border-radius: 6px;
   background: transparent;
 }
+/* ── Serie compacta ─────────────────────────────────────────────────────
+   EXTENSIÓN, no una pieza medida, y conviene que quede escrito: la referencia
+   no tiene NINGÚN gráfico. Barrí su DOM buscando SVG de datos, contenedores
+   con hijos angostos de la misma fila y cualquier cosa parecida a una serie:
+   cero resultados. La auditoría tampoco registra ninguno. Lo más cerca que
+   llega son los dos shimmer de los estados de carga, que no son datos.
+
+   Así que esto sale de las reglas del sistema, no de una medición:
+   - la magnitud se muestra con barras, que es como v2 ya la muestra en el
+     dashboard y en las barras de proporción de cada fila
+   - nada de superficies de color grandes: barras de 3px sobre --line-strong,
+     que es el mismo riel que usa .s-barra
+   - el acento sólo como detalle: lo lleva el mes de corte y nada más
+   - alto fijo en px y no aspect-ratio, que está prohibido en el sistema */
+.s-serie {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 2px;
+  height: 16px;
+}
+.s-serie > i {
+  display: block;
+  width: 3px;
+  min-height: 1px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+.s-serie > i:last-child { background: var(--accent); }
+
 /* Variante para la introducción: el contenido es prosa que envuelve, así que
    el ícono se alinea arriba —centrado en el primer renglón, con los 3px de
    corrección que van en el svg— y no a media altura del párrafo entero. Y no

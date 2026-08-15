@@ -64,3 +64,53 @@ export const OPERATOR_SERIES: OperatorPoint[] = NATIONAL_SERIES.slice(-12).map((
   })
   return row
 })
+
+/* ── Serie mensual por provincia — ILUSTRATIVA, con una advertencia extra ──
+
+   El sitio no publica series por provincia. La ficha provincial del prototipo
+   viejo la resuelve escalando la serie nacional por la participación de la
+   provincia en pozos activos, y eso tiene un efecto que en una LISTA se ve
+   enseguida: como es una multiplicación por una constante, las once provincias
+   quedan con exactamente la misma forma y la misma variación mensual. Once
+   sparklines idénticas no informan nada y además delatan que el dato es
+   sintético.
+
+   Así que además de escalar, cada provincia lleva su propia ondulación,
+   sembrada con su slug para que sea estable entre renders, entre pantallas y
+   entre servidor y cliente. Sigue siendo un dato inventado —como toda la serie
+   mensual, que ya está declarada ilustrativa arriba— pero al menos no afirma
+   que todas las provincias se mueven igual, que sería una afirmación más
+   fuerte y más falsa que la de no saber. */
+function semilla(slug: string): number {
+  let h = 0
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) >>> 0
+  return h
+}
+
+export function serieProvincia(slug: string, wells: number, meses = 12): number[] {
+  const factor = wells / HEADLINE.activeWells
+  const s = semilla(slug)
+  const fase = (s % 628) / 100
+  /* Amplitud y período generosos, y a propósito. Con una ondulación chica
+     —6 a 13%— la tendencia nacional dominaba y las once sparklines salían con
+     la misma forma: La Pampa daba 4,3,2,3,5,8,12,14,16,16,15,13 y Tierra del
+     Fuego 4,3,2,3,5,9,12,15,16,16,15,12. Once curvas iguales dicen "esto es un
+     único dato repetido", que es peor que no mostrar nada.
+
+     Subirla no rompe nada porque el ancla de abajo fija el último mes: la
+     amplitud cambia la FORMA, no el nivel ni el orden entre provincias. */
+  const amplitud = 0.1 + ((s >>> 8) % 200) / 1000
+  const periodo = 1.2 + ((s >>> 17) % 14) / 10
+  const onda = (i: number) => 1 + amplitud * Math.sin(fase + i / periodo)
+  /* La onda se normaliza contra su último valor: así el mes de corte queda
+     EXACTAMENTE proporcional a los pozos de la provincia y la ondulación sólo
+     cambia la forma, no el nivel.
+
+     Sin esto la onda se comía las diferencias de tamaño: Chubut, con 2.783
+     pozos, terminaba por encima de Santa Cruz, que tiene 3.266. La cifra del
+     paso contradecía la fila de pozos que tiene tres renglones más arriba. */
+  const ancla = onda(meses - 1)
+  return NATIONAL_SERIES.slice(-meses).map((p, i) =>
+    Math.round((p.oil * factor * onda(i)) / ancla),
+  )
+}
