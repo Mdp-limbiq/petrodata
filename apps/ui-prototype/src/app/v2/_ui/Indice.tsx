@@ -6,7 +6,14 @@ import { CardCuenca } from './CardCuenca'
 import { HEADLINE } from '@/fixtures/production'
 import { formatMonth } from '@/lib/format'
 
-/* Índice — el panel de la izquierda: marca arriba, lista de secciones, la
+/* Los nombres y el orden son los de vacamuerta.io, tal cual. Los había
+   cambiado —"Inicio" por "Producción", "Companies" por "Empresas", más una
+   sección "Operadoras" que el sitio no tiene— siguiendo las reglas de
+   escritura del sistema, pero eso convertía la comparación en dos sitios
+   distintos en vez de dos diseños del mismo. La nomenclatura se discute
+   aparte, con el diseño ya decidido.
+
+   Índice — el panel de la izquierda: marca arriba, lista de secciones, la
    card de la cuenca y el bloque de cierre. Es sticky y de alto de viewport
    desde 1024px; abajo de eso se apila, que es el único reordenamiento que el
    sistema hace en todo el responsive.
@@ -18,13 +25,12 @@ import { formatMonth } from '@/lib/format'
    que el contenido. */
 
 const SECCIONES = [
-  { href: '/v2', n: '01', label: 'Producción' },
-  { href: '/v2/operadoras', n: '02', label: 'Operadoras' },
-  { href: '/v2/empresas', n: '03', label: 'Empresas' },
-  { href: '/v2/provincias', n: '04', label: 'Provincias' },
+  { href: '/v2', n: '01', label: 'Inicio' },
+  { href: '/v2/mapa', n: '02', label: 'Mapa' },
+  { href: '/v2/provincias', n: '03', label: 'Provincias' },
+  { href: '/v2/companies', n: '04', label: 'Companies' },
   { href: '/v2/indicadores', n: '05', label: 'Indicadores' },
-  { href: '/v2/mapa', n: '06', label: 'Mapa' },
-  { href: '/v2/noticias', n: '07', label: 'Noticias' },
+  { href: '/v2/noticias', n: '06', label: 'Noticias' },
 ]
 
 export function Indice() {

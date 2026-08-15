@@ -1,14 +1,18 @@
 import { Seccion, Card, CardHead, FilaDato, FilaRanking, Dato, Pie, Chip } from '../_ui/kit'
-import { DAY_VALUE, BRENT, VM, TESIS, RIGI, TRANSPORT, BREAKEVEN, EXPORTS_SUMMARY } from '@/fixtures/indicadores'
-import { formatDecimal, formatInteger } from '@/lib/format'
+import { DAY_VALUE, BRENT, VM, TESIS, RIGI, TRANSPORT, BREAKEVEN, EXPORTS_SUMMARY, CONTRIBUTION } from '@/fixtures/indicadores'
+import { OIL_PRODUCERS } from '@/fixtures/operators'
+import { formatCompact, formatDecimal, formatInteger } from '@/lib/format'
 
 /* INDICADORES — la sección más larga, y la que más se beneficia del sistema.
 
-   Ocho secciones numeradas, todas con la misma plantilla y el mismo ritmo:
+   Once secciones numeradas, todas con la misma plantilla y el mismo ritmo:
    mismo ancho, mismo padding, misma línea punteada al cierre. Es la apuesta
    del sistema —que la regularidad absoluta sea el efecto— y acá se nota:
-   ocho bloques de datos distintos se leen como un documento continuo en vez
-   de como ocho tarjetas peleando por atención. */
+   once bloques de datos distintos se leen como un documento continuo en vez
+   de como once tarjetas peleando por atención.
+
+   Las secciones 06 a 08 venían de una página "Operadoras" que yo había
+   inventado y que el sitio no tiene: acá es donde vive ese dato. */
 
 export default function V2Indicadores() {
   const maxKm = Math.max(...TRANSPORT.gasByOperator.map((o) => o.km))
@@ -16,6 +20,10 @@ export default function V2Indicadores() {
   const minBe = Math.min(...BREAKEVEN.map((b) => b.usdBbl))
   const maxBe = Math.max(...BREAKEVEN.map((b) => b.usdBbl))
   const maxExp = Math.max(...EXPORTS_SUMMARY.sectors.map((s) => s.busd))
+  const maxBbl = Math.max(...OIL_PRODUCERS.map((o) => o.bbld))
+  const brecha = CONTRIBUTION.slice().sort(
+    (a, b) => b.partUsdPct - b.partBoePct - (a.partUsdPct - a.partBoePct),
+  )
 
   return (
     <>
@@ -148,6 +156,101 @@ export default function V2Indicadores() {
 
       <Seccion
         n="06"
+        titulo="Petróleo"
+        desc="Barriles por día de los principales productores del país."
+      >
+        <Card>
+          <CardHead titulo="Productores de petróleo" nota="bbl/d" />
+          {OIL_PRODUCERS.map((p, i) => (
+            <FilaRanking
+              key={p.name}
+              n={i + 1}
+              nombre={p.name}
+              valor={formatInteger(p.bbld)}
+              pct={p.bbld / maxBbl}
+              lider={i === 0}
+              nota={`${formatDecimal(p.sharePct, 1)}% del total nacional`}
+            />
+          ))}
+        </Card>
+        <Pie>
+          El orden no coincide con el del BOE: quien más petróleo produce no es
+          necesariamente quien más energía total aporta.
+        </Pie>
+      </Seccion>
+
+      <Seccion
+        n="07"
+        titulo="Contribución"
+        desc="Millones de dólares generados, regalías y exportaciones por operadora."
+      >
+        <Card>
+          <CardHead titulo="Por operadora" nota="MUSD" />
+          <div className="overflow-x-auto">
+            <table className="s-tabla">
+              <thead>
+                <tr>
+                  <th className="w-10">#</th>
+                  <th>Operadora</th>
+                  <th className="w-20 text-right">Valor</th>
+                  <th className="w-20 text-right">Regalías</th>
+                  <th className="w-20 text-right">Exportado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CONTRIBUTION.map((c, i) => (
+                  <tr key={c.operator}>
+                    <td className="s-mono text-[11px]" style={{ color: 'var(--ink-3)', fontWeight: 400 }}>
+                      {String(i + 1).padStart(2, '0')}
+                    </td>
+                    <td className="truncate">{c.operator}</td>
+                    <td className="text-right">{formatCompact(c.valorMUSD)}</td>
+                    <td className="text-right">{formatCompact(c.regaliasMUSD)}</td>
+                    <td className="text-right">{formatCompact(c.expoMUSD)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </Seccion>
+
+      <Seccion
+        n="08"
+        titulo="Brecha"
+        desc="Diferencia entre el peso en valor y el peso en producción, en puntos."
+      >
+        <Card>
+          <CardHead titulo="Valor menos producción" nota="puntos porcentuales" />
+          {brecha.map((c, i) => {
+            const d = c.partUsdPct - c.partBoePct
+            return (
+              <div key={c.operator} className="s-fila s-fila-hover">
+                <span className="s-mono w-5 shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{c.operator}</span>
+                <span className="s-micro s-num shrink-0" style={{ color: 'var(--ink-2)' }}>
+                  {formatDecimal(c.partBoePct, 1)}% → {formatDecimal(c.partUsdPct, 1)}%
+                </span>
+                <span
+                  className={`s-num w-14 shrink-0 text-right text-[13px] font-medium ${d >= 0 ? 's-sube' : 's-baja'}`}
+                >
+                  {d >= 0 ? '▲' : '▼'} {formatDecimal(Math.abs(d), 1)}
+                </span>
+              </div>
+            )
+          })}
+        </Card>
+        <Pie>
+          Un valor positivo significa que la operadora captura más valor del que le
+          correspondería por volumen. Compara dos participaciones, no dos magnitudes.
+        </Pie>
+      </Seccion>
+
+
+      <Seccion
+        n="09"
         titulo="Inversión"
         desc="Proyectos aprobados bajo el régimen, por monto comprometido."
       >
@@ -168,7 +271,7 @@ export default function V2Indicadores() {
       </Seccion>
 
       <Seccion
-        n="07"
+        n="10"
         titulo="Transporte"
         desc="Kilómetros de ducto de gas por operadora, sobre la red total."
       >
@@ -192,7 +295,7 @@ export default function V2Indicadores() {
       </Seccion>
 
       <Seccion
-        n="08"
+        n="11"
         titulo="Exportaciones"
         desc="Miles de millones de dólares exportados por sector, y su reparto."
       >
