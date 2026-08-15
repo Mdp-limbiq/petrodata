@@ -33,7 +33,7 @@
      Es geometría: una trama de 1px cada 8px cubre el 12,5% de la superficie;
      una grilla de puntos de 1px de radio cada 18px cubre el 0,97%. Trece
      veces menos superficie, así que con el alfa viejo no se vería nada. */
-  --dot: #4949494a;
+  --dot: #49494929;
   --dot-bg: #f5f5f5;
 
   /* Fondo propio del panel lateral: un peldaño MÁS CLARO que el suelo en los
@@ -85,7 +85,7 @@
   --line: #2e3033;
   --line-strong: #3a3c40;
   --field: #2b2c2f;
-  --dot: #ffffff2b;
+  --dot: #ffffff17;
   --dot-bg: #1b1c1e;
   --panel: #1f2022;
   --accent: #3d9aff;
@@ -102,9 +102,9 @@
   --shadow-card: 0 0 0 1px var(--line), 0 1px 2px #0003, 0 2px 6px #0003;
 }
 
-/* ── EL FONDO. Sin textura: queda plano y lo único que separa el marco del
-      suelo es el anillo de 1px. Para volver a la grilla, descomentar las
-      tres líneas de abajo.
+/* ── EL FONDO. El suelo general queda liso; la grilla de puntos vive sólo en
+      la columna de contenido (.s-contenido), así el panel lateral se
+      distingue por color Y por textura.
 
       El suelo pasa de --dot-bg a --page. --dot-bg era el fondo que la
       referencia le ponía al body DEBAJO de la trama, y sin trama no tiene
@@ -118,9 +118,7 @@
 .sistema {
   min-height: 100dvh;
   background-color: var(--page);
-  /* background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
-  background-size: 18px 18px;
-  background-attachment: fixed; */
+
   color: var(--ink);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-size: 14px;
@@ -167,7 +165,7 @@
       Efecto lateral que conviene notar: ahora el padding horizontal (32)
       supera al vertical (20), que es la relación que el sistema usa en todos
       los demás componentes. La sección era la única que la invertía. */
-.s-seccion { padding: 16px 32px; }
+.s-seccion { max-width: 672px; padding: 16px 32px; }
 @media (max-width: 639px) { .s-seccion { padding: 12px 20px; } }
 
 /* la descripción comparte renglón con el título: el layout impone su largo */
@@ -347,6 +345,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  max-width: 672px;
   padding: 24px 32px;
 }
 
@@ -354,3 +353,19 @@
       (fade-up), escalonado por sección. No simula datos en vivo: sólo
       evita que la página aterrice muerta. ─────────────────────────────── */
 .s-seccion { animation: s-fade-up var(--dur-slow) var(--ease-out-strong) both; }
+
+/* ── Columna de contenido: la grilla de puntos, sólo acá ────────────────
+   Puntos de 1px cada 18px, fija al scroll: el contenido pasa por delante de
+   una textura que no se mueve. Va en la columna y no en el suelo general
+   para que el panel lateral se separe por dos vías —color y textura— y no
+   sólo por la divisoria.
+
+   El alfa baja a 0,16 en claro y 0,09 en oscuro, la mitad de lo que tenía
+   cuando la trama cubría toda la página. Ahí competía con nada; acá aparece
+   al lado de un panel liso, y el contraste entre las dos superficies la hace
+   más evidente de lo que el número sugiere. */
+.s-contenido {
+  background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
+  background-size: 18px 18px;
+  background-attachment: fixed;
+}

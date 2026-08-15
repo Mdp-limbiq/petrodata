@@ -5,9 +5,13 @@ import { Indice } from './_ui/Indice'
 
 /* Esqueleto del sistema V2. No es el chrome de Estrato con otros colores: es
    el esqueleto que pide el sistema medido — índice fijo de 288px + columna de
-   contenido de 672px, topeado en 960 y CENTRADO NO. En pantallas anchas el
-   contenido se queda en 960 y lo que sobra queda a la vista con la trama:
-   eso es composición, no relleno.
+   contenido, con el contenido topeado en 672 y alineado a la izquierda.
+
+   La columna de contenido ocupa TODO el ancho sobrante (1fr) aunque su
+   contenido se tope en 672. Antes el grid entero se topaba en 960 y la
+   columna terminaba ahí: al ponerle la trama de puntos, la textura cortaba en
+   seco a mitad de pantalla en monitores anchos. Con 1fr la textura llega
+   hasta el borde y el contenido sigue donde estaba.
 
    El índice cumple el mismo papel que en la referencia (tabla de contenidos),
    sólo que ahí indexaba las 19 secciones de una página única y acá indexa las
@@ -35,9 +39,9 @@ export const metadata: Metadata = {
 export default function V2Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`sistema ${inter.variable} ${mono.variable}`}>
-      <div className="grid max-w-[960px] lg:grid-cols-[288px_672px]">
+      <div className="grid lg:grid-cols-[288px_1fr]">
         <Indice />
-        <main className="min-w-0">
+        <main className="s-contenido min-w-0">
           {children}
           {/* La referencia cierra con un filete punteado y una línea de
               atribución, no al aire. Es el mismo separador de siempre. */}
