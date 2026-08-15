@@ -400,16 +400,24 @@
 
    El truco vale la pena: un solo color por categoría define las tres capas y
    el resultado queda siempre legible, porque el texto se mezcla con la tinta
-   y el fondo con la superficie. Cambia solo entre temas. */
+   y el fondo con la superficie. Cambia solo entre temas.
+
+   El tamaño SÍ se aparta del original: 19px de alto en vez de 23, texto de
+   10,5 en vez de 11 y radio 5 en vez de 6. En la referencia el tag acompaña
+   nombres largos —"Andes Snow Creamery — Quito"— con etiquetas cortas como
+   "Gelato", y ahí los 23px se leen como secundarios. Acá pasa al revés:
+   "Neuquén" con "Cuenca Neuquina" al lado, y el tag terminaba pesando más que
+   el dato. Con 19 entra en la caja de línea del nombre (19,5px) y vuelve a
+   leerse como anotación. El radio baja con la caja, como manda la regla. */
 .s-tag {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  height: 23px;
+  height: 19px;
   max-width: 140px;
-  padding: 0 7px;
-  border-radius: 6px;
-  font-size: 11px;
+  padding: 0 6px;
+  border-radius: 5px;
+  font-size: 10.5px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -419,10 +427,10 @@
   background: color-mix(in srgb, var(--tag-color) 13%, var(--surface));
 }
 .s-tag > i {
-  flex: 0 0 5px;
-  width: 5px;
-  height: 5px;
-  margin-right: 5px;
+  flex: 0 0 4px;
+  width: 4px;
+  height: 4px;
+  margin-right: 4px;
   border-radius: 50%;
   background: var(--tag-color);
 }
