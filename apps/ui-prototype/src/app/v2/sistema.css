@@ -277,6 +277,10 @@
 .s-chip--bad { background: var(--red-tint); color: var(--red); }
 .s-chip--info { background: var(--accent-tint); color: var(--accent-ink); }
 .s-chip--neutro { background: var(--field); color: var(--ink-2); }
+/* Mini: la misma escala a la que bajó el tag —19px de alto, 10,5 de texto y
+   radio 5—. Es para cuando el chip va adentro de una fila de 28: a 22px se
+   come el renglón y pesa como el contenido, cuando es una anotación. */
+.s-chip--mini { height: 19px; padding: 0 6px; border-radius: 5px; font-size: 10.5px; }
 
 /* ── Barra de proporción: neutra, y el líder en acento (es un detalle) ─── */
 /* riel visible: sobre la card, --field casi no se despega. Con --line-strong

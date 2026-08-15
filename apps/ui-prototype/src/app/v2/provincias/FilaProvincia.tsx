@@ -272,21 +272,19 @@ function Paso({
           {unidad}
         </span>
       )}
-      {/* flex-auto y no flex-1: con base 0 el navegador nunca la envuelve
+      {/* Base automática y no flex-1: con base 0 el navegador nunca la envuelve
           —su tamaño hipotético es cero— y la nota terminaba aplastada en la
-          misma línea. Con base automática, si no entra baja de renglón. */}
+          misma línea. Con base automática, si no entra baja de renglón.
+
+          Y sin crecer: si estirara, empujaría el badge contra el borde derecho
+          de la card y quedaría flotando lejos de lo que anota. */}
       <span
-        className="min-w-0 flex-auto truncate text-[11.5px]"
+        className="min-w-0 truncate text-[11.5px]"
         style={{ color: notaLegible ? 'var(--ink-2)' : 'var(--ink-3)' }}
       >
         {nota}
       </span>
-      {detalle && (
-        // sin s-mono: ahora es una frase, no una cifra alineada en columna
-        <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
-          {detalle}
-        </span>
-      )}
+      {detalle && <span className="s-chip s-chip--neutro s-chip--mini shrink-0">{detalle}</span>}
     </div>
   )
 }
