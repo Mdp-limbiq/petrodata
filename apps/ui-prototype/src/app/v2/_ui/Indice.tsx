@@ -36,9 +36,16 @@ export function Indice() {
       style={{ borderColor: 'var(--line)' }}
     >
       {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
-          la palabra. Va pegada al ángulo superior izquierdo. */}
-      <div className="flex shrink-0 items-center justify-between gap-3">
-        <Link href="/v2" className="flex min-w-0 items-center gap-2.5 no-underline">
+          la palabra. Va en card, como el resto de la columna: superficie,
+          radio 10 y anillo de 1px.
+
+          La fila entera pedía 216px sobre 208 disponibles, así que la palabra
+          se truncaba en "VACAMUERTA...". En vez de forzar un solo valor al
+          límite, se recortan cuatro: padding de 12 a 10, los dos gaps de 12 y
+          10 a 8, el tracking de 0,14 a 0,10em y el chip a 10,5px. Con eso
+          entra con margen y no depende de que la fuente cargue. */}
+      <div className="s-card flex shrink-0 items-center justify-between gap-2 px-2.5 py-2.5">
+        <Link href="/v2" className="flex min-w-0 items-center gap-2 no-underline">
           <span
             aria-hidden
             className="size-2 shrink-0 rotate-45"
@@ -46,12 +53,12 @@ export function Indice() {
           />
           <span
             className="s-micro truncate font-medium uppercase"
-            style={{ color: 'var(--ink-2)', letterSpacing: '0.14em' }}
+            style={{ color: 'var(--ink-2)', letterSpacing: '0.10em' }}
           >
             Vacamuerta.io
           </span>
         </Link>
-        <span className="s-chip s-chip--neutro s-mono">
+        <span className="s-chip s-chip--neutro s-mono shrink-0 !px-2 !text-[10.5px]">
           {formatMonth(`${HEADLINE.period}-01`)}
         </span>
       </div>
