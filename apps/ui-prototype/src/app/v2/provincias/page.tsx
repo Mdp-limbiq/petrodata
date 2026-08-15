@@ -39,6 +39,8 @@ export default function V2Provincias() {
   }, new Map<string, { nombre: string; provincias: number; pozos: number }>()).values()]
     .sort((a, b) => b.pozos - a.pozos)
   const pozosEnCuencas = cuencas.reduce((s, c) => s + c.pozos, 0)
+  /* La vara de intensidad exportadora: MUSD por pozo activo en todo el país. */
+  const promedioPorPozo = totalExpo / totalPozos
   /* Los doce rótulos de mes son los mismos para todas las filas: se formatean
      una vez acá, en el servidor, y no once veces en el cliente. */
   const meses = NATIONAL_SERIES.slice(-12).map((m) => formatMonth(`${m.period}-01`))
@@ -99,6 +101,7 @@ export default function V2Provincias() {
               metrica="pozos"
               pctPozos={(p.wells / totalPozos) * 100}
               pctExpo={(p.exportsMUSD / totalExpo) * 100}
+              promedioPorPozo={promedioPorPozo}
               puestoPozos={puestoPozosProvDe.get(p.slug)}
               puestoExpo={puestoExpoDe.get(p.slug)}
               totalProvincias={SOLO_PROVINCIAS.length}
@@ -158,6 +161,7 @@ export default function V2Provincias() {
               metrica="exportaciones"
               pctPozos={(p.wells / totalPozos) * 100}
               pctExpo={(p.exportsMUSD / totalExpo) * 100}
+              promedioPorPozo={promedioPorPozo}
               puestoPozos={puestoPozosProvDe.get(p.slug)}
               puestoExpo={puestoExpoDe.get(p.slug)}
               totalProvincias={SOLO_PROVINCIAS.length}

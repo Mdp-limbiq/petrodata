@@ -48,6 +48,7 @@ export function FilaProvincia({
   metrica,
   pctPozos,
   pctExpo,
+  promedioPorPozo,
   puestoPozos,
   puestoExpo,
   totalProvincias,
@@ -78,6 +79,9 @@ export function FilaProvincia({
       total de la cabecera. No confundir con Province.expSharePct, que tiene
       otro denominador: ver el comentario del fixture. */
   pctExpo: number
+  /** MUSD exportados por pozo activo en todo el país: 6.879 / 14.441 = 0,476.
+      Es la vara contra la que se compara la intensidad de cada provincia. */
+  promedioPorPozo: number
   /** puestos en cada ranking. Sin valor en el Estado Nacional, que aparece en
       las listas pero no es una provincia y no tiene puesto. */
   puestoPozos?: number
@@ -94,7 +98,14 @@ export function FilaProvincia({
   const pasos =
     metrica === 'pozos'
       ? (['pozos', 'produccion', 'exportaciones'] as const)
-      : (['exportaciones', 'pozos', 'produccion'] as const)
+      : (['exportaciones', 'intensidad', 'pozos', 'produccion'] as const)
+  /* Cuánto exporta cada pozo. Es la lectura que EXPLICA la columna de
+     movimiento: Chubut sube un puesto sobre Santa Cruz porque exporta 0,30
+     MUSD por pozo contra 0,13, con 500 pozos menos.
+
+     Y es honestamente de exportaciones, que era el reclamo: sale de dividir
+     dos cifras reales del sitio, no de derivar nada. */
+  const porPozo = p.exportsMUSD / p.wells
 
   return (
     <div style={{ borderBottom: '1px solid var(--line)' }}>
@@ -260,6 +271,27 @@ export function FilaProvincia({
                         : []),
                     ]}
                   />
+                ) : clave === 'intensidad' ? (
+                  /* El multiplicador contra el promedio del país sólo se
+                     muestra con 100 pozos o más. Debajo de eso el cociente lo
+                     domina el denominador y no dice nada de la provincia:
+                     Salta da 32,70 MUSD por pozo —68,6 veces el país— sobre UN
+                     pozo, y el Estado Nacional 20,25 sobre ocho. En esas filas
+                     el badge pasa a decir cuántos pozos hay, que es justamente
+                     lo que explica el número. Con menos de 100 pozos, uno solo
+                     mueve el cociente más de un 1%. */
+                  <Paso
+                    key="int"
+                    icono="intensidad"
+                    rotulo="Por pozo"
+                    valor={formatDecimal(porPozo, 2)}
+                    unidad="MUSD"
+                    badges={[
+                      p.wells >= 100
+                        ? `${formatDecimal(porPozo / promedioPorPozo, 1)}× el país`
+                        : `sobre ${formatInteger(p.wells)} ${p.wells === 1 ? 'pozo' : 'pozos'}`,
+                    ]}
+                  />
                 ) : clave === 'exportaciones' ? (
                   <Paso
                     key="expo"
@@ -347,7 +379,7 @@ function Paso({
   meses,
   badges,
 }: {
-  icono: 'pozo' | 'expo' | 'operadora' | 'produccion'
+  icono: 'pozo' | 'expo' | 'operadora' | 'produccion' | 'intensidad'
   rotulo: string
   valor?: string
   unidad?: string
@@ -412,6 +444,13 @@ function Paso({
           <>
             <path d="M3 17l5.5-5.5 3.5 3.5L21 6" />
             <path d="M15 6h6v6" />
+          </>
+        )}
+        {icono === 'intensidad' && (
+          <>
+            <path d="M5 12h14" />
+            <path d="M12 6.5h.01" />
+            <path d="M12 17.5h.01" />
           </>
         )}
         {icono === 'operadora' && (
