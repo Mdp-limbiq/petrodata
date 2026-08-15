@@ -6,14 +6,16 @@ import { CardCuenca } from './CardCuenca'
 import { HEADLINE } from '@/fixtures/production'
 import { formatMonth } from '@/lib/format'
 
-/* Índice — el panel de la izquierda. Sigue la anatomía medida: marca arriba,
-   titular, filete punteado, lista de secciones, y al pie el bloque de autoría
-   con un pill. Es sticky y de alto de viewport desde 1024px; abajo de eso se
-   apila con borde inferior punteado, que es el único reordenamiento que el
+/* Índice — el panel de la izquierda: marca arriba, lista de secciones, la
+   card de la cuenca y el bloque de cierre. Es sticky y de alto de viewport
+   desde 1024px; abajo de eso se apila, que es el único reordenamiento que el
    sistema hace en todo el responsive.
 
-   La lista se desvanece por abajo con una máscara, como la referencia: es lo
-   que avisa que hay más sin poner una barra de scroll. */
+   El padding superior es 16px, el mismo que el de las secciones, para que la
+   fila de la marca arranque a la misma altura que el primer marco de la
+   página. Antes era un clamp de 40 a 80px heredado de la referencia —donde el
+   panel no tenía nada con qué alinearse— y dejaba la columna 58px más abajo
+   que el contenido. */
 
 const SECCIONES = [
   { href: '/v2', n: '01', label: 'Producción' },
@@ -30,7 +32,7 @@ export function Indice() {
 
   return (
     <aside
-      className="flex flex-col px-7 pt-10 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:pt-[clamp(2.5rem,8vh,5rem)]"
+      className="flex flex-col px-7 pt-4 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto"
       style={{ borderColor: 'var(--line)' }}
     >
       {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
