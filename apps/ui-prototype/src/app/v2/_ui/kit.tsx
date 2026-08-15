@@ -101,6 +101,7 @@ export function FilaRanking({
   marca = false,
   tag,
   tagColor,
+  delta,
 }: {
   n: number
   nombre: string
@@ -115,6 +116,8 @@ export function FilaRanking({
   tag?: string
   /** color del tag; sale de asignarColores() */
   tagColor?: string
+  /** puestos que se mueve respecto de otro ranking. 0 no se dibuja. */
+  delta?: number
 }) {
   /* La barra va en su PROPIA columna, no debajo del nombre: pegada al texto
      se lee como un subrayado y no como una magnitud. Y el riel se dibuja
@@ -125,6 +128,24 @@ export function FilaRanking({
       <span className="s-mono w-5 shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
         {String(n).padStart(2, '0')}
       </span>
+      {/* El delta va pegado al número de puesto porque es del PUESTO. Al final
+          de la fila, después de la cifra, se leería como una variación de la
+          cifra, que es otra cosa.
+
+          Ancho fijo aunque esté vacío: seis de las once filas no se mueven, y
+          sin la columna reservada los nombres arrancarían en x distintas. El
+          cero no se dibuja —un "0" verde o rojo sería color sin significado— y
+          así los que sí se mueven saltan solos. */}
+      {delta !== undefined && (
+        <span
+          className={`shrink-0 text-right ${
+            delta === 0 ? '' : delta > 0 ? 's-delta s-delta--sube' : 's-delta s-delta--baja'
+          }`}
+          style={{ width: 18 }}
+        >
+          {delta === 0 ? '' : delta > 0 ? `+${delta}` : `\u2212${Math.abs(delta)}`}
+        </span>
+      )}
       {marca && <Marca nombre={nombre} />}
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">

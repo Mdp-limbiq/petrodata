@@ -513,6 +513,27 @@
   border-radius: 6px;
   background: transparent;
 }
+/* ── Delta ──────────────────────────────────────────────────────────────
+   MEDIDO en la referencia, en su lista de archivos tocados:
+
+     <span class="shrink-0 text-green tabular-nums">+74</span>
+     <span class="shrink-0 text-red tabular-nums">−41</span>
+
+   11,5px en peso 400, fondo transparente, padding CERO y radio CERO. No es un
+   chip y no lleva flecha ni triangulito: es texto de color y nada más. Va en
+   una fila de 28 con gap de 6, pegado a lo que califica.
+
+   El signo menos es el real (U+2212) y no un guion, como en la referencia. A
+   11,5px el guion queda más corto y más alto que el "+" y la columna se ve
+   desprolija. */
+.s-delta {
+  font-size: 11.5px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.s-delta--sube { color: var(--green); }
+.s-delta--baja { color: var(--red); }
+
 /* ── Serie compacta ─────────────────────────────────────────────────────
    EXTENSIÓN, no una pieza medida, y conviene que quede escrito: la referencia
    no tiene NINGÚN gráfico. Barrí su DOM buscando SVG de datos, contenedores
