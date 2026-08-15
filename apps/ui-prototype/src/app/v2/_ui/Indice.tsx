@@ -36,15 +36,21 @@ export function Indice() {
       style={{ borderColor: 'var(--line)' }}
     >
       {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
-          la palabra. Va en card, como el resto de la columna: superficie,
-          radio 10 y anillo de 1px.
+          la palabra. Usa el marco, igual que la card de la cuenca: mismo
+          fondo de canvas, mismo radio 14 y mismo anillo de 1px. Así las dos
+          piezas de la columna son del mismo color.
 
-          La fila entera pedía 216px sobre 208 disponibles, así que la palabra
-          se truncaba en "VACAMUERTA...". En vez de forzar un solo valor al
-          límite, se recortan cuatro: padding de 12 a 10, los dos gaps de 12 y
-          10 a 8, el tracking de 0,14 a 0,10em y el chip a 10,5px. Con eso
-          entra con margen y no depende de que la fuente cargue. */}
-      <div className="s-card flex shrink-0 items-center justify-between gap-2 px-2.5 py-2.5">
+          El padding va por estilo inline y no por clase: el marco define 12px
+          y acá hacen falta 10. Con 12 la fila pide 216px sobre 208 y la
+          palabra se trunca en "VACAMUERTA...". Inline gana siempre, sin
+          depender del orden en que salga el CSS.
+
+          Los otros tres recortes que hicieron entrar la fila: los dos gaps de
+          12 y 10 a 8, el tracking de 0,14 a 0,10em y el chip a 10,5px. */}
+      <div
+        className="s-marco flex shrink-0 items-center justify-between gap-2"
+        style={{ padding: '10px' }}
+      >
         <Link href="/v2" className="flex min-w-0 items-center gap-2 no-underline">
           <span
             aria-hidden
