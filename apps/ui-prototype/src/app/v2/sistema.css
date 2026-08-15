@@ -489,3 +489,46 @@
   white-space: nowrap;
 }
 
+
+/* ── Riel de desglose ───────────────────────────────────────────────────
+   El riel de las trazas de "Thinking": medido en el sitio, es un span
+   absoluto de 1px en left:3px sobre --line, con el contenido corrido 16px.
+
+   Acá se le suma un codo por línea, que la referencia no tiene: pedido de
+   Mariano, y ayuda a leer qué cuelga de qué cuando las líneas son de altura
+   distinta —un párrafo, dos cápsulas y una fila de chips—.
+
+   El segmento vertical va en CADA hijo en vez de en el contenedor, y el
+   último se corta a la mitad. Es la forma de que el riel termine en el codo
+   de la última línea y no siga de largo hasta el borde: con un solo riel en
+   el contenedor habría que saber de antemano cuánto mide la última fila. */
+.s-rama > * {
+  position: relative;
+  padding-left: 16px;
+}
+/* El segmento sube 6px —el gap de la lista— para tapar el corte que quedaba
+   entre línea y línea: sin eso el riel se ve punteado. */
+.s-rama > *::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: -6px;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+.s-rama > *:first-child::before { top: 0; }
+.s-rama > *:last-child::before {
+  bottom: auto;
+  height: calc(50% + 6px);
+}
+.s-rama > *:first-child:last-child::before { height: 50%; }
+.s-rama > *::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  width: 11px;
+  height: 1px;
+  background: var(--line);
+}

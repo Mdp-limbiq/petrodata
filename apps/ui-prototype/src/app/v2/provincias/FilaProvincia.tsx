@@ -114,30 +114,33 @@ export function FilaProvincia({
         }}
       >
         <div style={{ overflow: 'hidden' }}>
-          <div style={{ padding: '0 12px 12px 44px' }}>
+          {/* El riel arranca bajo el centro de la pastilla de la fila: 12 de
+              padding + 20 del rango + 10 de gap + 10 de media pastilla = 52.
+              Menos los 3 del riel, el contenedor va a 49. */}
+          <div
+            className="s-rama flex flex-col gap-1.5"
+            style={{ padding: '2px 12px 12px 49px' }}
+          >
             <p className="s-desc m-0">{p.blurb}</p>
 
-            {/* Dos cápsulas —la fila-píldora de "Task Rows"— en vez de tres
-                cards: mismo dato en la mitad del alto, y cada una cierra con
-                el puesto que ocupa la provincia en ese ranking, que es
-                información que antes no estaba. */}
-            <div className="mt-2.5 flex flex-col gap-1.5">
-              <Capsula
-                icono="pozo"
-                rotulo="Pozos activos"
-                valor={formatInteger(p.wells)}
-                nota={`${formatDecimal(pctPozos, 1)}% del país`}
-                puesto={`${String(puestoPozos).padStart(2, '0')} de ${total}`}
-              />
-              <Capsula
-                icono="expo"
-                rotulo="Exportaciones"
-                valor={formatInteger(p.exportsMUSD)}
-                unidad="MUSD"
-                nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
-                puesto={`${String(puestoExpo).padStart(2, '0')} de ${total}`}
-              />
-            </div>
+            {/* Las cápsulas van como hijas DIRECTAS del riel, no envueltas en
+                un contenedor: si no, el codo se engancharía al contenedor y
+                habría un solo codo para las dos. */}
+            <Capsula
+              icono="pozo"
+              rotulo="Pozos activos"
+              valor={formatInteger(p.wells)}
+              nota={`${formatDecimal(pctPozos, 1)}% del país`}
+              puesto={`${String(puestoPozos).padStart(2, '0')} de ${total}`}
+            />
+            <Capsula
+              icono="expo"
+              rotulo="Exportaciones"
+              valor={formatInteger(p.exportsMUSD)}
+              unidad="MUSD"
+              nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
+              puesto={`${String(puestoExpo).padStart(2, '0')} de ${total}`}
+            />
 
             {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
                 destacadas e ilustrativas, no como la lista completa. Decir
@@ -156,7 +159,7 @@ export function FilaProvincia({
                 una línea. La pastilla sirve en una fila de tabla, donde el
                 ojo baja por una columna de iniciales; acá no hay columna. */}
             {operadoras.length > 0 && (
-              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <span className="s-micro shrink-0" style={{ color: 'var(--ink-3)' }}>
                   Top 3 operadoras
                 </span>
