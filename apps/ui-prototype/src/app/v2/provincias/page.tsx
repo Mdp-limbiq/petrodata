@@ -2,8 +2,8 @@ import { Seccion, Card, CardHead, FilaRanking, Dato, Pie, Tag, asignarColores } 
 import { FilaProvincia } from './FilaProvincia'
 import { COMPANIES } from '@/fixtures/companies'
 import { PROVINCES, SOLO_PROVINCIAS } from '@/fixtures/provinces'
-import { serieProvincia } from '@/fixtures/production'
-import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
+import { NATIONAL_SERIES, serieProvincia } from '@/fixtures/production'
+import { formatCompactAR, formatDecimal, formatInteger, formatMonth } from '@/lib/format'
 
 /* PROVINCIAS — pocas filas, así que acá SÍ va la barra en cada una: con ocho
    ítems la magnitud relativa es el mensaje, y una barra lo dice más rápido
@@ -34,6 +34,9 @@ export default function V2Provincias() {
   }, new Map<string, { nombre: string; provincias: number; pozos: number }>()).values()]
     .sort((a, b) => b.pozos - a.pozos)
   const pozosEnCuencas = cuencas.reduce((s, c) => s + c.pozos, 0)
+  /* Los doce rótulos de mes son los mismos para todas las filas: se formatean
+     una vez acá, en el servidor, y no once veces en el cliente. */
+  const meses = NATIONAL_SERIES.slice(-12).map((m) => formatMonth(`${m.period}-01`))
   /* El color se asigna por posición sobre las cuencas ordenadas por pozos,
      así cada una tiene el suyo y no cambia entre secciones ni pantallas. */
   const colorCuenca = asignarColores(cuencas.map((c) => c.nombre))
@@ -86,6 +89,7 @@ export default function V2Provincias() {
               puestoExpo={puestoExpoDe.get(p.slug)}
               totalProvincias={SOLO_PROVINCIAS.length}
               serie={serieProvincia(p.slug, p.wells)}
+              meses={meses}
             />
           ))}
         </Card>

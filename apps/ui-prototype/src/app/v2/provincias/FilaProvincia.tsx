@@ -36,6 +36,7 @@ export function FilaProvincia({
   puestoExpo,
   totalProvincias,
   serie,
+  meses,
 }: {
   p: Province
   n: number
@@ -54,6 +55,8 @@ export function FilaProvincia({
   totalProvincias: number
   /** doce meses de producción de petróleo, bbl/d. Ver serieProvincia(). */
   serie: number[]
+  /** rótulo de cada uno de esos doce meses, ya formateado */
+  meses: string[]
 }) {
   const [abierta, setAbierta] = useState(false)
   const id = useId()
@@ -203,10 +206,10 @@ export function FilaProvincia({
               <Paso
                 icono="produccion"
                 rotulo="Producción"
-                valor={formatInteger(serie[serie.length - 1])}
                 unidad="bbl/d"
                 serie={serie}
-                badges={['12 meses']}
+                meses={meses}
+                badges={[]}
               />
               {/* Acá sí: el orden por exportaciones NO es el de esta lista y no
                   se ve en ningún otro lado de la sección. Escrito como puesto
@@ -265,17 +268,37 @@ function Paso({
   valor,
   unidad,
   serie,
+  meses,
   badges,
 }: {
   icono: 'pozo' | 'expo' | 'operadora' | 'produccion'
   rotulo: string
   valor?: string
   unidad?: string
-  /** si viene, se dibuja la serie compacta entre la unidad y los badges */
+  /** si viene, se dibuja la serie compacta entre la unidad y los badges, y el
+      paso pasa a manejar él la cifra y el badge: al pasar el mouse por un mes
+      muestra ESE mes en vez del de corte */
   serie?: number[]
+  /** rótulo de cada mes de la serie, ya formateado */
+  meses?: string[]
   /** todo lo secundario del paso, cada cosa en su badge */
   badges: string[]
 }) {
+  const [mes, setMes] = useState<number | null>(null)
+
+  /* Con serie, la cifra y el badge los decide el hover: sin hover, el mes de
+     corte y la ventana; con hover, el mes señalado y su rótulo. */
+  const i = serie ? (mes ?? serie.length - 1) : -1
+  const cifra = serie ? formatInteger(serie[i]) : valor
+  const rotulos = serie && meses ? [mes === null ? '12 meses' : meses[mes]] : badges
+
+  /* La cifra más ancha de la serie, para reservarle el lugar. Sin esto el
+     número cambia de ancho al pasar de mes —"12.246" contra "8.123" en La
+     Pampa— y le empuja la serie y el badge en cada movimiento del mouse. */
+  const reserva = serie
+    ? serie.map((v) => formatInteger(v)).reduce((a, b) => (b.length > a.length ? b : a))
+    : null
+
   return (
     <div className="s-paso">
       {/* Ícono y no un punto de color: un círculo de color sin significado
@@ -331,7 +354,17 @@ function Paso({
       <span className="min-w-0 truncate text-[12.5px]" style={{ color: 'var(--ink-2)' }}>
         {rotulo}
       </span>
-      {valor && <span className="s-num shrink-0 text-[12.5px] font-medium">{valor}</span>}
+      {cifra &&
+        (reserva ? (
+          <span className="s-num grid shrink-0 text-[12.5px] font-medium">
+            <span aria-hidden className="invisible" style={{ gridArea: '1 / 1' }}>
+              {reserva}
+            </span>
+            <span style={{ gridArea: '1 / 1' }}>{cifra}</span>
+          </span>
+        ) : (
+          <span className="s-num shrink-0 text-[12.5px] font-medium">{cifra}</span>
+        ))}
       {unidad && (
         <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
           {unidad}
@@ -344,12 +377,21 @@ function Paso({
           El piso de 15% es para que el mes más bajo siga siendo una barra y no
           un punto. */}
       {serie && serie.length > 0 && (
-        <span className="s-serie" aria-hidden>
+        /* aria-hidden y sin foco: son doce barras por fila y once filas, o sea
+           132 paradas de tabulador para un dato que ya está escrito al lado en
+           texto. El hover agrega, no reemplaza: sin mouse se lee el mes de
+           corte igual. */
+        <span className="s-serie" aria-hidden onMouseLeave={() => setMes(null)}>
           {(() => {
             const min = Math.min(...serie)
             const max = Math.max(...serie)
-            return serie.map((v, i) => (
-              <i key={i} style={{ height: `${15 + ((v - min) / (max - min || 1)) * 85}%` }} />
+            return serie.map((v, k) => (
+              <span key={k} onMouseEnter={() => setMes(k)}>
+                <i
+                  className={k === i ? 'on' : undefined}
+                  style={{ height: `${15 + ((v - min) / (max - min || 1)) * 85}%` }}
+                />
+              </span>
             ))
           })()}
         </span>
@@ -360,7 +402,7 @@ function Paso({
           aplica sobre un nodo de texto suelto —el mismo problema que tenía el
           tag—, así que recortar habría sido cortar a hachazo. Bajan de renglón,
           que es lo que hace el paso desde que envuelve. */}
-      {badges.map((b) => (
+      {rotulos.map((b) => (
         <span key={b} className="s-chip s-chip--neutro s-chip--mini shrink-0">
           {b}
         </span>

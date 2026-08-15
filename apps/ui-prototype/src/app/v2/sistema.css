@@ -529,19 +529,30 @@
    - alto fijo en px y no aspect-ratio, que está prohibido en el sistema */
 .s-serie {
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   flex-shrink: 0;
-  gap: 2px;
   height: 16px;
 }
-.s-serie > i {
+/* Cada mes es un envoltorio y no una barra suelta: la barra mide 3px y con
+   ese blanco de destino el hover sería una lotería. El envoltorio se lleva
+   los 2px de separación como padding, así que la zona sensible es de 5×16 y
+   son contiguas —no hay huecos muertos entre meses—. */
+.s-serie > span {
+  display: flex;
+  align-items: flex-end;
+  padding-right: 2px;
+}
+.s-serie > span:last-child { padding-right: 0; }
+.s-serie i {
   display: block;
   width: 3px;
   min-height: 1px;
   border-radius: 1px;
   background: var(--line-strong);
+  /* 120ms: adentro del rango de hover del sistema, que va de 100 a 150 */
+  transition: background-color 120ms var(--ease-out);
 }
-.s-serie > i:last-child { background: var(--accent); }
+.s-serie i.on { background: var(--accent); }
 
 /* Variante para la introducción: el contenido es prosa que envuelve, así que
    el ícono se alinea arriba —centrado en el primer renglón, con los 3px de
