@@ -1,4 +1,4 @@
-import { Seccion, Card, CardHead, FilaRanking, Dato, Pie } from '../_ui/kit'
+import { Seccion, Card, CardHead, FilaRanking, Dato, Pie, Tag, asignarColores } from '../_ui/kit'
 import { PROVINCES } from '@/fixtures/provinces'
 import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
@@ -13,6 +13,16 @@ export default function V2Provincias() {
   const maxExpo = Math.max(...PROVINCES.map((p) => p.exportsMUSD))
   const totalPozos = PROVINCES.reduce((s, p) => s + p.wells, 0)
   const totalExpo = PROVINCES.reduce((s, p) => s + p.exportsMUSD, 0)
+  const cuencas = [...PROVINCES.reduce((m, p) => {
+    const x = m.get(p.basin) ?? { nombre: p.basin, provincias: 0, pozos: 0 }
+    x.provincias++
+    x.pozos += p.wells
+    return m.set(p.basin, x)
+  }, new Map<string, { nombre: string; provincias: number; pozos: number }>()).values()]
+    .sort((a, b) => b.pozos - a.pozos)
+  /* El color se asigna por posición sobre las cuencas ordenadas por pozos,
+     así cada una tiene el suyo y no cambia entre secciones ni pantallas. */
+  const colorCuenca = asignarColores(cuencas.map((c) => c.nombre))
 
   return (
     <>
@@ -55,7 +65,9 @@ export default function V2Provincias() {
               valor={formatInteger(p.wells)}
               pct={p.wells / maxPozos}
               lider={i === 0}
-              nota={p.basin}
+              marca
+              tag={p.basin}
+              tagColor={colorCuenca.get(p.basin)}
             />
           ))}
         </Card>
@@ -76,12 +88,41 @@ export default function V2Provincias() {
               valor={formatCompactAR(p.exportsMUSD)}
               pct={p.exportsMUSD / maxExpo}
               lider={i === 0}
+              marca
               nota={`${formatDecimal(p.expSharePct, 1)}% del total nacional`}
             />
           ))}
         </Card>
         <Pie>
           El orden cambia entre las dos listas: quien pone más pozos no es quien más exporta.
+        </Pie>
+      </Seccion>
+
+      <Seccion
+        n="04"
+        titulo="Cuencas"
+        desc="Las cinco cuencas con actividad y cuántas provincias abarca cada una."
+      >
+        <Card>
+          <CardHead titulo="Por cuenca" nota={`${cuencas.length} cuencas`} />
+          {cuencas.map((c) => (
+            <div key={c.nombre} className="s-fila s-fila-hover">
+              <span className="min-w-0 flex-1">
+                <Tag color={colorCuenca.get(c.nombre)!}>{c.nombre}</Tag>
+              </span>
+              <span className="s-micro shrink-0" style={{ color: 'var(--ink-2)' }}>
+                {c.provincias} {c.provincias === 1 ? 'provincia' : 'provincias'}
+              </span>
+              <span className="s-num w-16 shrink-0 text-right text-[13px] font-medium">
+                {formatInteger(c.pozos)}
+              </span>
+            </div>
+          ))}
+        </Card>
+        <Pie>
+          El color de cada cuenca es el mismo en toda la web: es categórico, no dice si algo
+          está bien o mal. Los colores que sí significan —verde, naranja y rojo— quedan
+          reservados para eso.
         </Pie>
       </Seccion>
     </>

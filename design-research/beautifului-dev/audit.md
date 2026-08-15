@@ -198,6 +198,44 @@ sobre todos los elementos (`raw/analisis.json` → `forma.gradientes`).
 sección. Los tres que existen son **funcionales**: uno es textura de papel, dos son
 indicadores de actividad.
 
+### B.8 La paleta categórica de tags — un hallazgo tardío
+
+**[MEDIDO]** Además de los colores semánticos hay **ocho colores categóricos**
+que el sitio inyecta *inline* como `--tag-color`, no como clases. Por eso no
+aparecían buscando utilidades de color y la primera versión de este informe
+los pasó por alto.
+
+| Color | Usos |
+|---|---|
+| `#92b72d` lima | 10 |
+| `#f09a2f` naranja | 8 |
+| `#16a6c7` cian | 8 |
+| `#9a5cff` violeta | 7 |
+| `#3f78ff` azul | 7 |
+| `#25a878` verde | 6 |
+| `#ee6572` rosa | 5 |
+| `#c84f9d` magenta | 4 |
+
+La receta deriva las tres capas de un solo color con `color-mix`:
+
+```css
+.records-tag {
+  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, var(--surface));
+  color:            color-mix(in srgb, var(--tag-color) 82%, var(--ink));
+  background:       color-mix(in srgb, var(--tag-color) 13%, var(--surface));
+  height: 23px; padding: 0 7px; border-radius: 6px;
+  font-size: 11px; font-weight: 500;
+}
+.records-tag-dot { width: 5px; height: 5px; border-radius: 50%; margin-right: 5px;
+  background: var(--tag-color); }
+```
+
+**[INFERIDO]** Es lo que resuelve la tensión con la regla del acento único:
+estos ocho no compiten con el azul de marca ni con los tres de estado porque
+**no significan nada** — nombran una categoría sin orden ni valor. Y al
+mezclarse con `--ink` y `--surface`, el mismo color funciona en los dos temas
+sin definir una variante por tema.
+
 ### B.6 Alphas, overlays y tinte de sombras
 
 **[MEDIDO]**
@@ -205,7 +243,9 @@ indicadores de actividad.
 - La trama usa alfa **0.075** en claro (`#49494913`) y **0.055** en oscuro (`#ffffff0e`).
   Más tenue en oscuro, porque sobre negro un blanco al 7.5% grita más.
 - Los tintes de estado en oscuro usan alfa **0.14** (`24` hex) y el de acento **0.16** (`29`).
-- **No hay `color-mix()` en ninguna parte** de la hoja compilada.
+- **Sí hay `color-mix()`**, y es central en un lugar: los tags categóricos
+  (ver B.8). Una corrección a la primera versión de este informe, que decía lo
+  contrario: lo busqué entre los tokens y no entre las utilidades de componente.
 - **No hay `backdrop-filter` en ningún elemento** (censo: 0 resultados). Cero glassmorphism.
 - **Las sombras son negro puro con alfa, sin croma de marca.** En claro el color base es
   `#101828` (un azul muy oscuro) con alfas de 0.03–0.05; en oscuro es negro puro `#000` con

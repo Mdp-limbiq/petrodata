@@ -210,6 +210,56 @@ Copiá este bloque tal cual. El tema se cambia poniendo o sacando la clase `dark
    son el color de estado con alfa (0.14–0.16). Un tinte opaco sobre fondo oscuro se ve
    sucio.
 
+### La paleta categórica de tags
+
+Además de los colores de arriba hay **ocho categóricos**, que el sitio inyecta
+inline como `--tag-color`. Es un hallazgo tardío: la primera versión de esta
+guía decía que había un solo acento, y no es así.
+
+```css
+/* nombran una categoría, no un estado ni un valor */
+--tag-azul:    #3f78ff;   --tag-naranja: #f09a2f;
+--tag-violeta: #9a5cff;   --tag-cian:    #16a6c7;
+--tag-verde:   #25a878;   --tag-lima:    #92b72d;
+--tag-rosa:    #ee6572;   --tag-magenta: #c84f9d;
+
+.tag {
+  display: inline-flex; align-items: center;
+  height: 23px; padding: 0 7px; border-radius: 6px;
+  font-size: 11px; font-weight: 500;
+  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, var(--surface));
+  color:            color-mix(in srgb, var(--tag-color) 82%, var(--ink));
+  background:       color-mix(in srgb, var(--tag-color) 13%, var(--surface));
+}
+.tag > i { width: 5px; height: 5px; border-radius: 50%; margin-right: 5px;
+  background: var(--tag-color); }
+```
+
+**No compiten con la regla del acento único** porque no significan nada: el
+azul de marca dice "acción", el verde dice "bien", el rojo dice "mal", y un
+tag violeta dice "esta categoría y no otra". Nunca los uses para valor,
+magnitud ni estado.
+
+Un detalle que vale copiar: al mezclarse con `--ink` y `--surface`, el mismo
+color funciona en los dos temas sin definir una variante por tema.
+
+**Asigná el color por POSICIÓN en el conjunto, no por hash del nombre.** Con
+hash, dos categorías distintas caen en el mismo color y la paleta deja de
+distinguir, que es su único trabajo.
+
+### La pastilla de fila
+
+La referencia abre cada fila de sus tablas con la inicial en una pastilla:
+
+```css
+.marca {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 6px;
+  background: var(--field); color: var(--ink-2);
+  font-size: 10px; font-weight: 650;   /* 650 es compensación óptica a 10px */
+}
+```
+
 ### Los grises no son neutros
 
 Están teñidos de azul frío: croma entre 0.0013 y 0.0102, matiz entre 248 y 286 en OKLCH.
@@ -523,7 +573,7 @@ un comportamiento por defecto de un modelo que acá está prohibido.
 | Gradientes decorativos, fondos con degradado de marca | Sólo hay tres gradientes y los tres son funcionales: la trama y dos indicadores de carga |
 | `backdrop-filter: blur()`, glassmorphism | Nada. **Cero** elementos con blur de fondo en toda la referencia |
 | Tipografía fluida con `clamp()` | Tamaños fijos. Son **idénticos** a 375 y a 1920 |
-| Escalas de color `50`–`950` | Los tres niveles de tinta y las seis superficies, y nada más |
+| Escalas de color `50`–`950` | Los tres niveles de tinta, las seis superficies y los ocho tags categóricos |
 | Botón primario con fondo de acento | El acento es para foco, enlaces y detalles. El CTA más fuerte es un pill gris |
 | `rounded-2xl`, `rounded-3xl` | 6 / 8 / 10 / 14 según el tamaño de la caja |
 | Márgenes generosos entre secciones (`my-24`) | **Cero** margen. Separa una línea punteada |

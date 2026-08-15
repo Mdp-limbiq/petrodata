@@ -98,6 +98,9 @@ export function FilaRanking({
   pct,
   lider = false,
   nota,
+  marca = false,
+  tag,
+  tagColor,
 }: {
   n: number
   nombre: string
@@ -106,6 +109,12 @@ export function FilaRanking({
   pct: number
   lider?: boolean
   nota?: string
+  /** pastilla con la inicial, al principio de la fila */
+  marca?: boolean
+  /** tag categórico al lado del nombre */
+  tag?: string
+  /** color del tag; sale de asignarColores() */
+  tagColor?: string
 }) {
   /* La barra va en su PROPIA columna, no debajo del nombre: pegada al texto
      se lee como un subrayado y no como una magnitud. Y el riel se dibuja
@@ -116,8 +125,12 @@ export function FilaRanking({
       <span className="s-mono w-5 shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
         {String(n).padStart(2, '0')}
       </span>
+      {marca && <Marca nombre={nombre} />}
       <span className="min-w-0 flex-1">
-        <span className="s-cuerpo block truncate font-medium">{nombre}</span>
+        <span className="flex items-center gap-2">
+          <span className="s-cuerpo min-w-0 truncate font-medium">{nombre}</span>
+          {tag && tagColor && <Tag color={tagColor}>{tag}</Tag>}
+        </span>
         {nota && (
           <span className="s-micro mt-0.5 block truncate" style={{ color: 'var(--ink-2)' }}>
             {nota}
@@ -354,5 +367,65 @@ export function FilaNoticia({
       </span>
       <Chip>{categoria}</Chip>
     </a>
+  )
+}
+
+/* ── Tag categórico y marca de fila ─────────────────────────────────────
+   Las dos piezas que le dan acento de color y anclaje visual a las listas,
+   con la receta medida de la referencia.
+
+   La paleta son los 8 colores que la referencia inyecta como --tag-color.
+   Son CATEGÓRICOS: nombran una categoría sin orden ni valor, y por eso no
+   se pisan con los cuatro colores de estado del sistema —verde, naranja,
+   rojo y acento—, que sí significan algo. Un tag violeta no dice "malo" ni
+   "bueno": dice "esta categoría y no otra". */
+export const PALETA_TAGS = [
+  '#3f78ff', // azul
+  '#f09a2f', // naranja
+  '#9a5cff', // violeta
+  '#16a6c7', // cian
+  '#25a878', // verde
+  '#92b72d', // lima
+  '#ee6572', // rosa
+  '#c84f9d', // magenta
+] as const
+
+/** Asigna un color distinto a cada categoría de un conjunto.
+ *
+ *  Va por posición y no por hash del nombre. El hash parecía más elegante
+ *  —no hace falta conocer el conjunto— pero colisiona: con seis cuencas y
+ *  ocho colores, "Cuenca Neuquina" y "Cuenca Austral" caían las dos en el
+ *  mismo naranja. Una paleta categórica que repite color en la misma vista
+ *  no distingue nada, que es su único trabajo.
+ *
+ *  El orden de entrada define el color, así que conviene pasar la lista
+ *  siempre ordenada igual —por ejemplo por tamaño— para que una cuenca no
+ *  cambie de color entre pantallas. */
+export function asignarColores(categorias: string[]): Map<string, string> {
+  const m = new Map<string, string>()
+  let i = 0
+  for (const c of categorias) {
+    if (m.has(c)) continue
+    m.set(c, PALETA_TAGS[i % PALETA_TAGS.length])
+    i++
+  }
+  return m
+}
+
+export function Tag({ children, color }: { children: string; color: string }) {
+  return (
+    <span className="s-tag" style={{ ['--tag-color' as string]: color }}>
+      <i aria-hidden />
+      {children}
+    </span>
+  )
+}
+
+/** Pastilla con la inicial, al principio de la fila. */
+export function Marca({ nombre }: { nombre: string }) {
+  return (
+    <span className="s-marca" aria-hidden>
+      {nombre.trim().charAt(0).toUpperCase()}
+    </span>
   )
 }

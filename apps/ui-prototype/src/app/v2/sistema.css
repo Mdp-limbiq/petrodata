@@ -390,3 +390,57 @@
 }
 .s-buscador input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; color: var(--ink); }
 .s-buscador input::placeholder { color: var(--ink-3); }
+
+/* ── Tags categóricos ───────────────────────────────────────────────────
+   Receta MEDIDA de .records-tag de la referencia. Es un hallazgo que se me
+   había escapado en la auditoría: los tags llevan su color inyectado inline
+   como --tag-color y las tres capas —borde, texto y fondo— se derivan de él
+   con color-mix. Por eso no aparecía buscando clases de color, y por eso
+   SISTEMA.md decía que no había color-mix en la hoja. Sí lo hay.
+
+   El truco vale la pena: un solo color por categoría define las tres capas y
+   el resultado queda siempre legible, porque el texto se mezcla con la tinta
+   y el fondo con la superficie. Cambia solo entre temas. */
+.s-tag {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 23px;
+  max-width: 140px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid color-mix(in srgb, var(--tag-color) 24%, var(--surface));
+  color: color-mix(in srgb, var(--tag-color) 82%, var(--ink));
+  background: color-mix(in srgb, var(--tag-color) 13%, var(--surface));
+}
+.s-tag > i {
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--tag-color);
+}
+
+/* ── Marca de fila ──────────────────────────────────────────────────────
+   La pastilla con la inicial que la referencia pone al principio de cada
+   fila (.records-company-mark). El peso 650 a 10px es la compensación óptica
+   del sistema: a ese tamaño un 600 se ve más liviano de lo que corresponde. */
+.s-marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--ink-2);
+  font-size: 10px;
+  font-weight: 650;
+}
