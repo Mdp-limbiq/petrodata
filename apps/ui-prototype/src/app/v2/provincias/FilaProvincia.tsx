@@ -143,7 +143,7 @@ export function FilaProvincia({
                 icono="pozo"
                 rotulo="Pozos activos"
                 valor={formatInteger(p.wells)}
-                nota={`${formatDecimal(pctPozos, 1)}% del país`}
+                badges={[`${formatDecimal(pctPozos, 1)}% del país`]}
               />
               {/* Acá sí: el orden por exportaciones NO es el de esta lista y no
                   se ve en ningún otro lado de la sección. Escrito como puesto
@@ -153,10 +153,10 @@ export function FilaProvincia({
                 rotulo="Exportaciones"
                 valor={formatInteger(p.exportsMUSD)}
                 unidad="MUSD"
-                nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
-                detalle={
-                  puestoExpo ? `${puestoExpo}ª de ${totalProvincias} provincias` : undefined
-                }
+                badges={[
+                  `${formatDecimal(p.expSharePct, 1)}% nacional`,
+                  ...(puestoExpo ? [`${puestoExpo}ª de ${totalProvincias} provincias`] : []),
+                ]}
               />
 
               {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
@@ -169,16 +169,16 @@ export function FilaProvincia({
                   que es como se comporta cualquier top-N cuando el conjunto es
                   más chico.
 
-                  Los nombres van como texto y no como chips sobre --field: un
-                  chip es otra caja, y era la tercera forma distinta colgando
-                  del mismo riel. En ink-2 y no en ink-3 porque son contenido
-                  que hay que leer, no metadata. */}
+                  Cada operadora es su propio badge, igual que el porcentaje y
+                  el puesto de las otras dos filas: el badge es el tratamiento
+                  de todo lo secundario del paso, no la excepción de una fila.
+                  Cuando eran texto corrido separado por puntos medios, las tres
+                  filas anotaban con formas distintas. */}
               {operadoras.length > 0 && (
                 <Paso
                   icono="operadora"
                   rotulo="Top 3 operadoras"
-                  nota={operadoras.slice(0, 3).join(' · ')}
-                  notaLegible
+                  badges={operadoras.slice(0, 3)}
                 />
               )}
             </div>
@@ -204,18 +204,14 @@ function Paso({
   rotulo,
   valor,
   unidad,
-  nota,
-  notaLegible = false,
-  detalle,
+  badges,
 }: {
   icono: 'pozo' | 'expo' | 'operadora'
   rotulo: string
   valor?: string
   unidad?: string
-  nota: string
-  /** la nota es contenido y no metadata: sube a ink-2 para que se lea */
-  notaLegible?: boolean
-  detalle?: string
+  /** todo lo secundario del paso, cada cosa en su badge */
+  badges: string[]
 }) {
   return (
     <div className="s-paso">
@@ -272,19 +268,17 @@ function Paso({
           {unidad}
         </span>
       )}
-      {/* Base automática y no flex-1: con base 0 el navegador nunca la envuelve
-          —su tamaño hipotético es cero— y la nota terminaba aplastada en la
-          misma línea. Con base automática, si no entra baja de renglón.
-
-          Y sin crecer: si estirara, empujaría el badge contra el borde derecho
-          de la card y quedaría flotando lejos de lo que anota. */}
-      <span
-        className="min-w-0 truncate text-[11.5px]"
-        style={{ color: notaLegible ? 'var(--ink-2)' : 'var(--ink-3)' }}
-      >
-        {nota}
-      </span>
-      {detalle && <span className="s-chip s-chip--neutro s-chip--mini shrink-0">{detalle}</span>}
+      {/* Ninguno crece: si estiraran, el primero empujaría al resto contra el
+          borde derecho de la card y quedarían flotando lejos de lo que anotan.
+          Tampoco se recortan: .s-chip es inline-flex y ahí text-overflow no
+          aplica sobre un nodo de texto suelto —el mismo problema que tenía el
+          tag—, así que recortar habría sido cortar a hachazo. Bajan de renglón,
+          que es lo que hace el paso desde que envuelve. */}
+      {badges.map((b) => (
+        <span key={b} className="s-chip s-chip--neutro s-chip--mini shrink-0">
+          {b}
+        </span>
+      ))}
     </div>
   )
 }
