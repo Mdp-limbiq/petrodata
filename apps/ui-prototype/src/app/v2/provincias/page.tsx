@@ -1,4 +1,6 @@
 import { Seccion, Card, CardHead, FilaRanking, Dato, Pie, Tag, asignarColores } from '../_ui/kit'
+import { FilaProvincia } from './FilaProvincia'
+import { COMPANIES } from '@/fixtures/companies'
 import { PROVINCES } from '@/fixtures/provinces'
 import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
@@ -23,6 +25,8 @@ export default function V2Provincias() {
   /* El color se asigna por posición sobre las cuencas ordenadas por pozos,
      así cada una tiene el suyo y no cambia entre secciones ni pantallas. */
   const colorCuenca = asignarColores(cuencas.map((c) => c.nombre))
+  /* slug de operadora → nombre, para las empresas que operan en cada provincia */
+  const NOMBRES = new Map(COMPANIES.map((c) => [c.slug, c.name]))
 
   return (
     <>
@@ -58,19 +62,22 @@ export default function V2Provincias() {
         <Card>
           <CardHead titulo="Por cantidad de pozos" nota={formatInteger(totalPozos)} />
           {porPozos.map((p, i) => (
-            <FilaRanking
+            <FilaProvincia
               key={p.slug}
+              p={p}
               n={i + 1}
-              nombre={p.name}
-              valor={formatInteger(p.wells)}
               pct={p.wells / maxPozos}
               lider={i === 0}
-              marca
-              tag={p.basin}
-              tagColor={colorCuenca.get(p.basin)}
+              tagColor={colorCuenca.get(p.basin)!}
+              operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
             />
           ))}
         </Card>
+        <Pie>
+          Cada fila se despliega en el lugar en vez de llevarte a otra página: la ficha de
+          una provincia son cuatro datos, y perder el contexto de la lista para verlos
+          cuesta más de lo que aporta.
+        </Pie>
       </Seccion>
 
       <Seccion
