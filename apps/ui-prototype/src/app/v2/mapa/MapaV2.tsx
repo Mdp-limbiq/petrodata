@@ -1,48 +1,86 @@
 'use client'
 
-import type { Map as MLMap } from 'maplibre-gl'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import type { GeoJSONSource, Map as MLMap } from 'maplibre-gl'
 import { MapShell } from '@/ui/map-shell'
 import { WELLS } from '@/fixtures/wells'
+import { PanelResumen, PanelFiltros, PanelOperadores, PanelReferencias, type Recurso } from './Paneles'
 
-/* El mapa se reusa tal cual —MapShell ya absorbe el boilerplate de MapLibre—
-   y lo único que cambia es la paleta de los clusters, que pasa a los colores
-   de estado del sistema: verde, naranja y rojo según la densidad.
+/* El mapa se reusa tal cual —MapShell absorbe el boilerplate de MapLibre— y
+   lo único que cambia es la paleta de los clusters, que pasa a los colores de
+   estado del sistema: verde, naranja y rojo según la densidad.
 
    El encuadre se calcula de los datos con fitBounds en vez de fijar un zoom.
    Con el mapa a sangre la superficie pasó de 608×420 a más de 1300×900, y un
    zoom fijo que servía para la caja chica dejaba la cuenca como un puñado de
-   puntos en el medio de medio continente. Calculado, el encuadre se adapta
-   solo a cualquier tamaño de ventana. */
+   puntos en el medio de medio continente.
+
+   Los filtros son reales, no decorativos: recalculan el GeoJSON y actualizan
+   la fuente. El conteo de los paneles sale del mismo cálculo, así no puede
+   desincronizarse del mapa. */
 
 const SOURCE = 'v2-wells'
 const VERDE = '#189a4d'
 const NARANJA = '#ef720c'
 const ROJO = '#e3474c'
+/** mil m³ de gas ≈ 6,1 barriles equivalentes (1 boe ≈ 164 m³) */
+const BOE_POR_MM3 = 6.1
 
 export function MapaV2() {
+  const [recurso, setRecurso] = useState<Recurso>('todos')
+  const [ocultar, setOcultar] = useState(false)
+  const [operadora, setOperadora] = useState('')
+  const mapaRef = useRef<MLMap | null>(null)
+  const [listo, setListo] = useState(false)
+
+  const visibles = useMemo(
+    () =>
+      WELLS.filter((w) => {
+        const p = w.properties
+        if (operadora && p.operator !== operadora) return false
+        if (ocultar && p.status === 'abandonado') return false
+        /* La comparación va en BOE, no en los números crudos: el petróleo
+           está en bbl/d y el gas en Mm³/d, así que compararlos directo decía
+           que sólo 11 de 220 pozos eran de gas. Con mil metros cúbicos ≈ 6,1
+           barriles equivalentes, el gas domina en 75, que es el reparto real
+           de la muestra. */
+        const gasBoe = p.gas * BOE_POR_MM3
+        if (recurso === 'petroleo' && p.oil <= gasBoe) return false
+        if (recurso === 'gas' && gasBoe <= p.oil) return false
+        return true
+      }),
+    [recurso, ocultar, operadora],
+  )
+
+  /* Al cambiar el filtro se reemplazan los datos de la fuente en vez de
+     reconstruir el mapa: así el encuadre queda donde lo dejó el usuario.
+
+     Va en un efecto y no en el cuerpo del render: tocar el mapa mientras
+     React renderiza es un efecto secundario en render, que con StrictMode
+     corre dos veces y en modo concurrente puede correr sobre un render que
+     después se descarta. */
+  useEffect(() => {
+    if (!listo) return
+    const src = mapaRef.current?.getSource(SOURCE) as GeoJSONSource | undefined
+    src?.setData({ type: 'FeatureCollection', features: visibles })
+  }, [visibles, listo])
+
   const handleReady = (map: MLMap) => {
     if (map.getSource(SOURCE)) return
 
-    /* encuadre a los datos, con margen para que los clusters del borde no
-       queden pegados a los lados */
     let oeste = 180, este = -180, sur = 90, norte = -90
     for (const w of WELLS) {
-      const [lng, lat] = w.geometry.coordinates as [number, number]
+      const [lng, lat] = w.geometry.coordinates
       if (lng < oeste) oeste = lng
       if (lng > este) este = lng
       if (lat < sur) sur = lat
       if (lat > norte) norte = lat
     }
-    map.fitBounds(
-      [
-        [oeste, sur],
-        [este, norte],
-      ],
-      { padding: 64, animate: false },
-    )
+    map.fitBounds([[oeste, sur], [este, norte]], { padding: 64, animate: false })
+
     map.addSource(SOURCE, {
       type: 'geojson',
-      data: { type: 'FeatureCollection', features: WELLS },
+      data: { type: 'FeatureCollection', features: visibles },
       cluster: true,
       clusterRadius: 40,
       clusterMaxZoom: 12,
@@ -79,15 +117,44 @@ export function MapaV2() {
         'circle-stroke-color': 'rgba(255,255,255,0.6)',
       },
     })
+    mapaRef.current = map
+    setListo(true)
   }
 
   return (
-    <MapShell
-      className="h-full w-full"
-      label="Mapa de actividad de la cuenca Neuquina"
-      zoom={5.6}
-      controlPosition="bottom-right"
-      onReady={handleReady}
-    />
+    <div className="relative h-full w-full">
+      <MapShell
+        className="h-full w-full"
+        label="Mapa de actividad de la cuenca Neuquina"
+        controlPosition="bottom-right"
+        onReady={handleReady}
+      />
+
+      {/* Los paneles no capturan el puntero salvo ellos mismos, así el mapa
+          se sigue pudiendo arrastrar por los huecos entre ellos.
+
+          Dos columnas: a la izquierda el resumen arriba y las operadoras
+          abajo; a la derecha los filtros y las referencias, las dos arriba.
+          El ángulo inferior derecho queda LIBRE a propósito: ahí viven los
+          controles de zoom y la atribución de MapLibre. Con las referencias
+          ahí abajo se solapaban con el zoom en todos los tamaños. */}
+      <div className="pointer-events-none absolute inset-0 z-10 flex justify-between gap-3 p-4">
+        <div className="flex flex-col justify-between">
+          <PanelResumen />
+          <PanelOperadores seleccionada={operadora} onSeleccionar={setOperadora} />
+        </div>
+        <div className="flex flex-col gap-3">
+          <PanelFiltros
+            recurso={recurso}
+            onRecurso={setRecurso}
+            ocultarAbandonados={ocultar}
+            onOcultar={setOcultar}
+            visibles={visibles.length}
+            total={WELLS.length}
+          />
+          <PanelReferencias />
+        </div>
+      </div>
+    </div>
   )
 }
