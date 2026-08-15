@@ -95,12 +95,22 @@
   --shadow-card: 0 0 0 1px var(--line), 0 1px 2px #0003, 0 2px 6px #0003;
 }
 
-/* ── EL FONDO. Sin textura (prueba de Mariano, 2026-08-14): el fondo queda
-      plano y lo único que separa el marco del suelo es el anillo de 1px.
-      Para volver a la grilla, descomentar las tres líneas de abajo. ────── */
+/* ── EL FONDO. Sin textura: queda plano y lo único que separa el marco del
+      suelo es el anillo de 1px. Para volver a la grilla, descomentar las
+      tres líneas de abajo.
+
+      El suelo pasa de --dot-bg a --page. --dot-bg era el fondo que la
+      referencia le ponía al body DEBAJO de la trama, y sin trama no tiene
+      sentido: --page es el token que nombra el suelo de la página.
+
+      Medido, mejora los dos temas. En claro el suelo sube de L 97,0 a 98,5
+      —más claro, que era el pedido— y de paso la separación contra el marco
+      pasa de 0,9 a 2,4 puntos. En oscuro BAJA de 22,6 a 20,9, y ahí la
+      ganancia es mayor: el marco estaba a 0,5 puntos del suelo, o sea
+      prácticamente invisible, y pasa a 2,2. ────────────────────────────── */
 .sistema {
   min-height: 100dvh;
-  background-color: var(--dot-bg);
+  background-color: var(--page);
   /* background-image: radial-gradient(circle at 1px 1px, var(--dot) 1px, transparent 0);
   background-size: 18px 18px;
   background-attachment: fixed; */
