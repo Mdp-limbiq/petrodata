@@ -5,22 +5,25 @@ import { HEADLINE } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
 import { formatCompact, formatDecimal, formatInteger, formatPercent } from '@/lib/format'
 
-/* Paneles flotantes del mapa — los que tiene vacamuerta.io/map, vestidos con
-   el sistema.
+/* Paneles flotantes del mapa — con la receta de card MEDIDA de la referencia,
+   no con la que yo había inventado.
 
-   Antes había escrito que "el sistema no superpone capas". Era inferencia
-   mía, no una regla medida: la referencia no tiene mapas, así que nunca tuvo
-   que resolver este caso. Lo que SÍ está medido y acá se respeta:
+   La estructura real de sus cards (medida en approval-card y
+   recommendation-card):
 
-   · Cero backdrop-filter. Los paneles van con fondo OPACO, igual que las
-     cabeceras sticky de sus tablas, que también flotan sobre contenido.
-   · El plano lo hace el anillo de 1px, no una sombra difusa.
-   · z-index bajo: acá van en 10, que es el máximo del sistema.
-   · Radio 10, el de card, porque son cajas de ese tamaño.
+     div.rounded-card            blanco · radio 10
+       ├─ div.primitive-card-pad   padding 12px          ← el cuerpo
+       └─ div.primitive-card-footer bg --inset · border-top 1px · padding 10×12
 
-   Los rótulos salen de messages/es.json del sitio: "Resumen", "Filtros",
-   "Operadores principales · BOE", "Último mes", "Haz clic para filtrar el
-   mapa". */
+   O sea: NO hay barra de cabecera con divisoria arriba. El título es la
+   primera línea del cuerpo, y lo secundario —conteos, ayudas, acciones— baja
+   a un pie sobre fondo hundido. Yo tenía exactamente lo contrario: cabecera
+   con borde arriba y nada abajo.
+
+   Lo que sí estaba bien y se conserva: fondo opaco (cero backdrop-filter, la
+   regla medida), anillo de 1px en vez de sombra difusa y z-index en 10.
+
+   Los rótulos salen de messages/es.json del sitio. */
 
 const RECURSOS = [
   { valor: 'todos', label: 'Todos' },
@@ -30,7 +33,6 @@ const RECURSOS = [
 
 export type Recurso = (typeof RECURSOS)[number]['valor']
 
-/** Caja base: la receta de card, opaca, sin desenfoque. */
 function Panel({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
@@ -46,20 +48,30 @@ function Panel({ children, className = '' }: { children: ReactNode; className?: 
   )
 }
 
-function Cabecera({ titulo, nota }: { titulo: string; nota?: string }) {
+/** Cuerpo: los 12px de padding de la referencia. */
+function Cuerpo({ children }: { children: ReactNode }) {
+  return <div style={{ padding: 12 }}>{children}</div>
+}
+
+/** Pie: fondo hundido, filete arriba, padding 10×12. */
+function Pie({ children }: { children: ReactNode }) {
   return (
     <div
-      className="flex items-baseline justify-between gap-3 border-b px-3 py-2"
-      style={{ borderColor: 'var(--line)' }}
+      className="flex items-center justify-between gap-3"
+      style={{
+        padding: '10px 12px',
+        background: 'var(--inset)',
+        borderTop: '1px solid var(--line)',
+      }}
     >
-      <span className="s-etq">{titulo}</span>
-      {nota && (
-        <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>
-          {nota}
-        </span>
-      )}
+      {children}
     </div>
   )
+}
+
+/** Título del panel: primera línea del cuerpo, no una barra aparte. */
+function Titulo({ children }: { children: ReactNode }) {
+  return <p className="s-titulo m-0">{children}</p>
 }
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
@@ -69,9 +81,12 @@ const mes = (p: string) => `${MESES[Number(p.split('-')[1]) - 1]} ${p.split('-')
 export function PanelResumen() {
   return (
     <Panel className="w-[228px]">
-      <Cabecera titulo={`Último mes · ${mes(HEADLINE.period)}`} />
-      <div className="px-3 py-2.5">
-        <p className="m-0 flex items-baseline gap-1.5">
+      <Cuerpo>
+        <Titulo>Último mes</Titulo>
+        <p className="s-micro m-0 mt-0.5" style={{ color: 'var(--ink-2)' }}>
+          {mes(HEADLINE.period)}
+        </p>
+        <p className="m-0 mt-2.5 flex items-baseline gap-1.5">
           <span className="s-cifra-sm">{formatCompact(HEADLINE.boeMonth)}</span>
           <abbr
             title="Barriles equivalentes de petróleo"
@@ -81,21 +96,26 @@ export function PanelResumen() {
             BOE
           </abbr>
         </p>
-        <p className="s-micro s-num m-0 mt-1.5 flex flex-wrap gap-x-1.5" style={{ color: 'var(--ink-2)' }}>
-          <span>{formatCompact(HEADLINE.oil)} bbl/d petróleo</span>
-        </p>
-        <p className="s-micro s-num m-0 flex flex-wrap gap-x-1.5" style={{ color: 'var(--ink-2)' }}>
-          <span>{formatDecimal(HEADLINE.gas, 1)} MMm³/d gas</span>
-        </p>
         <p className="s-micro s-num m-0 mt-1.5" style={{ color: 'var(--ink-2)' }}>
-          {formatPercent(HEADLINE.vmShare)} del BOE
+          {formatCompact(HEADLINE.oil)} bbl/d petróleo
         </p>
-      </div>
+        <p className="s-micro s-num m-0" style={{ color: 'var(--ink-2)' }}>
+          {formatDecimal(HEADLINE.gas, 1)} MMm³/d gas
+        </p>
+      </Cuerpo>
+      <Pie>
+        <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
+          Participación
+        </span>
+        <span className="s-micro s-num" style={{ fontWeight: 500 }}>
+          {formatPercent(HEADLINE.vmShare)} del BOE
+        </span>
+      </Pie>
     </Panel>
   )
 }
 
-/** Filtros — recurso y estado, más el conteo de pozos a la vista. */
+/** Filtros — recurso y estado; el conteo y el reinicio bajan al pie. */
 export function PanelFiltros({
   recurso,
   onRecurso,
@@ -114,9 +134,9 @@ export function PanelFiltros({
   const limpio = recurso === 'todos' && !ocultarAbandonados
   return (
     <Panel className="w-[228px]">
-      <Cabecera titulo="Filtros" nota={`${formatInteger(visibles)} pozos`} />
-      <div className="px-3 py-2.5">
-        <p className="s-micro m-0 mb-1.5" style={{ color: 'var(--ink-2)' }}>
+      <Cuerpo>
+        <Titulo>Filtros</Titulo>
+        <p className="s-micro m-0 mt-2.5 mb-1.5" style={{ color: 'var(--ink-2)' }}>
           Recurso
         </p>
         <div
@@ -139,6 +159,8 @@ export function PanelFiltros({
                   boxShadow: on ? 'var(--shadow-btn)' : 'none',
                   color: on ? 'var(--ink)' : 'var(--ink-2)',
                   fontWeight: on ? 500 : 400,
+                  border: 0,
+                  cursor: 'pointer',
                 }}
               >
                 {r.label}
@@ -146,41 +168,46 @@ export function PanelFiltros({
             )
           })}
         </div>
-
-        <label className="s-micro mt-2.5 flex cursor-pointer items-center gap-2" style={{ color: 'var(--ink-2)' }}>
+        <label
+          className="s-micro mt-2.5 flex cursor-pointer items-center gap-2"
+          style={{ color: 'var(--ink-2)' }}
+        >
           <input
             type="checkbox"
             checked={ocultarAbandonados}
             onChange={(e) => onOcultar(e.target.checked)}
             style={{ accentColor: 'var(--accent)' }}
           />
-          Ocultar pozos abandonados
+          Ocultar abandonados
         </label>
-
-        {!limpio && (
+      </Cuerpo>
+      <Pie>
+        <span className="s-micro s-num" style={{ fontWeight: 500 }}>
+          {formatInteger(visibles)} pozos
+        </span>
+        {limpio ? (
+          <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>
+            de {formatInteger(total)}
+          </span>
+        ) : (
           <button
             type="button"
             onClick={() => {
               onRecurso('todos')
               onOcultar(false)
             }}
-            className="s-micro mt-2.5 block"
+            className="s-micro"
             style={{ color: 'var(--accent-ink)', background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
           >
             Reiniciar
           </button>
         )}
-        {limpio && (
-          <p className="s-micro s-num m-0 mt-2.5" style={{ color: 'var(--ink-3)' }}>
-            de {formatInteger(total)} muestreados
-          </p>
-        )}
-      </div>
+      </Pie>
     </Panel>
   )
 }
 
-/** Operadores principales — clic para filtrar, como en el sitio. */
+/** Operadores principales — clic para filtrar; la ayuda baja al pie. */
 export function PanelOperadores({
   seleccionada,
   onSeleccionar,
@@ -191,43 +218,63 @@ export function PanelOperadores({
   const max = Math.max(...TOP_OPERATORS.map((o) => o.boeMonth))
   return (
     <Panel className="w-[268px]">
-      <Cabecera titulo="Operadores principales · BOE" />
-      {TOP_OPERATORS.map((op, i) => {
-        const on = op.slug === seleccionada
-        return (
-          <button
-            key={op.slug}
-            type="button"
-            aria-pressed={on}
-            onClick={() => onSeleccionar(on ? '' : op.slug)}
-            className="s-fila s-fila-hover w-full text-left"
-            style={{ background: on ? 'var(--hover)' : 'transparent', cursor: 'pointer', border: 0 }}
-          >
-            <span className="s-mono w-4 shrink-0 text-[11px]" style={{ color: on ? 'var(--accent-ink)' : 'var(--ink-3)' }}>
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="s-micro block truncate" style={{ color: 'var(--ink)', fontWeight: on ? 500 : 400 }}>
-                {op.name}
-              </span>
-            </span>
-            <span className={`s-barra hidden w-10 shrink-0 sm:block ${on ? 's-barra--lider' : ''}`} aria-hidden>
-              <i style={{ width: `${Math.max(3, (op.boeMonth / max) * 100)}%` }} />
-            </span>
-            <span className="s-num s-micro w-10 shrink-0 text-right" style={{ fontWeight: 500 }}>
-              {formatCompact(op.boeMonth)}
-            </span>
-          </button>
-        )
-      })}
-      <p className="s-micro m-0 border-t px-3 py-2" style={{ borderColor: 'var(--line)', color: 'var(--ink-2)' }}>
-        {seleccionada ? 'Clic de nuevo para quitar el filtro' : 'Haz clic para filtrar el mapa'}
-      </p>
+      <Cuerpo>
+        <Titulo>Operadores principales</Titulo>
+        <ul className="m-0 mt-2 flex list-none flex-col gap-0.5 p-0">
+          {TOP_OPERATORS.map((op, i) => {
+            const on = op.slug === seleccionada
+            return (
+              <li key={op.slug}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => onSeleccionar(on ? '' : op.slug)}
+                  className="flex w-full items-center gap-2 rounded-[7px] px-1.5 py-1 text-left transition-colors"
+                  style={{
+                    background: on ? 'var(--hover)' : 'transparent',
+                    border: 0,
+                    cursor: 'pointer',
+                    marginInline: -6,
+                    width: 'calc(100% + 12px)',
+                  }}
+                >
+                  <span
+                    className="s-mono w-4 shrink-0 text-[11px]"
+                    style={{ color: on ? 'var(--accent-ink)' : 'var(--ink-3)' }}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span
+                    className="s-micro min-w-0 flex-1 truncate"
+                    style={{ color: 'var(--ink)', fontWeight: on ? 500 : 400 }}
+                  >
+                    {op.name}
+                  </span>
+                  <span className={`s-barra hidden w-10 shrink-0 sm:block ${on ? 's-barra--lider' : ''}`} aria-hidden>
+                    <i style={{ width: `${Math.max(3, (op.boeMonth / max) * 100)}%` }} />
+                  </span>
+                  <span className="s-num s-micro w-10 shrink-0 text-right" style={{ fontWeight: 500 }}>
+                    {formatCompact(op.boeMonth)}
+                  </span>
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      </Cuerpo>
+      <Pie>
+        <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
+          {seleccionada ? 'Clic de nuevo para quitarlo' : 'Haz clic para filtrar el mapa'}
+        </span>
+        <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>
+          BOE
+        </span>
+      </Pie>
     </Panel>
   )
 }
 
-/** Referencias — la leyenda de los clusters. */
+/** Referencias — la leyenda. Sin pie: no tiene nada secundario que bajar. */
 export function PanelReferencias() {
   const items = [
     { color: '#189a4d', label: 'Hasta 50 pozos' },
@@ -236,19 +283,17 @@ export function PanelReferencias() {
   ]
   return (
     <Panel className="w-[168px]">
-      <Cabecera titulo="Referencias" />
-      <ul className="m-0 flex list-none flex-col gap-1.5 p-3">
-        {items.map((it) => (
-          <li key={it.label} className="s-micro flex items-center gap-2" style={{ color: 'var(--ink-2)' }}>
-            <span
-              aria-hidden
-              className="size-2 shrink-0 rounded-full"
-              style={{ background: it.color }}
-            />
-            {it.label}
-          </li>
-        ))}
-      </ul>
+      <Cuerpo>
+        <Titulo>Referencias</Titulo>
+        <ul className="m-0 mt-2 flex list-none flex-col gap-1.5 p-0">
+          {items.map((it) => (
+            <li key={it.label} className="s-micro flex items-center gap-2" style={{ color: 'var(--ink-2)' }}>
+              <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: it.color }} />
+              {it.label}
+            </li>
+          ))}
+        </ul>
+      </Cuerpo>
     </Panel>
   )
 }
