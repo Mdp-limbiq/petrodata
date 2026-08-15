@@ -6,7 +6,13 @@ import { WELLS } from '@/fixtures/wells'
 
 /* El mapa se reusa tal cual —MapShell ya absorbe el boilerplate de MapLibre—
    y lo único que cambia es la paleta de los clusters, que pasa a los colores
-   de estado del sistema: verde, naranja y rojo según la densidad. */
+   de estado del sistema: verde, naranja y rojo según la densidad.
+
+   El encuadre se calcula de los datos con fitBounds en vez de fijar un zoom.
+   Con el mapa a sangre la superficie pasó de 608×420 a más de 1300×900, y un
+   zoom fijo que servía para la caja chica dejaba la cuenca como un puñado de
+   puntos en el medio de medio continente. Calculado, el encuadre se adapta
+   solo a cualquier tamaño de ventana. */
 
 const SOURCE = 'v2-wells'
 const VERDE = '#189a4d'
@@ -16,6 +22,24 @@ const ROJO = '#e3474c'
 export function MapaV2() {
   const handleReady = (map: MLMap) => {
     if (map.getSource(SOURCE)) return
+
+    /* encuadre a los datos, con margen para que los clusters del borde no
+       queden pegados a los lados */
+    let oeste = 180, este = -180, sur = 90, norte = -90
+    for (const w of WELLS) {
+      const [lng, lat] = w.geometry.coordinates as [number, number]
+      if (lng < oeste) oeste = lng
+      if (lng > este) este = lng
+      if (lat < sur) sur = lat
+      if (lat > norte) norte = lat
+    }
+    map.fitBounds(
+      [
+        [oeste, sur],
+        [este, norte],
+      ],
+      { padding: 64, animate: false },
+    )
     map.addSource(SOURCE, {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: WELLS },

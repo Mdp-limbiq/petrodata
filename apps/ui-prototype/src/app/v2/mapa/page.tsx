@@ -4,36 +4,32 @@ import { HEADLINE } from '@/fixtures/production'
 import { WELLS } from '@/fixtures/wells'
 import { formatInteger } from '@/lib/format'
 
-/* MAPA — la excepción justificada.
+/* MAPA — la única página que rompe la grilla.
 
-   El sistema no tiene un componente de mapa, y un mapa es lo único de todo el
-   producto que no puede reducirse a filas y barras. Lo que sí aplica es el
-   envoltorio: va adentro del marco de 14px, con el anillo de 1px y sin
-   controles flotantes translúcidos, porque el sistema no usa desenfoque.
+   El mapa va a sangre: toma el ancho completo de la columna de contenido —no
+   los 672px en que se topan las secciones— y el alto del viewport. Es la
+   excepción justificada del sistema: todo lo demás del producto se puede
+   reducir a filas y barras, el mapa no, y encerrarlo en una caja de 608×420
+   desperdiciaba la mitad de la pantalla en una página cuyo contenido ES el
+   mapa.
 
-   Los paneles que en Estrato flotaban SOBRE el mapa acá bajan a filas debajo.
-   Es coherente con el sistema —que no superpone capas— y además evita el
-   problema que teníamos de que los controles de zoom se solaparan. */
+   No lleva cabecera de sección arriba: le comería alto al mapa y la
+   navegación ya dice dónde está uno. El rótulo y los datos van abajo, al
+   scrollear, con la plantilla de siempre.
+
+   Los paneles que en Estrato flotaban SOBRE el mapa siguen abajo: el sistema
+   no superpone capas ni usa desenfoque, y así los controles de zoom no se
+   solapan con nada. */
 
 export default function V2Mapa() {
   return (
     <>
-      <Seccion
-        n="01"
-        titulo="Mapa de actividad"
-        desc="Pozos muestreados sobre la cuenca, agrupados por densidad."
-      >
-        <div className="h-[420px] overflow-hidden rounded-[10px]">
-          <MapaV2 />
-        </div>
-        <Pie>
-          El mapa es lo único que no se puede reducir a filas: va adentro del marco, pero
-          sin controles flotantes encima.
-        </Pie>
-      </Seccion>
+      <div className="h-dvh w-full">
+        <MapaV2 />
+      </div>
 
       <Seccion
-        n="02"
+        n="01"
         titulo="Pozos en el catálogo"
         desc="Tamaño del catálogo completo y de la muestra que se dibuja."
       >
@@ -44,8 +40,8 @@ export default function V2Mapa() {
           <FilaDato etiqueta="Pozos activos del mes" valor={formatInteger(HEADLINE.activeWells)} />
         </Card>
         <Pie>
-          La muestra es una fracción del catálogo: dibujar 85.593 puntos no agrega
-          información y sí cuesta cuadros por segundo.
+          La muestra es una fracción del catálogo: dibujar {formatInteger(HEADLINE.catalogWells)}{' '}
+          puntos no agrega información y sí cuesta cuadros por segundo.
         </Pie>
       </Seccion>
     </>
