@@ -84,7 +84,10 @@ export function Indice() {
           desbordaba, y sobre una lista corta lo único que hacía era borronear
           el último ítem. */}
       <nav className="relative shrink-0">
-        <p className="s-etq mb-1 pl-1.5">Secciones</p>
+        {/* Sin padding izquierdo: los ítems compensan su propio padding con un
+            margen negativo, así que su texto arranca en el borde del nav. Con
+            pl-1.5 el rótulo quedaba 6px adentro y no alineaba con los números. */}
+        <p className="s-etq mb-1">Secciones</p>
         {SECCIONES.map((s) => {
           const activa = s.href === '/v2' ? ruta === '/v2' : ruta.startsWith(s.href)
           return (
