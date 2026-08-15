@@ -80,8 +80,9 @@ export default function V2Provincias() {
         <Pie>
           Cada fila se despliega en el lugar en vez de llevarte a otra página: la ficha de
           una provincia son cuatro datos, y perder el contexto de la lista para verlos
-          cuesta más de lo que aporta. Las operadoras que se listan son las principales de
-          cada provincia, no todas: el dato completo por provincia todavía no lo tenemos.
+          cuesta más de lo que aporta. Las operadoras que se listan son las tres primeras por
+          producción, no todas las que operan: el dato completo por provincia todavía no
+          lo tenemos.
         </Pie>
       </Seccion>
 

@@ -139,12 +139,15 @@ export function FilaProvincia({
               />
             </div>
 
-            {/* El rótulo dice "Principales" y no "Operan": el fixture las
-                marca como destacadas e ilustrativas, no como la lista
-                completa —Neuquén trae cuatro y el resto una o dos—, así que
-                "Operan" afirmaba algo que el dato no sostiene. "Operadores
-                principales" es además el término que usa el sitio para un
-                subconjunto.
+            {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
+                destacadas e ilustrativas, no como la lista completa. Decir
+                "Operan" afirmaba algo que el dato no sostiene.
+
+                El corte en tres es legítimo: el fixture las trae en el orden
+                del ranking por BOE, así que los primeros tres SON los tres
+                primeros. Las provincias con menos muestran las que tienen,
+                que es como se comporta cualquier top-N cuando el conjunto es
+                más chico.
 
                 Los chips van SIN la pastilla de inicial. Adentro de un chip
                 que ya muestra el nombre completo, la letra repite el primer
@@ -155,9 +158,9 @@ export function FilaProvincia({
             {operadoras.length > 0 && (
               <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                 <span className="s-micro shrink-0" style={{ color: 'var(--ink-3)' }}>
-                  Principales
+                  Top 3 operadoras
                 </span>
-                {operadoras.map((nombre) => (
+                {operadoras.slice(0, 3).map((nombre) => (
                   <span key={nombre} className="s-chip-tool">
                     {nombre}
                   </span>
