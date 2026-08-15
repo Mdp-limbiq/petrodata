@@ -123,19 +123,54 @@ export function FilaProvincia({
               exacto de la pastilla de la fila (12 de padding + 20 del rango +
               10 de gap + 10 de media pastilla). */}
           <div style={{ padding: '2px 12px 12px 59px' }}>
-            {/* La descripción va FUERA del riel, y con los 6px de padding del
-                paso para que su texto arranque en la misma x que los íconos.
-
-                Estaba adentro y era el problema de jerarquía: prosa de ancho
-                completo colgando del mismo riel que tres lecturas de dato, o
-                sea dos cosas distintas presentadas como pares. La descripción
-                no es un ítem del desglose, es lo que lo presenta. */}
-            <p className="s-desc m-0 pb-1.5 pl-1.5">{p.blurb}</p>
-
-            {/* Los pasos van como hijos DIRECTOS del riel, no envueltos en un
-                contenedor: si no, el codo se engancharía al contenedor y
-                habría un solo codo para los tres. */}
+            {/* Todo cuelga como hijo DIRECTO del riel, sin envolver nada en un
+                contenedor: si no, el codo se engancharía al contenedor y habría
+                un solo codo para los cuatro. */}
             <div className="s-rama flex flex-col gap-1">
+              {/* La descripción también cuelga del riel. Estuvo suelta un rato
+                  —es prosa que presenta el desglose, no un ítem del desglose— y
+                  ahí arrancaba en 65 sin alinearse con nada: el nombre de la
+                  provincia está en 72 y los íconos de los pasos en 65.
+
+                  Usar la caja del paso arregla las dos cosas: su ícono cae en
+                  la columna de íconos (65) y su texto en la de rótulos (87), y
+                  con el codo queda enganchada a lo mismo que el resto. Lo que
+                  la sigue separando de un paso es la tipografía: prosa con
+                  interlínea holgada, sin cifra y sin badges.
+
+                  El ícono va arriba y no centrado —la prosa envuelve— con 3px
+                  de corrección para quedar a media altura del primer renglón
+                  (20,3 de interlínea contra 14 de ícono). El codo lo sigue
+                  hasta ahí: ver .s-paso--intro en sistema.css. */}
+              <div className="s-paso s-paso--intro">
+                <svg
+                  aria-hidden
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="mt-[3px] shrink-0"
+                  style={{ color: 'var(--ink-3)' }}
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 11.5v4.5" />
+                  <path d="M12 8h.01" />
+                </svg>
+                {/* 12,5 con interlínea holgada e ink-2: es la receta MEDIDA de
+                    la prosa adentro de una card de la referencia
+                    (p.px-3.pt-2.pb-1.text-[12.5px].leading-relaxed.text-ink-2). */}
+                <p
+                  className="m-0 min-w-0 flex-1 text-[12.5px] leading-relaxed"
+                  style={{ color: 'var(--ink-2)', textWrap: 'pretty' }}
+                >
+                  {p.blurb}
+                </p>
+              </div>
+
               {/* Sin puesto: el ranking de pozos es el orden de esta misma
                   lista, así que el puesto ya está impreso a la izquierda de la
                   fila. Repetirlo abajo era decir dos veces lo mismo. */}

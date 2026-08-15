@@ -513,6 +513,14 @@
   border-radius: 6px;
   background: transparent;
 }
+/* Variante para la introducción: el contenido es prosa que envuelve, así que
+   el ícono se alinea arriba —centrado en el primer renglón, con los 3px de
+   corrección que van en el svg— y no a media altura del párrafo entero. Y no
+   envuelve: el ícono nunca se separa del texto que ancla. */
+.s-paso--intro {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
 
 /* ── Riel de desglose ───────────────────────────────────────────────────
    El riel de las trazas de "Thinking": medido en el sitio, es un span
@@ -561,3 +569,10 @@
   height: 1px;
   background: var(--line);
 }
+/* La introducción cuelga por su PRIMER renglón y no por su centro: el párrafo
+   envuelve —dos líneas en desktop, tres a 375— y su mitad cae entre renglones,
+   con lo cual el codo apuntaría a un hueco. 12px es donde está el centro del
+   ícono: 2 de padding + 3 de corrección de línea de base + 7 de medio ícono.
+   El riel arranca ahí mismo, que es de donde cuelga la primera línea. */
+.s-rama > .s-paso--intro::after { top: 12px; }
+.s-rama > .s-paso--intro:first-child::before { top: 12px; }
