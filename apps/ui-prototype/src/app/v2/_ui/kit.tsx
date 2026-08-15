@@ -365,7 +365,7 @@ export function FilaNoticia({
           ) : null}
         </span>
       </span>
-      <Chip>{categoria}</Chip>
+      <Tag color={colorCategoria(categoria)}>{categoria}</Tag>
     </a>
   )
 }
@@ -410,6 +410,24 @@ export function asignarColores(categorias: string[]): Map<string, string> {
     i++
   }
   return m
+}
+
+/* Las nueve categorías de noticias, en orden fijo de frecuencia. El orden
+   define el color, así que una categoría lleva siempre el mismo en toda la
+   web: en el dashboard y en la página de noticias.
+
+   Son nueve sobre ocho colores, así que la última —la más rara— comparte
+   color con la primera. Con 20 notas nunca aparecen juntas; si el corpus
+   crece habrá que decidir entre un noveno color o agrupar categorías. */
+const CATEGORIAS_NOTICIA = [
+  'actualidad', 'produccion', 'inversion', 'financiamiento', 'regulacion',
+  'exportacion', 'rigi', 'laboral', 'ambiente',
+]
+const COLOR_CATEGORIA = asignarColores(CATEGORIAS_NOTICIA)
+
+/** Color estable de una categoría de noticia. */
+export function colorCategoria(cat: string): string {
+  return COLOR_CATEGORIA.get(cat) ?? PALETA_TAGS[0]
 }
 
 export function Tag({ children, color }: { children: string; color: string }) {

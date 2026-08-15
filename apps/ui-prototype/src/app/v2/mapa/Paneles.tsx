@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from 'react'
 import { formatInteger } from '@/lib/format'
+import { Marca } from '../_ui/kit'
 
 /* Paneles flotantes del mapa — con la receta de card MEDIDA de la referencia,
    no con la que yo había inventado.
@@ -244,6 +245,7 @@ export function PanelOperadores({
                   >
                     {String(i + 1).padStart(2, '0')}
                   </span>
+                  <Marca nombre={op.nombre} />
                   <span
                     className="s-micro min-w-0 flex-1 truncate"
                     style={{ color: 'var(--ink)', fontWeight: on ? 500 : 400 }}

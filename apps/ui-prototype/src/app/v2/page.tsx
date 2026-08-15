@@ -148,6 +148,7 @@ export default function V2Inicio() {
               valor={formatCompactAR(op.boeMonth)}
               pct={op.boeMonth / maxOp}
               lider={i === 0}
+              marca
               nota={`${formatPercent(op.boeMonth / HEADLINE.boeMonth)} del BOE del mes`}
             />
           ))}
