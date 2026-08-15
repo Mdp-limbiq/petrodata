@@ -53,7 +53,6 @@ export default function V2Empresas() {
       <Seccion
         n="02"
         titulo="Empresas de petróleo y gas"
-        ancho="completo"
         desc="Las 52, por participación en la producción nacional."
       >
         <Card>

@@ -42,7 +42,6 @@ export default function V2Noticias() {
       <Seccion
         n="02"
         titulo="Principales noticias"
-        ancho="completo"
         desc="Todas, por fecha, con su fuente y su tema."
       >
         <Card>

@@ -9,50 +9,37 @@ import { formatDelta } from '@/lib/format'
    · La jerarquía es peso y tinta, nunca tamaño. Nada pasa de 21px.
    · Los planos se separan con un anillo de 1px, nunca con sombra difusa. */
 
-/** Sección — la anatomía medida de la referencia, ahora sí completa:
+/** Cabecera de sección: número, título y descripción en UNA línea alineada
+    por línea de base. Es lo que permite repetir la plantilla sin que se lea
+    como un formulario: la sección gasta un renglón en presentarse.
 
-      section (padding 40×32, sin fondo)
-        ├─ header    número + título + descripción, FUERA del marco
-        └─ marco     canvas · radio 14 · padding 12
-             └─ contenido topeado en 480px y CENTRADO
-
-    Las dos cosas que faltaban y por las que esto no se parecía al original:
-
-    · El rótulo iba adentro del marco. Lo había movido a pedido, cuando el
-      marco arrancaba huérfano; con el contenido ya topeado el marco se lee
-      como escenario y el rótulo vuelve a su lugar.
-    · El contenido llenaba el marco de borde a borde. En la referencia está
-      topeado en 480 sobre 584 disponibles y centrado, así que deja 52px de
-      canvas a cada lado. Eso es lo que hace que la pieza se lea como pieza
-      apoyada en un escenario y no como un bloque que rellena una caja.
-
-    `ancho="completo"` es la salida para lo que de verdad necesita los 584:
-    las tablas de cinco columnas y el listado de 52 empresas. */
+    La cabecera va DENTRO del marco (pedido de Mariano, 2026-08-14). Afuera
+    quedaba flotando sobre el fondo y el marco arrancaba huérfano; adentro, el
+    marco pasa a contener la sección entera —rótulo, contenido y aclaración—
+    y se lee como una unidad. El marco es ahora universal: si el rótulo vive
+    adentro, no puede haber secciones sin marco donde no tenga dónde vivir. */
 export function Seccion({
   n,
   titulo,
   desc,
   children,
-  ancho = 'escenario',
 }: {
   n: string
   titulo: string
   desc: string
   children: ReactNode
-  /** 'escenario' topea en 480 y centra; 'completo' usa todo el marco */
-  ancho?: 'escenario' | 'completo'
 }) {
   return (
     <section className="s-seccion" id={`s${n}`}>
-      <header className="mb-3 flex flex-wrap items-baseline gap-2">
-        <span className="s-mono shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
-          {n}
-        </span>
-        <h2 className="s-titulo m-0 whitespace-nowrap">{titulo}</h2>
-        <p className="s-desc s-desc-trunca m-0 min-w-0 flex-1">{desc}</p>
-      </header>
-      <div className="s-marco flex items-center justify-center">
-        <div className={ancho === 'escenario' ? 'w-full max-w-[480px]' : 'w-full'}>{children}</div>
+      <div className="s-marco">
+        <header className="mb-3 flex flex-wrap items-baseline gap-2 px-1">
+          <span className="s-mono shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
+            {n}
+          </span>
+          <h2 className="s-titulo m-0 whitespace-nowrap">{titulo}</h2>
+          <p className="s-desc s-desc-trunca m-0 min-w-0 flex-1">{desc}</p>
+        </header>
+        {children}
       </div>
     </section>
   )
@@ -214,7 +201,7 @@ export function Chip({
     proyecto (SISTEMA.md §10.1) reserva ink-3 para metadata pura. */
 export function Pie({ children }: { children: ReactNode }) {
   return (
-    <p className="s-micro m-0 mt-2.5" style={{ color: 'var(--ink-2)' }}>
+    <p className="s-micro m-0 mt-2.5 px-1" style={{ color: 'var(--ink-2)' }}>
       {children}
     </p>
   )
