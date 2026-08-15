@@ -206,3 +206,121 @@ export function Pie({ children }: { children: ReactNode }) {
     </p>
   )
 }
+
+/* ── Fila de noticia ────────────────────────────────────────────────────
+   La foto ocupa la columna donde antes iba la fecha, y la fecha baja a la
+   línea de la fuente (pedido de Mariano, 2026-08-14). Gana la lista: la
+   miniatura distingue una nota de otra de un vistazo, cosa que una fecha
+   repetida no hace, y la fecha sigue estando donde uno la busca cuando ya
+   eligió qué leer.
+
+   Sólo 1 de las 20 notas trae imagen propia, así que las demás caen a una
+   por categoría. El mapa es determinista: la misma nota muestra siempre la
+   misma foto, y no una al azar en cada visita.
+
+   Van en blanco y negro lavado, el mismo tratamiento que la card del
+   índice: veinte miniaturas a todo color competirían con los datos, que es
+   lo único que en este sistema tiene permitido llevar color. */
+
+const FOTOS = [
+  'news-produccion-rig',
+  'news-regulacion-pumpjacks',
+  'news-gnl-buque',
+  'news-infraestructura-oleoducto',
+  'news-empresas-refineria',
+  'news-mercado-noche',
+]
+
+/** Categorías que tienen una foto que las representa de verdad. */
+const FOTO_POR_CATEGORIA: Record<string, string> = {
+  produccion: 'news-produccion-rig',
+  regulacion: 'news-regulacion-pumpjacks',
+  exportacion: 'news-gnl-buque',
+  rigi: 'news-infraestructura-oleoducto',
+  laboral: 'news-empresas-refineria',
+}
+
+/** Suma determinista del id: la misma nota muestra siempre la misma foto. */
+function reparte(id: string): string {
+  let h = 0
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0
+  return FOTOS[h % FOTOS.length]
+}
+
+/** Foto de una nota: la propia, si no la de su categoría, si no una
+    repartida por id. Sin este último paso, las tres categorías genéricas
+    —actualidad, inversión, financiamiento— caían todas en la misma imagen y
+    once de veinte filas mostraban la misma miniatura, que es justo lo que la
+    miniatura viene a evitar. */
+function fotoDe(id: string, categoria: string, propia?: string): string {
+  return propia ?? `/images/news/${FOTO_POR_CATEGORIA[categoria] ?? reparte(id)}.jpg`
+}
+
+export function FilaNoticia({
+  id,
+  href,
+  titulo,
+  resumen,
+  fuente,
+  fecha,
+  categoria,
+  minutos,
+  imagen,
+}: {
+  id: string
+  href: string
+  titulo: string
+  resumen?: string
+  fuente: string
+  /** ISO; se muestra recortada a la fecha */
+  fecha: string
+  categoria: string
+  minutos?: number
+  /** imagen propia de la nota; si falta, cae a la de su categoría */
+  imagen?: string
+}) {
+  const src = fotoDe(id, categoria, imagen)
+  return (
+    /* alignItems inline: .s-fila centra por defecto y la clase de Tailwind
+       tiene la misma especificidad, así que cuál gana depende del orden del
+       CSS compilado. La foto tiene que arrancar a la altura del título. */
+    <a
+      href={href}
+      className="s-fila s-fila-hover no-underline"
+      style={{ color: 'inherit', alignItems: 'flex-start' }}
+    >
+      <img
+        src={src}
+        alt=""
+        width={640}
+        height={640}
+        loading="lazy"
+        decoding="async"
+        className="shrink-0"
+        style={{
+          width: 56,
+          height: 56,
+          objectFit: 'cover',
+          borderRadius: 'var(--radius-control)',
+          filter: 'grayscale(1) contrast(0.9)',
+        }}
+      />
+      <span className="min-w-0 flex-1">
+        <span className="s-cuerpo block font-medium">{titulo}</span>
+        {resumen && <span className="s-desc mt-0.5 block">{resumen}</span>}
+        <span className="s-micro mt-1 flex flex-wrap items-center gap-x-1.5" style={{ color: 'var(--ink-2)' }}>
+          {fuente}
+          <span style={{ color: 'var(--ink-3)' }}>·</span>
+          <span className="s-mono text-[10.5px]">{fecha.slice(0, 10)}</span>
+          {minutos ? (
+            <>
+              <span style={{ color: 'var(--ink-3)' }}>·</span>
+              <span>{minutos} min</span>
+            </>
+          ) : null}
+        </span>
+      </span>
+      <Chip>{categoria}</Chip>
+    </a>
+  )
+}

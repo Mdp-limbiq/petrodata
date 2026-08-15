@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Seccion, Card, CardHead, Chip, Pie } from '../_ui/kit'
+import { Seccion, Card, CardHead, Pie, FilaNoticia } from '../_ui/kit'
 import { NEWS } from '@/fixtures/news'
 
 /* NOTICIAS — el caso donde más se aparta de lo que teníamos.
@@ -47,31 +47,18 @@ export default function V2Noticias() {
         <Card>
           <CardHead titulo="Últimas primero" nota={`${orden.length} notas`} />
           {orden.map((n) => (
-            <Link
+            <FilaNoticia
               key={n.id}
+              id={n.id}
               href={`/noticias/${n.id}`}
-              className="s-fila s-fila-hover items-start no-underline"
-              style={{ color: 'inherit' }}
-            >
-              <span
-                className="s-mono w-[74px] shrink-0 pt-0.5 text-[10.5px]"
-                style={{ color: 'var(--ink-3)' }}
-              >
-                {n.date.slice(0, 10)}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="s-cuerpo block font-medium">{n.title}</span>
-                <span className="s-desc mt-0.5 block">{n.summary}</span>
-                <span
-                  className="s-micro mt-1 block"
-                  style={{ color: 'var(--ink-2)' }}
-                >
-                  {n.source}
-                  {n.readingMin ? ` · ${n.readingMin} min` : ''}
-                </span>
-              </span>
-              <Chip>{n.category}</Chip>
-            </Link>
+              titulo={n.title}
+              resumen={n.summary}
+              fuente={n.source}
+              fecha={n.date}
+              categoria={n.category}
+              minutos={n.readingMin}
+              imagen={n.image}
+            />
           ))}
         </Card>
         <Pie>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Seccion, Dato, FilaDato, FilaRanking, Card, CardHead, Pie, Chip } from './_ui/kit'
+import { Seccion, Dato, FilaDato, FilaRanking, Card, CardHead, Pie, FilaNoticia } from './_ui/kit'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
@@ -188,23 +188,16 @@ export default function V2Inicio() {
       >
         <Card>
           {ultimas.map((n) => (
-            <Link
+            <FilaNoticia
               key={n.id}
+              id={n.id}
               href={`/noticias/${n.id}`}
-              className="s-fila s-fila-hover items-start no-underline"
-              style={{ color: 'inherit' }}
-            >
-              <span className="s-mono w-[74px] shrink-0 pt-0.5 text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
-                {n.date.slice(0, 10)}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="s-cuerpo block font-medium">{n.title}</span>
-                <span className="s-micro mt-0.5 flex items-center gap-2" style={{ color: 'var(--ink-3)' }}>
-                  {n.source}
-                </span>
-              </span>
-              <Chip>{n.category}</Chip>
-            </Link>
+              titulo={n.title}
+              fuente={n.source}
+              fecha={n.date}
+              categoria={n.category}
+              imagen={n.image}
+            />
           ))}
         </Card>
         <div className="mt-3">
