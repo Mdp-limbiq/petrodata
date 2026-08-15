@@ -437,6 +437,14 @@
   color: color-mix(in srgb, var(--tag-color) 82%, var(--ink));
   background: color-mix(in srgb, var(--tag-color) 13%, var(--surface));
 }
+/* Variante sin categoría: gris de campo, sin punto de color. La usa lo que
+   está en la lista pero no pertenece a ninguna categoría. */
+.s-tag--neutro {
+  border-color: var(--line);
+  color: var(--ink-2);
+  background: var(--field);
+}
+.s-tag--neutro > i { display: none; }
 .s-tag > i {
   flex: 0 0 4px;
   width: 4px;

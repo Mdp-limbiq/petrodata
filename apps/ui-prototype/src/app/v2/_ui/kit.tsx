@@ -430,9 +430,16 @@ export function colorCategoria(cat: string): string {
   return COLOR_CATEGORIA.get(cat) ?? PALETA_TAGS[0]
 }
 
-export function Tag({ children, color }: { children: string; color: string }) {
+/* Sin color, el tag va neutro. Pasa en la fila del Estado Nacional, cuya
+   "cuenca" es «Total país» y no es una cuenca: no tiene color categórico
+   asignado porque no es una categoría. Antes recibía undefined, el color-mix
+   fallaba y el tag salía con borde negro sobre transparente. */
+export function Tag({ children, color }: { children: string; color?: string }) {
   return (
-    <span className="s-tag" style={{ ['--tag-color' as string]: color }}>
+    <span
+      className={color ? 's-tag' : 's-tag s-tag--neutro'}
+      style={color ? { ['--tag-color' as string]: color } : undefined}
+    >
       <i aria-hidden />
       {/* El texto va en su propio span porque .s-tag es un contenedor flex y
           ahí text-overflow no aplica: el nodo de texto suelto se vuelve un

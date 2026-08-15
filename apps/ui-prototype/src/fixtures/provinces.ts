@@ -11,6 +11,8 @@ export type Province = {
   /** operadoras destacadas (ilustrativo, para la ficha) */
   operators?: string[]
   blurb: string
+  /** false sólo en "Estado Nacional", que no es una provincia. Ver abajo. */
+  esProvincia?: boolean
 }
 
 export const PROVINCES: Province[] = [
@@ -73,6 +75,7 @@ export const PROVINCES: Province[] = [
     exportsMUSD: 162,
     expSharePct: 1.0,
     blurb: 'Áreas bajo administración del Estado Nacional.',
+    esProvincia: false,
   },
   {
     slug: 'la-pampa',
@@ -120,3 +123,13 @@ export const PROVINCES: Province[] = [
     blurb: 'Actividad menor de hidrocarburos en el ramal noroeste.',
   },
 ]
+
+/* "Estado Nacional" está en PROVINCES porque sus 8 pozos y sus 162 MUSD suman
+   al total del país y tienen que aparecer en los totales y en las listas. Pero
+   no es una provincia, y su "cuenca" —"Total país"— no es una cuenca.
+
+   Contarlo como una llevaba a decir tres cosas falsas al mismo tiempo: "11
+   provincias" en la tarjeta de resumen, "de 11" en el puesto de cada fila y
+   seis cuencas en una sección cuyo texto dice cinco. Todo denominador que
+   hable de provincias o de cuencas se calcula sobre esta lista. */
+export const SOLO_PROVINCIAS = PROVINCES.filter((p) => p.esProvincia !== false)

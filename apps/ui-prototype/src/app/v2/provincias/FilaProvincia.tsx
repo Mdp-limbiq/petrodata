@@ -33,24 +33,24 @@ export function FilaProvincia({
   tagColor,
   operadoras,
   pctPozos,
-  puestoPozos,
   puestoExpo,
-  total,
+  totalProvincias,
 }: {
   p: Province
   n: number
   /** 0..1 sobre el máximo de la lista */
   pct: number
   lider: boolean
-  tagColor: string
+  /** sin valor cuando la cuenca no es una cuenca; el tag va neutro */
+  tagColor?: string
   /** nombres ya resueltos: una función no cruza de server a client component */
   operadoras: string[]
   /** porcentaje de los pozos del país que aporta la provincia */
   pctPozos: number
-  /** puesto en cada ranking, y cuántas provincias hay */
-  puestoPozos: number
-  puestoExpo: number
-  total: number
+  /** puesto en el ranking de exportaciones. Sin valor en el Estado Nacional,
+      que aparece en la lista pero no es una provincia y no tiene puesto. */
+  puestoExpo?: number
+  totalProvincias: number
 }) {
   const [abierta, setAbierta] = useState(false)
   const id = useId()
@@ -136,20 +136,27 @@ export function FilaProvincia({
                 contenedor: si no, el codo se engancharía al contenedor y
                 habría un solo codo para los tres. */}
             <div className="s-rama flex flex-col gap-1">
+              {/* Sin puesto: el ranking de pozos es el orden de esta misma
+                  lista, así que el puesto ya está impreso a la izquierda de la
+                  fila. Repetirlo abajo era decir dos veces lo mismo. */}
               <Paso
                 icono="pozo"
                 rotulo="Pozos activos"
                 valor={formatInteger(p.wells)}
                 nota={`${formatDecimal(pctPozos, 1)}% del país`}
-                detalle={`${String(puestoPozos).padStart(2, '0')} de ${total}`}
               />
+              {/* Acá sí: el orden por exportaciones NO es el de esta lista y no
+                  se ve en ningún otro lado de la sección. Escrito como puesto
+                  ordinal y no como "04 de 10", que no decía qué era. */}
               <Paso
                 icono="expo"
                 rotulo="Exportaciones"
                 valor={formatInteger(p.exportsMUSD)}
                 unidad="MUSD"
                 nota={`${formatDecimal(p.expSharePct, 1)}% nacional`}
-                detalle={`${String(puestoExpo).padStart(2, '0')} de ${total}`}
+                detalle={
+                  puestoExpo ? `${puestoExpo}ª de ${totalProvincias} provincias` : undefined
+                }
               />
 
               {/* "Top 3" y no "Operan": el fixture marca estas operadoras como
@@ -275,7 +282,8 @@ function Paso({
         {nota}
       </span>
       {detalle && (
-        <span className="s-mono shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
+        // sin s-mono: ahora es una frase, no una cifra alineada en columna
+        <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
           {detalle}
         </span>
       )}

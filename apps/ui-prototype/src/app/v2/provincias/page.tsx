@@ -1,7 +1,7 @@
 import { Seccion, Card, CardHead, FilaRanking, Dato, Pie, Tag, asignarColores } from '../_ui/kit'
 import { FilaProvincia } from './FilaProvincia'
 import { COMPANIES } from '@/fixtures/companies'
-import { PROVINCES } from '@/fixtures/provinces'
+import { PROVINCES, SOLO_PROVINCIAS } from '@/fixtures/provinces'
 import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
 /* PROVINCIAS — pocas filas, así que acá SÍ va la barra en cada una: con ocho
@@ -13,15 +13,26 @@ export default function V2Provincias() {
   const porExpo = PROVINCES.slice().sort((a, b) => b.exportsMUSD - a.exportsMUSD)
   const maxPozos = Math.max(...PROVINCES.map((p) => p.wells))
   const maxExpo = Math.max(...PROVINCES.map((p) => p.exportsMUSD))
+  /* Los totales SÍ incluyen al Estado Nacional: son el total del país. Los
+     denominadores que dicen "provincias" no, ver SOLO_PROVINCIAS. */
   const totalPozos = PROVINCES.reduce((s, p) => s + p.wells, 0)
   const totalExpo = PROVINCES.reduce((s, p) => s + p.exportsMUSD, 0)
-  const cuencas = [...PROVINCES.reduce((m, p) => {
+  /* Ranking de exportaciones sólo entre provincias, que es el que se muestra
+     en el desplegable. Sacar al Estado Nacional corre un puesto para arriba a
+     todo lo que estaba debajo suyo: La Pampa era 7ª de 11 y es 6ª de 10. */
+  const puestoExpoDe = new Map(
+    SOLO_PROVINCIAS.slice()
+      .sort((a, b) => b.exportsMUSD - a.exportsMUSD)
+      .map((p, i) => [p.slug, i + 1]),
+  )
+  const cuencas = [...SOLO_PROVINCIAS.reduce((m, p) => {
     const x = m.get(p.basin) ?? { nombre: p.basin, provincias: 0, pozos: 0 }
     x.provincias++
     x.pozos += p.wells
     return m.set(p.basin, x)
   }, new Map<string, { nombre: string; provincias: number; pozos: number }>()).values()]
     .sort((a, b) => b.pozos - a.pozos)
+  const pozosEnCuencas = cuencas.reduce((s, c) => s + c.pozos, 0)
   /* El color se asigna por posición sobre las cuencas ordenadas por pozos,
      así cada una tiene el suyo y no cambia entre secciones ni pantallas. */
   const colorCuenca = asignarColores(cuencas.map((c) => c.nombre))
@@ -48,7 +59,7 @@ export default function V2Provincias() {
           </Card>
           <Card>
             <div className="px-3 py-3">
-              <Dato rotulo="Provincias" valor={String(PROVINCES.length)} />
+              <Dato rotulo="Provincias" valor={String(SOLO_PROVINCIAS.length)} />
             </div>
           </Card>
         </div>
@@ -68,12 +79,11 @@ export default function V2Provincias() {
               n={i + 1}
               pct={p.wells / maxPozos}
               lider={i === 0}
-              tagColor={colorCuenca.get(p.basin)!}
+              tagColor={colorCuenca.get(p.basin)}
               operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
               pctPozos={(p.wells / totalPozos) * 100}
-              puestoPozos={i + 1}
-              puestoExpo={porExpo.findIndex((x) => x.slug === p.slug) + 1}
-              total={PROVINCES.length}
+              puestoExpo={puestoExpoDe.get(p.slug)}
+              totalProvincias={SOLO_PROVINCIAS.length}
             />
           ))}
         </Card>
@@ -82,7 +92,9 @@ export default function V2Provincias() {
           una provincia son cuatro datos, y perder el contexto de la lista para verlos
           cuesta más de lo que aporta. Las operadoras que se listan son las tres primeras por
           producción, no todas las que operan: el dato completo por provincia todavía no
-          lo tenemos.
+          lo tenemos. «Estado Nacional» son áreas bajo administración nacional y no una
+          provincia: suma a los totales del país, pero no cuenta como provincia ni tiene
+          puesto en el ranking.
         </Pie>
       </Seccion>
 
@@ -133,6 +145,8 @@ export default function V2Provincias() {
           ))}
         </Card>
         <Pie>
+          Suman {formatInteger(pozosEnCuencas)} pozos y no {formatInteger(totalPozos)}: los{' '}
+          {totalPozos - pozosEnCuencas} del Estado Nacional no están asignados a una cuenca.
           El color de cada cuenca es el mismo en toda la web: es categórico, no dice si algo
           está bien o mal. Los colores que sí significan —verde, naranja y rojo— quedan
           reservados para eso.
