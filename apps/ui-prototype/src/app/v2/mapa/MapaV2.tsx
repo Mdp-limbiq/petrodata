@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { GeoJSONSource, Map as MLMap } from 'maplibre-gl'
 import { MapShell } from '@/ui/map-shell'
 import { WELLS } from '@/fixtures/wells'
-import { PanelResumen, PanelFiltros, PanelOperadores, PanelReferencias, type Recurso } from './Paneles'
+import { PanelFiltros, PanelOperadores, PanelReferencias, type Recurso } from './Paneles'
 
 /* El mapa se reusa tal cual —MapShell absorbe el boilerplate de MapLibre— y
    lo único que cambia es la paleta de los clusters, que pasa a los colores de
@@ -153,15 +153,23 @@ export function MapaV2() {
           El ángulo inferior derecho queda LIBRE a propósito: ahí viven los
           controles de zoom y la atribución de MapLibre. Con las referencias
           ahí abajo se solapaban con el zoom en todos los tamaños. */}
-      <div className="pointer-events-none absolute inset-0 z-10 flex justify-between gap-3 p-4">
-        <div className="flex flex-col justify-between">
-          <PanelResumen />
-          <PanelOperadores
-            operadoras={operadoras}
-            seleccionada={operadora}
-            onSeleccionar={setOperadora}
-          />
-        </div>
+      {/* Los paneles no capturan el puntero salvo ellos mismos, así el mapa
+          se sigue pudiendo arrastrar por los huecos entre ellos.
+
+          Dos columnas, las dos arriba: a la izquierda las operadoras con su
+          buscador, a la derecha los filtros y las referencias. El ángulo
+          inferior derecho queda LIBRE a propósito: ahí viven los controles de
+          zoom y la atribución de MapLibre.
+
+          `items-start` es necesario: sin él los paneles heredan el stretch
+          del flex y se estiran a todo el alto del mapa, dejando un bloque
+          blanco vacío debajo del pie. */}
+      <div className="pointer-events-none absolute inset-0 z-10 flex items-start justify-between gap-3 p-4">
+        <PanelOperadores
+          operadoras={operadoras}
+          seleccionada={operadora}
+          onSeleccionar={setOperadora}
+        />
         <div className="flex flex-col gap-3">
           <PanelFiltros
             recurso={recurso}

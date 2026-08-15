@@ -1,8 +1,7 @@
 'use client'
 
 import { useMemo, useState, type ReactNode } from 'react'
-import { HEADLINE } from '@/fixtures/production'
-import { formatCompact, formatDecimal, formatInteger, formatPercent } from '@/lib/format'
+import { formatInteger } from '@/lib/format'
 
 /* Paneles flotantes del mapa — con la receta de card MEDIDA de la referencia,
    no con la que yo había inventado.
@@ -71,47 +70,6 @@ function Pie({ children }: { children: ReactNode }) {
 /** Título del panel: primera línea del cuerpo, no una barra aparte. */
 function Titulo({ children }: { children: ReactNode }) {
   return <p className="s-titulo m-0">{children}</p>
-}
-
-const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
-const mes = (p: string) => `${MESES[Number(p.split('-')[1]) - 1]} ${p.split('-')[0]}`
-
-/** Resumen — el marco de referencia del país. */
-export function PanelResumen() {
-  return (
-    <Panel className="w-[228px]">
-      <Cuerpo>
-        <Titulo>Último mes</Titulo>
-        <p className="s-micro m-0 mt-0.5" style={{ color: 'var(--ink-2)' }}>
-          {mes(HEADLINE.period)}
-        </p>
-        <p className="m-0 mt-2.5 flex items-baseline gap-1.5">
-          <span className="s-cifra-sm">{formatCompact(HEADLINE.boeMonth)}</span>
-          <abbr
-            title="Barriles equivalentes de petróleo"
-            className="s-micro cursor-help no-underline"
-            style={{ color: 'var(--ink-2)' }}
-          >
-            BOE
-          </abbr>
-        </p>
-        <p className="s-micro s-num m-0 mt-1.5" style={{ color: 'var(--ink-2)' }}>
-          {formatCompact(HEADLINE.oil)} bbl/d petróleo
-        </p>
-        <p className="s-micro s-num m-0" style={{ color: 'var(--ink-2)' }}>
-          {formatDecimal(HEADLINE.gas, 1)} MMm³/d gas
-        </p>
-      </Cuerpo>
-      <Pie>
-        <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-          Participación
-        </span>
-        <span className="s-micro s-num" style={{ fontWeight: 500 }}>
-          {formatPercent(HEADLINE.vmShare)} del BOE
-        </span>
-      </Pie>
-    </Panel>
-  )
 }
 
 /** Filtros — recurso y estado; el conteo y el reinicio bajan al pie. */
