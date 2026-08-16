@@ -623,7 +623,11 @@
   width: 1px;
   background: var(--line);
 }
-.s-rama > *:first-child::before { top: 0; }
+/* El riel arranca en el codo del primer hijo y no en su borde de arriba: si no
+   queda un muñón colgando de nada. En un paso el codo está a media altura; en
+   la introducción, a 12px, que es donde está el centro de su ícono. */
+.s-rama > *:first-child::before { top: 50%; }
+.s-rama > .s-paso--intro:first-child::before { top: 12px; }
 .s-rama > *:last-child::before {
   bottom: auto;
   height: calc(50% + 4px);
@@ -641,7 +645,5 @@
 /* La introducción cuelga por su PRIMER renglón y no por su centro: el párrafo
    envuelve —dos líneas en desktop, tres a 375— y su mitad cae entre renglones,
    con lo cual el codo apuntaría a un hueco. 12px es donde está el centro del
-   ícono: 2 de padding + 3 de corrección de línea de base + 7 de medio ícono.
-   El riel arranca ahí mismo, que es de donde cuelga la primera línea. */
+   ícono: 2 de padding + 3 de corrección de línea de base + 7 de medio ícono. */
 .s-rama > .s-paso--intro::after { top: 12px; }
-.s-rama > .s-paso--intro:first-child::before { top: 12px; }
