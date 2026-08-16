@@ -39,7 +39,6 @@ import { formatCompactAR, formatDecimal, formatInteger, formatMonth, formatPerce
 export default function V2Inicio() {
   const periodo = formatMonth(`${HEADLINE.period}-01`)
   const previo = formatMonth(`${PREV.period}-01`)
-  const maxOp = Math.max(...TOP_OPERATORS.map((o) => o.boeMonth))
   const ultimas = NEWS.slice()
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5)
@@ -238,13 +237,22 @@ export default function V2Inicio() {
       >
         <Card>
           <CardHead titulo="Ranking del mes" nota="BOE" />
+          {/* La barra mide lo MISMO que el badge de la fila: la parte del BOE
+              del mes. Estaba contra el líder, así que Pluspetrol se dibujaba al
+              31% mientras su badge decía 18,6% —dos números distintos para la
+              misma fila— y la de YPF salía llena, como si fuera el total y no
+              el 60,4%.
+
+              Contra el máximo tiene sentido cuando las filas NO suman un total.
+              Acá las cinco suman exactamente el BOE del mes, así que cada barra
+              es una parte de algo y tiene que dibujarse como tal. */}
           {TOP_OPERATORS.map((op, i) => (
             <FilaRanking
               key={op.slug}
               n={i + 1}
               nombre={op.name}
               valor={formatCompactAR(op.boeMonth)}
-              pct={op.boeMonth / maxOp}
+              pct={op.boeMonth / HEADLINE.boeMonth}
               lider={i === 0}
               marca
               unidad="BOE"
