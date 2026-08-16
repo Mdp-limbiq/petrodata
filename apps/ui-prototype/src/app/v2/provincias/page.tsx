@@ -39,14 +39,29 @@ export default function V2Provincias() {
   }, new Map<string, { nombre: string; provincias: number; pozos: number }>()).values()]
     .sort((a, b) => b.pozos - a.pozos)
   const pozosEnCuencas = cuencas.reduce((s, c) => s + c.pozos, 0)
-  /* La vara de intensidad exportadora: MUSD por pozo activo en todo el país. */
-  const promedioPorPozo = totalExpo / totalPozos
-  /* Los doce rótulos de mes son los mismos para todas las filas: se formatean
-     una vez acá, en el servidor, y no once veces en el cliente. */
-  const meses = NATIONAL_SERIES.slice(-12).map((m) => formatMonth(`${m.period}-01`))
   /* El color se asigna por posición sobre las cuencas ordenadas por pozos,
      así cada una tiene el suyo y no cambia entre secciones ni pantallas. */
   const colorCuenca = asignarColores(cuencas.map((c) => c.nombre))
+  /* La vara de intensidad exportadora: MUSD por pozo activo en todo el país. */
+  const promedioPorPozo = totalExpo / totalPozos
+  /* El reparto por cuenca de cada cifra del resumen, con el mismo color que la
+     cuenca tiene en los tags y en la card de cuencas. El Estado Nacional no
+     está en ninguna cuenca y va como segmento neutro —sin color— para que las
+     tres pilas sumen exacto su cifra en vez de dejar un resto mudo. */
+  const repartoPorCuenca = (medir: (p: (typeof PROVINCES)[number]) => number) => [
+    ...cuencas.map((c) => ({
+      nombre: c.nombre,
+      color: colorCuenca.get(c.nombre),
+      valor: SOLO_PROVINCIAS.filter((p) => p.basin === c.nombre).reduce((s, p) => s + medir(p), 0),
+    })),
+    ...PROVINCES.filter((p) => p.esProvincia === false).map((p) => ({
+      nombre: `${p.name} · sin cuenca`,
+      valor: medir(p),
+    })),
+  ].filter((x) => x.valor > 0)
+  /* Los doce rótulos de mes son los mismos para todas las filas: se formatean
+     una vez acá, en el servidor, y no once veces en el cliente. */
+  const meses = NATIONAL_SERIES.slice(-12).map((m) => formatMonth(`${m.period}-01`))
   /* slug de operadora → nombre, para las empresas que operan en cada provincia */
   const NOMBRES = new Map(COMPANIES.map((c) => [c.slug, c.name]))
 
@@ -55,7 +70,7 @@ export default function V2Provincias() {
       <Seccion
         n="01"
         titulo="Provincias de Argentina"
-        desc="Pozos y exportaciones sumados sobre las que tienen actividad."
+        desc="Pozos y exportaciones sumados, y cómo se reparten por cuenca."
       >
         <Cifras
           items={[
@@ -63,11 +78,13 @@ export default function V2Provincias() {
               rotulo: 'Pozos activos',
               valor: formatInteger(totalPozos),
               apoyo: `en ${cuencas.length} cuencas`,
+              partes: repartoPorCuenca((p) => p.wells),
             },
             {
               rotulo: 'Exportaciones',
               valor: formatCompactAR(totalExpo),
               apoyo: 'MUSD · año móvil',
+              partes: repartoPorCuenca((p) => p.exportsMUSD),
             },
             {
               /* El apoyo explica por qué las listas de abajo tienen once filas
@@ -76,6 +93,7 @@ export default function V2Provincias() {
               rotulo: 'Provincias',
               valor: String(SOLO_PROVINCIAS.length),
               apoyo: '+ Estado Nacional',
+              partes: repartoPorCuenca(() => 1),
             },
           ]}
         />

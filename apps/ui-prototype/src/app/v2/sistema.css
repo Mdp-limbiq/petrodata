@@ -541,6 +541,33 @@
 .s-delta--sube { color: var(--green); }
 .s-delta--baja { color: var(--red); }
 
+/* ── Pila ───────────────────────────────────────────────────────────────
+   Barra de una sola línea partida en categorías. EXTENSIÓN: la referencia no
+   tiene ninguna, igual que no tiene gráficos. Sale de sus reglas:
+
+   · el color SIGNIFICA algo. Cada segmento es una cuenca y lleva el color que
+     esa cuenca ya tiene en el tag de cada fila y en la card de cuencas. No es
+     una paleta nueva ni decoración: es la misma clave, tres veces.
+   · el segmento que no es una categoría —el Estado Nacional, que no está en
+     ninguna cuenca— va en --line-strong, igual que su tag va neutro. Así la
+     pila suma EXACTO la cifra que tiene arriba en vez de dejar un resto mudo.
+   · 4px de alto, como .s-barra. Nada de superficies de color grandes.
+
+   La separación de 1,5px va sobre --surface y es lo que hace que dos cuencas
+   contiguas se lean como dos y no como una mancha. El piso de 3px es para que
+   una cuenca chica —Noroeste tiene 24 pozos sobre 14.441— siga estando. */
+.s-pila {
+  display: flex;
+  gap: 1.5px;
+  height: 4px;
+  overflow: hidden;
+}
+.s-pila > i {
+  display: block;
+  min-width: 3px;
+  border-radius: 1px;
+}
+
 /* ── Serie compacta ─────────────────────────────────────────────────────
    EXTENSIÓN, no una pieza medida, y conviene que quede escrito: la referencia
    no tiene NINGÚN gráfico. Barrí su DOM buscando SVG de datos, contenedores

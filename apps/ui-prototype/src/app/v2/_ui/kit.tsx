@@ -114,10 +114,12 @@ export function Dato({
    corresponde a una serie del gráfico que tiene debajo y el punto es lo que
    las liga. Acá no hay gráfico, así que sería color sin significado, que es
    justo lo que el sistema prohíbe. */
+export type Parte = { nombre: string; valor: number; color?: string }
+
 export function Cifras({
   items,
 }: {
-  items: { rotulo: string; valor: string; apoyo?: string }[]
+  items: { rotulo: string; valor: string; apoyo?: string; partes?: Parte[] }[]
 }) {
   return (
     <Card>
@@ -131,6 +133,25 @@ export function Cifras({
               {it.rotulo}
             </span>
             <span className="s-num mt-0.5 block text-[17px] font-semibold">{it.valor}</span>
+            {/* La pila va pegada a la cifra, antes del apoyo: es el reparto de
+                ESA cifra. Debajo del apoyo se leería como otra cosa. */}
+            {it.partes && it.partes.length > 0 && (
+              <span
+                className="s-pila mt-1.5"
+                aria-hidden
+                title={it.partes.map((x) => x.nombre).join(' · ')}
+              >
+                {it.partes.map((x) => (
+                  <i
+                    key={x.nombre}
+                    style={{
+                      flex: `${x.valor} 1 0`,
+                      background: x.color ?? 'var(--line-strong)',
+                    }}
+                  />
+                ))}
+              </span>
+            )}
             {/* El apoyo envuelve, no se recorta. A 375 la columna da 93px y
                 "MUSD · año móvil" en mono mide 105: con truncate se leía
                 "MUSD · año …" y el período —que es justo lo que le faltaba a
