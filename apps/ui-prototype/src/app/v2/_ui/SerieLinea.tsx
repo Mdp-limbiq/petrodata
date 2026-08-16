@@ -100,8 +100,12 @@ export function SerieLinea({
               />
               {s.nombre}
             </span>
+            {/* 13/600 y no 17: es exactamente el tratamiento del titular de la
+                card 01 —"28.176.497 BOE"—, así las dos secciones se leen como
+                el mismo nivel de jerarquía. Entre 13 y 17 el sistema no tiene
+                nada, así que 13 es el escalón que hay. */}
             <p className="m-0 mt-0.5 flex items-baseline gap-1.5">
-              <span className="s-cifra">{s.textos[i]}</span>
+              <span className="s-titulo s-num">{s.textos[i]}</span>
               <span className="text-[11px]" style={{ color: 'var(--ink-3)' }}>
                 {s.unidad}
               </span>

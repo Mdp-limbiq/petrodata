@@ -697,20 +697,24 @@
 .s-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
+  gap: 4px;
+  height: 19px;
+  padding: 0 7px;
   border: 0;
   border-radius: 999px;
   background: var(--surface);
   box-shadow: var(--shadow-btn);
   color: var(--ink-2);
   font: inherit;
-  font-size: 11px;
+  /* 19px de alto y 10,5 de texto: la misma caja que .s-chip--mini, que es la
+     que usan los badges de la card 01. Estaba a 11px con 3px de padding, o sea
+     22 de alto, y al lado de la otra sección se leía como otra escala. */
+  font-size: 10.5px;
   font-weight: 500;
   cursor: pointer;
   transition: opacity var(--dur-base) var(--ease-out);
 }
-.s-toggle-btn > i { display: block; width: 6px; height: 6px; border-radius: 50%; }
+.s-toggle-btn > i { display: block; width: 5px; height: 5px; border-radius: 50%; }
 
 /* ── Gráfico de líneas ──────────────────────────────────────────────────
    Ver el comentario de SerieLinea.tsx: la referencia SÍ tiene gráficos —yo
