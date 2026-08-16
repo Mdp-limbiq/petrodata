@@ -141,8 +141,8 @@ export function FilaRanking({
   n: number
   nombre: string
   valor: string
-  /** 0..1 — proporción sobre el máximo de la lista */
-  pct: number
+  /** 0..1 — proporción a dibujar. Sin valor, no hay barra. */
+  pct?: number
   lider?: boolean
   nota?: string
   /** pastilla con la inicial, al principio de la fila */
@@ -199,13 +199,15 @@ export function FilaRanking({
         {tag && tagColor && <Tag color={tagColor}>{tag}</Tag>}
         {nota && <span className="s-chip s-chip--neutro s-chip--mini shrink-0">{nota}</span>}
       </span>
-      <span
-        className={`s-barra hidden w-16 shrink-0 sm:block ${lider && !color ? 's-barra--lider' : ''}`}
-        aria-hidden
-        style={color ? { ['--barra-color' as string]: color } : undefined}
-      >
-        <i style={{ width: `${Math.max(3, pct * 100)}%` }} />
-      </span>
+      {pct !== undefined && (
+        <span
+          className={`s-barra hidden w-16 shrink-0 sm:block ${lider && !color ? 's-barra--lider' : ''}`}
+          aria-hidden
+          style={color ? { ['--barra-color' as string]: color } : undefined}
+        >
+          <i style={{ width: `${Math.max(3, pct * 100)}%` }} />
+        </span>
+      )}
       <span className="flex shrink-0 items-baseline justify-end gap-1 sm:w-24">
         <span className="s-num w-10 text-right text-[13px] font-medium sm:w-auto">{valor}</span>
         {unidad && (
