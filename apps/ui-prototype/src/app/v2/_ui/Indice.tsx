@@ -38,7 +38,7 @@ const SECCIONES = [
   { href: '/v2', n: '01', label: 'Dashboard' },
   { href: '/v2/mapa', n: '02', label: 'Mapa' },
   { href: '/v2/provincias', n: '03', label: 'Provincias' },
-  { href: '/v2/companies', n: '04', label: 'Empresas' },
+  { href: '/v2/empresas', n: '04', label: 'Empresas' },
   { href: '/v2/indicadores', n: '05', label: 'Indicadores' },
   { href: '/v2/noticias', n: '06', label: 'Noticias' },
 ]

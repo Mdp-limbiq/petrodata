@@ -349,6 +349,10 @@
 /* La cabecera lleva filete abajo, como la barra de card: es la misma idea de
    ranura que encabeza y separa. */
 .s-tabla thead tr { border-bottom: 1px solid var(--line); }
+/* Separador VERTICAL entre grupos de columna. Está medido en la Records Table
+   del catálogo y no lo estábamos usando en ninguna parte: separa la identidad
+   de la fila —el nombre— de las columnas de cifras. */
+.s-tabla .s-sep { border-left: 1px solid var(--line); }
 /* Fila de cierre: la conclusión de la tabla, servida con la receta del pie de
    card —fondo --inset y filete arriba— pero como ÚLTIMA FILA y no como bloque
    aparte. Así cierra la tabla en vez de flotar debajo. */

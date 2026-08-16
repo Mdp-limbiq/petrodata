@@ -1,4 +1,5 @@
-import { Seccion, Card, CardHead, Dato, Pie, Chip } from '../_ui/kit'
+import { Seccion, Card, CardHead, Pie, Chip } from '../_ui/kit'
+import { Cifras } from '../_ui/Cifras'
 import { COMPANIES } from '@/fixtures/companies'
 import { formatDecimal, formatInteger } from '@/lib/format'
 
@@ -31,23 +32,25 @@ export default function V2Empresas() {
         titulo="Aporte al país"
         desc="Cuánto del total nacional explican las diez primeras."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Empresas seguidas" valor={String(COMPANIES.length)} grande />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Peso de las 10 primeras" valor={`${formatDecimal(top10, 1)}%`} />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Con cotización pública" valor={String(cotizan)} nota={`de ${COMPANIES.length}`} />
-            </div>
-          </Card>
-        </div>
+        <Cifras
+          items={[
+            {
+              rotulo: 'Empresas seguidas',
+              valor: String(COMPANIES.length),
+              apoyo: `${cotizan} con cotización`,
+            },
+            {
+              rotulo: 'Peso de las 10 primeras',
+              valor: `${formatDecimal(top10, 1)}%`,
+              apoyo: 'de la producción del país',
+            },
+            {
+              rotulo: 'Proyectos',
+              valor: formatInteger(proyectos),
+              apoyo: 'pozos sumados',
+            },
+          ]}
+        />
       </Seccion>
 
       <Seccion
@@ -74,7 +77,7 @@ export default function V2Empresas() {
                     Empresa
                   </th>
                   <th
-                    className="sticky top-0 z-[5] w-20 text-right"
+                    className="s-sep sticky top-0 z-[5] w-20 text-right"
                     style={{ background: 'var(--surface)', boxShadow: '0 1px 0 var(--line)' }}
                   >
                     Nacional
@@ -107,28 +110,48 @@ export default function V2Empresas() {
                         )}
                       </span>
                     </td>
-                    <td className="text-right">{formatDecimal(c.pctNacional, 1)}%</td>
+                    <td className="s-sep text-right">{formatDecimal(c.pctNacional, 1)}%</td>
                     <td className="text-right">{formatDecimal(c.pctValor, 1)}%</td>
                     <td className="text-right">{formatInteger(c.proyectos)}</td>
                   </tr>
                 ))}
               </tbody>
+              {/* Pie con el agregado, como la Records Table del catálogo: allá
+                  dice "26 count" bajo la columna que cuenta. Con 52 filas y
+                  scroll, es lo único que dice de qué tamaño es lo que estás
+                  recorriendo sin llegar al final. */}
+              <tfoot>
+                <tr className="s-cierre">
+                  <td />
+                  <td>
+                    {COMPANIES.length} <span style={{ color: 'var(--ink-3)' }}>empresas</span>
+                  </td>
+                  <td className="s-sep text-right">
+                    {formatDecimal(
+                      COMPANIES.reduce((a, c) => a + c.pctNacional, 0),
+                      1,
+                    )}
+                    %
+                  </td>
+                  <td className="text-right">
+                    {formatDecimal(
+                      COMPANIES.reduce((a, c) => a + c.pctValor, 0),
+                      1,
+                    )}
+                    %
+                  </td>
+                  <td className="text-right">{formatInteger(proyectos)}</td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </Card>
         <Pie>
-          La cabecera queda fija sobre fondo opaco: el sistema no usa desenfoque de fondo en
-          ninguna parte, así que una cabecera translúcida lo contradiría.
+          «Nacional» es la participación en la producción del país y «Valor» en el valor en
+          dólares: una empresa puede pesar más en una que en otra.
         </Pie>
       </Seccion>
 
-      <Seccion n="03" titulo="Proyectos" desc="Total declarado por el conjunto de empresas.">
-        <Card>
-          <div className="px-3 py-3">
-            <Dato rotulo="Proyectos en el conjunto" valor={formatInteger(proyectos)} grande />
-          </div>
-        </Card>
-      </Seccion>
     </>
   )
 }
