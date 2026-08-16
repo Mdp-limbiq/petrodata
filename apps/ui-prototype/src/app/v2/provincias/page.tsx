@@ -1,4 +1,4 @@
-import { Seccion, Card, CardHead, Dato, Pie, Tag, asignarColores } from '../_ui/kit'
+import { Seccion, Card, CardHead, Cifras, Pie, Tag, asignarColores } from '../_ui/kit'
 import { FilaProvincia } from './FilaProvincia'
 import { COMPANIES } from '@/fixtures/companies'
 import { PROVINCES, SOLO_PROVINCIAS } from '@/fixtures/provinces'
@@ -57,28 +57,28 @@ export default function V2Provincias() {
         titulo="Provincias de Argentina"
         desc="Pozos y exportaciones sumados sobre las que tienen actividad."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Pozos" valor={formatInteger(totalPozos)} grande />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato
-                rotulo="Exportaciones"
-                valor={formatCompactAR(totalExpo)}
-                unidad="MUSD"
-                nota="año móvil"
-              />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Provincias" valor={String(SOLO_PROVINCIAS.length)} />
-            </div>
-          </Card>
-        </div>
+        <Cifras
+          items={[
+            {
+              rotulo: 'Pozos activos',
+              valor: formatInteger(totalPozos),
+              apoyo: `en ${cuencas.length} cuencas`,
+            },
+            {
+              rotulo: 'Exportaciones',
+              valor: formatCompactAR(totalExpo),
+              apoyo: 'MUSD · año móvil',
+            },
+            {
+              /* El apoyo explica por qué las listas de abajo tienen once filas
+                 y esta card dice diez: la número once es el Estado Nacional,
+                 que suma al total del país pero no es una provincia. */
+              rotulo: 'Provincias',
+              valor: String(SOLO_PROVINCIAS.length),
+              apoyo: '+ Estado Nacional',
+            },
+          ]}
+        />
       </Seccion>
 
       <Seccion
