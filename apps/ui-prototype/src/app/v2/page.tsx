@@ -16,6 +16,7 @@ import {
 } from './_ui/kit'
 import { Cifras } from './_ui/Cifras'
 import { Serie } from './_ui/Serie'
+import { SerieLinea } from './_ui/SerieLinea'
 import { VM } from '@/fixtures/indicadores'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
@@ -47,6 +48,12 @@ export default function V2Inicio() {
      y saca el 69,3% del petróleo. En crudo, con el corte de abril: 155 bbl/d
      por pozo contra 26 del resto. Todo sale de cifras del sitio; lo único que
      hago es dividir. */
+  const mesesCortos = doceMeses.map((p) => formatMonth(`${p.period}-01`))
+  const varOil = ((doceMeses.at(-1)!.oil - doceMeses[0].oil) / doceMeses[0].oil) * 100
+  const varGas = ((doceMeses.at(-1)!.gas - doceMeses[0].gas) / doceMeses[0].gas) * 100
+  /* El mes más flojo del gas: la caída que el trazo hace evidente y que en la
+     versión de doce filas era invisible. Sale del dato, no de la vista. */
+  const mesMinGas = mesesCortos[doceMeses.indexOf(doceMeses.reduce((a, b) => (b.gas < a.gas ? b : a)))]
   const pctPozosVM = (VM.wells / HEADLINE.activeWells) * 100
   const paisOil = VM.oilBbld / (VM.oilSharePct / 100)
   const rinde =
@@ -197,69 +204,52 @@ export default function V2Inicio() {
       <Seccion
         n="02"
         titulo="Producción mensual"
-        desc="Doce meses de petróleo por día, con el mes de corte al final."
+        desc="Doce meses de petróleo y gas, con el mes de corte al final."
       >
-        <Card>
-          <CardHead
-            titulo="Petróleo · bbl/d"
-            nota={`${formatCompactAR(minOil)} – ${formatCompactAR(maxOil)}`}
-          />
-          <div className="px-3 py-3">
-            {/* Barras horizontales y no un gráfico de área: el sistema no tiene
-                superficies de color grandes, y una lista de barras finas es la
-                forma que sí tiene de mostrar magnitud.
+        {/* La prosa con los valores inline es la receta de la Insight Card:
+            arriba del gráfico se dice qué pasó, y los números que sostienen la
+            afirmación van en mono y con su color. */}
+        <p className="s-desc m-0 mb-2.5 px-1">
+          El petróleo subió{' '}
+          <code className="s-mono text-[12px]" style={{ color: 'var(--green)' }}>
+            {varOil >= 0 ? '+' : '\u2212'}
+            {formatDecimal(Math.abs(varOil), 1)}%
+          </code>{' '}
+          en los doce meses; el gas{' '}
+          <code className="s-mono text-[12px]" style={{ color: 'var(--green)' }}>
+            {varGas >= 0 ? '+' : '\u2212'}
+            {formatDecimal(Math.abs(varGas), 1)}%
+          </code>{' '}
+          y con una caída en <span style={{ color: 'var(--ink)' }}>{mesMinGas}</span>.
+        </p>
 
-                Se comparan DENTRO del rango del período y no desde cero: los
-                doce meses están entre 468k y 650k, así que barras desde cero
-                se verían todas iguales y el gráfico no diría nada. Queda
-                aclarado al pie, que es la única forma honesta de hacerlo. */}
-            <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-              {doceMeses.map((p, i) => {
-                const ultimo = i === doceMeses.length - 1
-                const pct = (p.oil - minOil) / (maxOil - minOil || 1)
-                return (
-                  <li key={p.period} className="flex items-center gap-2.5">
-                    <span
-                      className="s-mono w-16 shrink-0 text-[10.5px]"
-                      style={{ color: ultimo ? 'var(--ink-2)' : 'var(--ink-3)' }}
-                    >
-                      {formatMonth(`${p.period}-01`)}
-                    </span>
-                    {/* El color del petróleo, el mismo que en la card 01 y en
-                        toda la web. Antes el mes de corte iba en acento, y el
-                        acento es para foco, enlaces y detalles: no para decir
-                        "esto es petróleo". Los meses anteriores lo llevan
-                        mezclado al 40% para que el de corte siga saltando sin
-                        cambiar de color, que era lo que rompía la identidad. */}
-                    <span
-                      className="s-barra flex-1"
-                      style={{
-                        ['--barra-color' as string]: ultimo
-                          ? FLUIDO.petroleo
-                          : `color-mix(in srgb, ${FLUIDO.petroleo} 40%, var(--line-strong))`,
-                      }}
-                    >
-                      <i style={{ width: `${6 + pct * 94}%` }} />
-                    </span>
-                    <span
-                      className="s-num w-16 shrink-0 text-right text-[11.5px]"
-                      style={{
-                        color: ultimo ? 'var(--ink)' : 'var(--ink-2)',
-                        fontWeight: ultimo ? 500 : 400,
-                      }}
-                    >
-                      {formatInteger(p.oil)}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
+        <Card>
+          <div className="p-3">
+            <SerieLinea
+              rango={`${mesesCortos[0]} – ${mesesCortos[mesesCortos.length - 1]}`}
+              meses={mesesCortos}
+              series={[
+                {
+                  nombre: 'Petróleo',
+                  color: FLUIDO.petroleo,
+                  unidad: 'bbl/d',
+                  valores: doceMeses.map((p) => p.oil),
+                  textos: doceMeses.map((p) => formatInteger(p.oil)),
+                },
+                {
+                  nombre: 'Gas natural',
+                  color: FLUIDO.gas,
+                  unidad: 'MMm³/d',
+                  valores: doceMeses.map((p) => p.gas),
+                  textos: doceMeses.map((p) => formatDecimal(p.gas, 1)),
+                },
+              ]}
+            />
           </div>
         </Card>
         <Pie>
-          Las barras comparan dentro del rango del período ({formatInteger(minOil)} a{' '}
-          {formatInteger(maxOil)} bbl/d), no desde cero. Serie ilustrativa escalada para
-          terminar en el valor real de {periodo}.
+          Cada línea usa su propia escala: los dos fluidos no son comparables entre sí. Serie
+          ilustrativa escalada para terminar en los valores reales de {periodo}.
         </Pie>
       </Seccion>
 
