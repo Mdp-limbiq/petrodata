@@ -9,10 +9,14 @@ import {
   CardHead,
   CardPie,
   Medidor,
+  Serie,
+  Tag,
+  PALETA_TAGS,
   Pie,
   FilaNoticia,
 } from './_ui/kit'
 import { Cifras } from './_ui/Cifras'
+import { VM } from '@/fixtures/indicadores'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
@@ -39,6 +43,14 @@ export default function V2Inicio() {
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5)
   const doceMeses = NATIONAL_SERIES.slice(-12)
+  /* La contracara de la card: Vaca Muerta pone el 27,7% de los pozos del país
+     y saca el 69,3% del petróleo. En crudo, con el corte de abril: 155 bbl/d
+     por pozo contra 26 del resto. Todo sale de cifras del sitio; lo único que
+     hago es dividir. */
+  const pctPozosVM = (VM.wells / HEADLINE.activeWells) * 100
+  const paisOil = VM.oilBbld / (VM.oilSharePct / 100)
+  const rinde =
+    VM.oilBbld / VM.wells / ((paisOil - VM.oilBbld) / (HEADLINE.activeWells - VM.wells))
   const minOil = Math.min(...doceMeses.map((p) => p.oil))
   const maxOil = Math.max(...doceMeses.map((p) => p.oil))
 
@@ -47,62 +59,112 @@ export default function V2Inicio() {
       <Seccion
         n="01"
         titulo="Vaca Muerta"
-        desc="BOE del mes con su desglose en petróleo, gas y pozos."
+        desc="Petróleo y gas de la formación, y cuánto pesan en el total del país."
       >
+        {/* La card como TABLA. Las dos escalas quedan separadas por columna
+            —"En Vaca Muerta" y "Del total del país"— porque el problema de
+            fondo era ése: bajo un título que dice «Vaca Muerta» convivían
+            cifras de la formación con una del país sin avisar.
+
+            Los 14.441 pozos que mostraba antes son NACIONALES: es la suma
+            exacta de las once provincias del fixture, Jujuy y Formosa
+            incluidas. Los de Vaca Muerta son 3.996. Esa fila salió de la tabla
+            y sus dos números viven ahora en la conclusión, que es donde
+            significan algo: solos no explicaban nada.
+
+            Piezas: barra de card medida, tabla del sistema con su cabecera de
+            12/500, tag categórico por fluido, chip, medidor de tres barras y
+            —extensión nuestra— la serie y la barra de proporción. */}
         <Card>
-          {/* La card usa ahora las tres ranuras MEDIDAS de la referencia, que
-              el dashboard no estaba usando ninguna:
-
-                .primitive-card-bar      padding 10×12, borde ABAJO
-                .primitive-card-pad      padding 12
-                .primitive-card-footer   padding 10×12, borde ARRIBA, --inset
-
-              La barra es la ranura más frecuente del sitio —cinco usos contra
-              tres del pie y tres del pad—, y nosotros la teníamos reemplazada
-              por un div con padding a ojo. */}
           <CardBarra>
-            <span className="s-etq min-w-0 flex-1">Barriles equivalentes · {periodo}</span>
-            <Pulso />
-          </CardBarra>
-
-          <div className="px-3 py-3">
-            <p className="m-0 flex items-baseline gap-1.5">
-              <span className="s-cifra">{formatInteger(HEADLINE.boeMonth)}</span>
-              <span className="text-[11px]" style={{ color: 'var(--ink-3)' }}>
+            <span className="s-titulo shrink-0">
+              {formatInteger(HEADLINE.boeMonth)}{' '}
+              <span className="text-[11px] font-normal" style={{ color: 'var(--ink-3)' }}>
                 BOE
               </span>
-            </p>
-          </div>
-
-          <div className="border-t" style={{ borderColor: 'var(--line)' }}>
-            <FilaDato etiqueta="Petróleo" valor={formatInteger(HEADLINE.oil)} unidad="bbl/d" />
-            <FilaDato
-              etiqueta="Gas natural"
-              valor={formatDecimal(HEADLINE.gas, 1)}
-              unidad="MMm³/d"
-            />
-            <FilaDato etiqueta="Pozos activos" valor={formatInteger(HEADLINE.activeWells)} />
-          </div>
-
-          {/* La participación baja al pie y no es una fila más del desglose:
-              las otras tres son PARTES del BOE del mes, y ésta mide ese BOE
-              contra un total más grande. Es otra clase de afirmación, y el
-              escalón de fondo del pie es justamente lo que la referencia usa
-              para separar lo que califica a la card de lo que la compone.
-
-              El medidor dice en cuántos tercios cae la proporción: 77,9% son
-              tres de tres. La cifra exacta está al lado; el medidor es el
-              vistazo. Es la misma pieza que la referencia usa para el nivel de
-              confianza de su Recommendation Card. */}
-          <CardPie>
-            <Medidor nivel={Math.ceil(HEADLINE.vmShare * 3)} />
-            <span className="s-micro min-w-0 flex-1" style={{ color: 'var(--ink-2)' }}>
-              Del BOE nacional de hidrocarburos
             </span>
-            <span className="s-num shrink-0 text-[13px] font-medium">
-              {formatPercent(HEADLINE.vmShare)}
+            <span className="s-chip s-chip--neutro s-chip--mini shrink-0">
+              {formatPercent(HEADLINE.vmShare)} del BOE nacional
             </span>
-          </CardPie>
+            <span className="flex-1" />
+            <span className="s-micro shrink-0" style={{ color: 'var(--ink-3)' }}>
+              Vaca Muerta · {periodo}
+            </span>
+          </CardBarra>
+
+          <table className="s-tabla">
+            <thead>
+              <tr>
+                <th>Fluido</th>
+                <th className="text-right">En Vaca Muerta</th>
+                <th className="hidden text-right sm:table-cell">Doce meses</th>
+                <th className="text-right">Del total del país</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <Tag color={PALETA_TAGS[0]}>Petróleo</Tag>
+                </td>
+                <td className="text-right">
+                  {formatInteger(HEADLINE.oil)}{' '}
+                  <span className="text-[11px] font-normal" style={{ color: 'var(--ink-3)' }}>
+                    bbl/d
+                  </span>
+                </td>
+                <td className="hidden text-right sm:table-cell">
+                  <Serie valores={doceMeses.map((p) => p.oil)} className="inline-flex align-middle" />
+                </td>
+                <td className="text-right">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="s-barra s-barra--lider hidden w-13 sm:block" aria-hidden>
+                      <i style={{ width: `${VM.oilSharePct}%` }} />
+                    </span>
+                    <span className="w-11 text-right">{formatDecimal(VM.oilSharePct, 1)}%</span>
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <Tag color={PALETA_TAGS[3]}>Gas natural</Tag>
+                </td>
+                <td className="text-right">
+                  {formatDecimal(HEADLINE.gas, 1)}{' '}
+                  <span className="text-[11px] font-normal" style={{ color: 'var(--ink-3)' }}>
+                    MMm³/d
+                  </span>
+                </td>
+                <td className="hidden text-right sm:table-cell">
+                  <Serie valores={doceMeses.map((p) => p.gas)} className="inline-flex align-middle" />
+                </td>
+                <td className="text-right">
+                  <span className="inline-flex items-center gap-2">
+                    <span className="s-barra hidden w-13 sm:block" aria-hidden>
+                      <i style={{ width: `${VM.gasSharePct}%` }} />
+                    </span>
+                    <span className="w-11 text-right">{formatDecimal(VM.gasSharePct, 1)}%</span>
+                  </span>
+                </td>
+              </tr>
+              {/* La conclusión es la última FILA y no un pie aparte. Los 3.996
+                  pozos y los 14.441 del país viven acá, que es donde explican
+                  algo: la fila suelta no decía nada. */}
+              <tr className="s-cierre">
+                <td colSpan={4}>
+                  <span className="flex items-center gap-3">
+                    <Medidor nivel={3} />
+                    <span className="s-micro font-normal" style={{ color: 'var(--ink-2)' }}>
+                      Con el <strong className="font-semibold">{formatDecimal(pctPozosVM, 1)}%</strong>{' '}
+                      de los pozos aporta el{' '}
+                      <strong className="font-semibold">{formatDecimal(VM.oilSharePct, 1)}%</strong> del
+                      petróleo: un pozo rinde{' '}
+                      <strong className="font-semibold">{formatDecimal(rinde, 1)}×</strong> uno del resto.
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </Card>
       </Seccion>
 

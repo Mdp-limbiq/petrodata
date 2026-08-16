@@ -121,6 +121,28 @@ export function Medidor({ nivel, de = 3 }: { nivel: number; de?: number }) {
   )
 }
 
+/** Serie compacta — extensión nuestra: la referencia no tiene ningún gráfico.
+    Las barras se comparan DENTRO del rango del período, no desde cero, y el
+    último mes lleva el acento. */
+export function Serie({ valores, className = '' }: { valores: number[]; className?: string }) {
+  const min = Math.min(...valores)
+  const max = Math.max(...valores)
+  return (
+    <span className={`s-serie ${className}`} aria-hidden>
+      {valores.map((v, i) => (
+        <span key={i}>
+          {/* el último es el mes de corte y lleva el acento, que en el sistema
+              es para detalles: nunca para llenar */}
+          <i
+            className={i === valores.length - 1 ? 'on' : undefined}
+            style={{ height: `${15 + ((v - min) / (max - min || 1)) * 85}%` }}
+          />
+        </span>
+      ))}
+    </span>
+  )
+}
+
 /** Fila de ranking: rango en mono, nombre, valor a la derecha y barra fina.
     La barra va neutra y sólo el líder toma el acento — el acento es para
     detalles, nunca para llenar superficies. */

@@ -344,6 +344,15 @@
 }
 .s-tabla tbody tr:last-child { border-bottom: 0; }
 .s-tabla tbody tr:hover { background: var(--hover); }
+/* La cabecera lleva filete abajo, como la barra de card: es la misma idea de
+   ranura que encabeza y separa. */
+.s-tabla thead tr { border-bottom: 1px solid var(--line); }
+/* Fila de cierre: la conclusión de la tabla, servida con la receta del pie de
+   card —fondo --inset y filete arriba— pero como ÚLTIMA FILA y no como bloque
+   aparte. Así cierra la tabla en vez de flotar debajo. */
+.s-tabla tr.s-cierre td { background: var(--inset); border-top: 1px solid var(--line); }
+.s-tabla tbody tr.s-cierre:hover { background: transparent; }
+.s-tabla tbody tr.s-cierre:hover td { background: var(--inset); }
 
 /* ── Estados de dato ──────────────────────────────────────────────────── */
 .s-sube { color: var(--green); }
