@@ -101,11 +101,23 @@ export function FilaProvincia({
 }) {
   const [abierta, setAbierta] = useState(false)
   const id = useId()
-  /* Producción queda pegada a pozos en los dos órdenes: se deriva de ellos. */
+  /* Las dos listas mostraban prácticamente el mismo desglose y sólo cambiaba
+     el orden. Ahora cada una lee la provincia desde su métrica y no comparten
+     ninguna lectura salvo las operadoras:
+
+       por pozos          por exportaciones
+       ─────────────      ──────────────────
+       Pozos activos      Exportaciones      (cuánto, y qué parte del total)
+       Producción         Del país           (qué parte de los US$ 17,1B)
+       Exportaciones      Por pozo           (intensidad exportadora)
+       Operadoras         Operadoras
+
+     "Del país" usa Province.expSharePct, que estaba sin usar en v2 y es la
+     única cifra que relaciona a la provincia con el total nacional publicado. */
   const pasos =
     metrica === 'pozos'
       ? (['pozos', 'produccion', 'exportaciones'] as const)
-      : (['exportaciones', 'intensidad', 'pozos', 'produccion'] as const)
+      : (['exportaciones', 'pais', 'intensidad'] as const)
   /* Cuánto exporta cada pozo. Es la lectura que EXPLICA la columna de
      movimiento: Chubut sube un puesto sobre Santa Cruz porque exporta 0,30
      MUSD por pozo contra 0,13, con 500 pozos menos.
@@ -260,6 +272,20 @@ export function FilaProvincia({
                         : []),
                     ]}
                   />
+                ) : clave === 'pais' ? (
+                  /* El otro denominador, el bueno: la participación que publica
+                     el sitio sobre las exportaciones totales de la Argentina.
+                     Neuquén es 69,6% de esta tabla y 28,1% del país; las dos
+                     cifras son reales y acá quedan una debajo de la otra, que
+                     es la única forma de que no se confundan. */
+                  <Paso
+                    key="pais"
+                    icono="pais"
+                    rotulo="Del país"
+                    valor={formatDecimal(p.expSharePct, 1)}
+                    unidad="%"
+                    badges={['de US$ 17,1B exportados']}
+                  />
                 ) : clave === 'intensidad' ? (
                   /* El multiplicador contra el promedio del país sólo se
                      muestra con 100 pozos o más. Debajo de eso el cociente lo
@@ -289,18 +315,15 @@ export function FilaProvincia({
                     valor={formatInteger(p.exportsMUSD)}
                     unidad="MUSD"
                     badges={[
-                      /* "del complejo" y NO "del país". Los once exportsMUSD
-                         suman 6.879, pero las exportaciones totales de la
-                         Argentina son US$ 17,1B en el año móvil —el número que
-                         publica el sitio, minería incluida—. Neuquén es 69,6%
-                         de esta columna y 28,0% del país; decir "69,6% del
-                         país" era afirmar algo falso por un factor de 2,5.
-
-                         La comprobación: 6.879/17.100 = 40,2%, que es
-                         exactamente lo que suman los once expSharePct (40,4%).
-                         O sea que expSharePct SÍ es la participación en el
-                         país, y esta otra es la participación en la columna. */
-                      `${formatDecimal(pctExpo, 1)}% del complejo`,
+                      /* "del total" a secas, que es el total que la cabecera
+                         de la card anuncia y el pie define. No "del país" —eso
+                         es el 28,1%, sobre los US$ 17,1B— y tampoco "del
+                         complejo": los 6.879 de esta columna no coinciden con
+                         ningún agregado publicado, ni con el total del país
+                         (17,1B) ni con petróleo+gas (11,7B). Son el 40,2% y el
+                         58,8% respectivamente, así que nombrarlos "complejo"
+                         sería inventarles una categoría. */
+                      `${formatDecimal(pctExpo, 1)}% del total`,
                       ...(metrica === 'pozos' && puestoExpo
                         ? [`${puestoExpo}ª de ${totalProvincias} en exportaciones`]
                         : []),
@@ -379,7 +402,7 @@ function Paso({
   meses,
   badges,
 }: {
-  icono: 'pozo' | 'expo' | 'operadora' | 'produccion' | 'intensidad'
+  icono: 'pozo' | 'expo' | 'operadora' | 'produccion' | 'intensidad' | 'pais'
   rotulo: string
   valor?: string
   unidad?: string
@@ -444,6 +467,13 @@ function Paso({
           <>
             <path d="M3 17l5.5-5.5 3.5 3.5L21 6" />
             <path d="M15 6h6v6" />
+          </>
+        )}
+        {icono === 'pais' && (
+          <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3.2 9h17.6M3.2 15h17.6" />
+            <path d="M12 3a15 15 0 0 0 0 18a15 15 0 0 0 0-18" />
           </>
         )}
         {icono === 'intensidad' && (

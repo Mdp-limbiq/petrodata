@@ -137,7 +137,7 @@ export default function V2Provincias() {
       <Seccion
         n="03"
         titulo="Perfil exportador"
-        desc="Cuánto aporta cada provincia a los dólares del complejo."
+        desc="Cuánto exporta cada provincia y cuánto pesa en el total del país."
       >
         <Card>
           {/* La cifra llevaba unidad pero no período, que en una cifra de
@@ -188,8 +188,9 @@ export default function V2Provincias() {
             el propio sitio —minería incluida— y estas once filas suman 6.879,
             o sea el 40,2%. Neuquén es 69,6% de esta tabla y 28,0% del país. */}
         <Pie>
-          Los porcentajes son sobre estos 6.879 MUSD, no sobre las exportaciones totales
-          del país, que son US$ 17,1B en el año móvil.
+          Los 6.879 MUSD son la suma de estas filas. Las exportaciones totales del país en
+          el año móvil son US$ 17,1B, así que «del total» y «del país» no son lo mismo:
+          Neuquén es 69,6% de esta tabla y 28,1% del país.
         </Pie>
       </Seccion>
 
