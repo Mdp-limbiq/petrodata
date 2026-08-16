@@ -76,9 +76,15 @@ export function Dato({
       </p>
       {(nota || d) && (
         <p className="s-micro m-0 mt-1 flex items-center gap-1.5">
+          {/* Sin flecha. El delta MEDIDO en la referencia es texto pelado:
+              <span class="text-green tabular-nums">+74</span>, sin triángulo,
+              sin ícono, sin fondo. Y el menos es el real (U+2212), que a este
+              tamaño se alinea con el "+"; el guion queda más corto y más alto
+              y la columna se ve despareja. */}
           {d && (
-            <span className={d.dir === 'up' ? 's-sube' : 's-baja'}>
-              {d.arrow} {d.label}
+            <span className={`s-delta ${d.dir === 'up' ? 's-delta--sube' : 's-delta--baja'}`}>
+              {d.dir === 'up' ? '+' : '\u2212'}
+              {d.label}
             </span>
           )}
           {nota && <span style={{ color: 'var(--ink-3)' }}>{nota}</span>}
@@ -102,6 +108,7 @@ export function FilaRanking({
   tag,
   tagColor,
   delta,
+  unidad,
 }: {
   n: number
   nombre: string
@@ -118,6 +125,10 @@ export function FilaRanking({
   tagColor?: string
   /** puestos que se mueve respecto de otro ranking. 0 no se dibuja. */
   delta?: number
+  /** unidad de la cifra. Va en CADA fila y no sólo en la cabecera de la card:
+      a once filas de distancia la cabecera no alcanza para saber qué se está
+      mirando, que es como confundimos pozos con MUSD en provincias. */
+  unidad?: string
 }) {
   /* La barra va en su PROPIA columna, no debajo del nombre: pegada al texto
      se lee como un subrayado y no como una magnitud. Y el riel se dibuja
@@ -147,16 +158,14 @@ export function FilaRanking({
         </span>
       )}
       {marca && <Marca nombre={nombre} />}
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span className="s-cuerpo min-w-0 truncate font-medium">{nombre}</span>
-          {tag && tagColor && <Tag color={tagColor}>{tag}</Tag>}
-        </span>
-        {nota && (
-          <span className="s-micro mt-0.5 block truncate" style={{ color: 'var(--ink-2)' }}>
-            {nota}
-          </span>
-        )}
+      {/* La nota va en la MISMA línea, como badge, y no en un segundo renglón.
+          Con el renglón de abajo la fila medía 60px contra los 40 de las demás
+          listas de v2, y era la única de la página con dos alturas. Es el mismo
+          arreglo que ya se hizo en provincias. */}
+      <span className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="s-cuerpo min-w-0 truncate font-medium">{nombre}</span>
+        {tag && tagColor && <Tag color={tagColor}>{tag}</Tag>}
+        {nota && <span className="s-chip s-chip--neutro s-chip--mini shrink-0">{nota}</span>}
       </span>
       <span
         className={`s-barra hidden w-16 shrink-0 sm:block ${lider ? 's-barra--lider' : ''}`}
@@ -164,7 +173,14 @@ export function FilaRanking({
       >
         <i style={{ width: `${Math.max(3, pct * 100)}%` }} />
       </span>
-      <span className="s-num w-16 shrink-0 text-right text-[13px] font-medium">{valor}</span>
+      <span className="flex shrink-0 items-baseline justify-end gap-1 sm:w-24">
+        <span className="s-num w-10 text-right text-[13px] font-medium sm:w-auto">{valor}</span>
+        {unidad && (
+          <span className="hidden text-[11px] sm:inline" style={{ color: 'var(--ink-3)' }}>
+            {unidad}
+          </span>
+        )}
+      </span>
     </div>
   )
 }
@@ -194,8 +210,13 @@ export function FilaDato({
         )}
       </span>
       {d && (
-        <span className={`s-micro s-num w-14 shrink-0 text-right ${d.dir === 'up' ? 's-sube' : 's-baja'}`}>
-          {d.arrow} {d.label}
+        <span
+          className={`s-delta s-num w-14 shrink-0 text-right ${
+            d.dir === 'up' ? 's-delta--sube' : 's-delta--baja'
+          }`}
+        >
+          {d.dir === 'up' ? '+' : '\u2212'}
+          {d.label}
         </span>
       )}
     </div>

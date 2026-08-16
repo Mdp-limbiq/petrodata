@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Seccion, Dato, FilaDato, FilaRanking, Card, CardHead, Pie, FilaNoticia } from './_ui/kit'
+import { Cifras } from './_ui/Cifras'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
@@ -149,7 +150,8 @@ export default function V2Inicio() {
               pct={op.boeMonth / maxOp}
               lider={i === 0}
               marca
-              nota={`${formatPercent(op.boeMonth / HEADLINE.boeMonth)} del BOE del mes`}
+              unidad="BOE"
+              nota={formatPercent(op.boeMonth / HEADLINE.boeMonth)}
             />
           ))}
         </Card>
@@ -163,23 +165,30 @@ export default function V2Inicio() {
         titulo="Mapa de actividad"
         desc="Tamaño del catálogo y de las series que alimentan estas pantallas."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Pozos en el catálogo" valor={formatInteger(HEADLINE.catalogWells)} />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Meses de serie" valor={String(NATIONAL_SERIES.length)} />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Operadoras seguidas" valor={String(TOP_OPERATORS.length)} />
-            </div>
-          </Card>
-        </div>
+        {/* Eran tres cards, una por número: tres planos separados para tres
+            lecturas del mismo resumen. La referencia usa UNA card con columnas
+            flex-1 —es el único lugar donde pone cifras grandes— y eso es lo que
+            estas tres son: partes de un mismo apunte sobre el tamaño de los
+            datos que alimentan la página. */}
+        <Cifras
+          items={[
+            {
+              rotulo: 'Pozos en el catálogo',
+              valor: formatInteger(HEADLINE.catalogWells),
+              apoyo: `${formatInteger(HEADLINE.activeWells)} activos`,
+            },
+            {
+              rotulo: 'Meses de serie',
+              valor: String(NATIONAL_SERIES.length),
+              apoyo: `hasta ${periodo}`,
+            },
+            {
+              rotulo: 'Operadoras seguidas',
+              valor: String(TOP_OPERATORS.length),
+              apoyo: 'del ranking del mes',
+            },
+          ]}
+        />
       </Seccion>
 
       <Seccion

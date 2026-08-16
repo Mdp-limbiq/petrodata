@@ -140,8 +140,16 @@
 
 /* ── Tipografía. Nada por encima de 21px: la jerarquía es peso y tinta. ── */
 .s-titular { font-size: 21px; font-weight: 600; line-height: 1.25; letter-spacing: -0.02em; }
-.s-cifra { font-size: 21px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; }
-.s-cifra-sm { font-size: 16px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+/* 17px y no 21. Busqué en la referencia todas las cifras de 15px para arriba
+   y hay exactamente dos —"−4.41%" y "+1.15%"—, las dos a 17/600. El 21 existe
+   en el sistema pero se usa UNA sola vez en todo el sitio y es el título de la
+   página: ninguna cifra llega ahí. Queda declarado en .s-titular, que es donde
+   corresponde.
+   La secundaria baja a 13, que es el tamaño de celda de tabla del sistema, con
+   el peso subido a 600 para que se lea como cifra y no como celda. A 16 estaba
+   a un punto de la principal y la distinción no significaba nada. */
+.s-cifra { font-size: 17px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.s-cifra-sm { font-size: 13px; font-weight: 600; line-height: 1.3; font-variant-numeric: tabular-nums; }
 .s-titulo { font-size: 13px; font-weight: 600; }
 .s-cuerpo { font-size: 13px; line-height: 19.5px; }
 /* Acá el sistema se aparta de la referencia a propósito. En beautifului.dev

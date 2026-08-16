@@ -43,7 +43,13 @@ export default function V2Indicadores() {
             <div key={t.label} className="s-fila s-fila-hover">
               <span className="s-etq min-w-0 flex-1">{t.label}</span>
               <span className="s-num shrink-0 text-[13px] font-medium">{t.value}</span>
-              {t.yoy && <span className="s-micro s-num s-sube w-16 shrink-0 text-right">▲ {t.yoy.replace('+', '')}</span>}
+              {/* Sin flecha: el delta medido de la referencia es texto pelado
+                  con su signo, sin triángulo. Ver .s-delta en sistema.css. */}
+              {t.yoy && (
+                <span className="s-delta s-delta--sube s-num w-16 shrink-0 text-right">
+                  +{t.yoy.replace('+', '')}
+                </span>
+              )}
               {!t.yoy && <span className="w-16 shrink-0" />}
               <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
                 {t.asOf}
@@ -240,9 +246,12 @@ export default function V2Indicadores() {
                   {formatDecimal(c.partBoePct, 1)}% → {formatDecimal(c.partUsdPct, 1)}%
                 </span>
                 <span
-                  className={`s-num w-14 shrink-0 text-right text-[13px] font-medium ${d >= 0 ? 's-sube' : 's-baja'}`}
+                  className={`s-delta s-num w-14 shrink-0 text-right ${
+                    d >= 0 ? 's-delta--sube' : 's-delta--baja'
+                  }`}
                 >
-                  {d >= 0 ? '▲' : '▼'} {formatDecimal(Math.abs(d), 1)}
+                  {d >= 0 ? '+' : '\u2212'}
+                  {formatDecimal(Math.abs(d), 1)}
                 </span>
               </div>
             )
