@@ -49,11 +49,6 @@ export default function V2Inicio() {
      por pozo contra 26 del resto. Todo sale de cifras del sitio; lo único que
      hago es dividir. */
   const mesesCortos = doceMeses.map((p) => formatMonth(`${p.period}-01`))
-  const varOil = ((doceMeses.at(-1)!.oil - doceMeses[0].oil) / doceMeses[0].oil) * 100
-  const varGas = ((doceMeses.at(-1)!.gas - doceMeses[0].gas) / doceMeses[0].gas) * 100
-  /* El mes más flojo del gas: la caída que el trazo hace evidente y que en la
-     versión de doce filas era invisible. Sale del dato, no de la vista. */
-  const mesMinGas = mesesCortos[doceMeses.indexOf(doceMeses.reduce((a, b) => (b.gas < a.gas ? b : a)))]
   const pctPozosVM = (VM.wells / HEADLINE.activeWells) * 100
   const paisOil = VM.oilBbld / (VM.oilSharePct / 100)
   const rinde =
@@ -206,23 +201,6 @@ export default function V2Inicio() {
         titulo="Producción mensual"
         desc="Doce meses de petróleo y gas, con el mes de corte al final."
       >
-        {/* La prosa con los valores inline es la receta de la Insight Card:
-            arriba del gráfico se dice qué pasó, y los números que sostienen la
-            afirmación van en mono y con su color. */}
-        <p className="s-desc m-0 mb-2.5 px-1">
-          El petróleo subió{' '}
-          <code className="s-mono text-[12px]" style={{ color: 'var(--green)' }}>
-            {varOil >= 0 ? '+' : '\u2212'}
-            {formatDecimal(Math.abs(varOil), 1)}%
-          </code>{' '}
-          en los doce meses; el gas{' '}
-          <code className="s-mono text-[12px]" style={{ color: 'var(--green)' }}>
-            {varGas >= 0 ? '+' : '\u2212'}
-            {formatDecimal(Math.abs(varGas), 1)}%
-          </code>{' '}
-          y con una caída en <span style={{ color: 'var(--ink)' }}>{mesMinGas}</span>.
-        </p>
-
         <Card>
           <div className="p-3">
             <SerieLinea
