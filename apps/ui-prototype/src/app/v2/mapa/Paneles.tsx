@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from 'react'
 import { formatInteger } from '@/lib/format'
-import { Marca } from '../_ui/kit'
+import { FLUIDO, Marca } from '../_ui/kit'
 
 /* Paneles flotantes del mapa — con la receta de card MEDIDA de la referencia,
    no con la que yo había inventado.
@@ -24,10 +24,13 @@ import { Marca } from '../_ui/kit'
 
    Los rótulos salen de messages/es.json del sitio. */
 
+/* Los dos fluidos llevan su color, el mismo que en el dashboard y en toda la
+   web. El filtro es donde más falta hace: es el lugar donde el usuario elige
+   entre los dos, así que es donde la clave de color se aprende. */
 const RECURSOS = [
-  { valor: 'todos', label: 'Todos' },
-  { valor: 'petroleo', label: 'Petróleo' },
-  { valor: 'gas', label: 'Gas' },
+  { valor: 'todos', label: 'Todos', color: null },
+  { valor: 'petroleo', label: 'Petróleo', color: FLUIDO.petroleo },
+  { valor: 'gas', label: 'Gas', color: FLUIDO.gas },
 ] as const
 
 export type Recurso = (typeof RECURSOS)[number]['valor']
@@ -121,7 +124,16 @@ export function PanelFiltros({
                   cursor: 'pointer',
                 }}
               >
-                {r.label}
+                <span className="inline-flex items-center gap-1.5">
+                  {r.color && (
+                    <i
+                      aria-hidden
+                      className="block size-1.5 shrink-0 rounded-full"
+                      style={{ background: r.color, opacity: on ? 1 : 0.55 }}
+                    />
+                  )}
+                  {r.label}
+                </span>
               </button>
             )
           })}

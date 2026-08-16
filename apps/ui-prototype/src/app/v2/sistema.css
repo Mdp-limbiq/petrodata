@@ -327,7 +327,9 @@
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--ink-3);
+  /* el color puede venir clavado por instancia —el fluido, la cuenca— y si no
+     viene, la barra va neutra: el color se gana significando algo */
+  background: var(--barra-color, var(--ink-3));
   transition: width var(--dur-slower) var(--ease-out-strong);
 }
 .s-barra--lider > i { background: var(--accent); }
@@ -680,11 +682,16 @@
    - el acento sólo como detalle: lo lleva el mes de corte y nada más
    - alto fijo en px y no aspect-ratio, que está prohibido en el sistema */
 .s-serie {
+  position: relative;
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
   height: 16px;
 }
+/* El globo de la serie va ARRIBA de las barras: abajo choca con el borde de la
+   card, que tiene overflow:hidden. Arriba siempre hay card de sobra —la barra
+   de cabecera o la fila anterior—. */
+.s-serie > .s-globo { bottom: calc(100% + 6px); }
 /* Cada mes es un envoltorio y no una barra suelta: la barra mide 3px y con
    ese blanco de destino el hover sería una lotería. El envoltorio se lleva
    los 2px de separación como padding, así que la zona sensible es de 5×16 y

@@ -9,13 +9,13 @@ import {
   CardHead,
   CardPie,
   Medidor,
-  Serie,
   Tag,
-  PALETA_TAGS,
+  FLUIDO,
   Pie,
   FilaNoticia,
 } from './_ui/kit'
 import { Cifras } from './_ui/Cifras'
+import { Serie } from './_ui/Serie'
 import { VM } from '@/fixtures/indicadores'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
@@ -104,7 +104,7 @@ export default function V2Inicio() {
             <tbody>
               <tr>
                 <td>
-                  <Tag color={PALETA_TAGS[0]}>Petróleo</Tag>
+                  <Tag color={FLUIDO.petroleo}>Petróleo</Tag>
                 </td>
                 <td className="text-right">
                   {formatInteger(HEADLINE.oil)}{' '}
@@ -117,11 +117,23 @@ export default function V2Inicio() {
                       la utilidad, así que el text-right de la celda no la movía y las
                       barras quedaban pegadas a la izquierda mientras el resto de la
                       columna iba a la derecha. */}
-                  <Serie valores={doceMeses.map((p) => p.oil)} className="justify-end" />
+                  <Serie
+                    valores={doceMeses.map((p) => p.oil)}
+                    textos={doceMeses.map(
+                      (p) => `${formatMonth(`${p.period}-01`)} · ${formatInteger(p.oil)} bbl/d`,
+                    )}
+                    className="justify-end"
+                  />
                 </td>
                 <td className="text-right">
                   <span className="inline-flex items-center gap-2">
-                    <span className="s-barra s-barra--lider hidden w-13 sm:block" aria-hidden>
+                    {/* la barra toma el color de SU fluido, el mismo del tag y
+                        el mismo en toda la web */}
+                    <span
+                      className="s-barra hidden w-13 sm:block"
+                      aria-hidden
+                      style={{ ['--barra-color' as string]: FLUIDO.petroleo }}
+                    >
                       <i style={{ width: `${VM.oilSharePct}%` }} />
                     </span>
                     <span className="w-11 text-right">{formatDecimal(VM.oilSharePct, 1)}%</span>
@@ -130,7 +142,7 @@ export default function V2Inicio() {
               </tr>
               <tr>
                 <td>
-                  <Tag color={PALETA_TAGS[3]}>Gas natural</Tag>
+                  <Tag color={FLUIDO.gas}>Gas natural</Tag>
                 </td>
                 <td className="text-right">
                   {formatDecimal(HEADLINE.gas, 1)}{' '}
@@ -139,11 +151,21 @@ export default function V2Inicio() {
                   </span>
                 </td>
                 <td className="hidden text-right sm:table-cell">
-                  <Serie valores={doceMeses.map((p) => p.gas)} className="justify-end" />
+                  <Serie
+                    valores={doceMeses.map((p) => p.gas)}
+                    textos={doceMeses.map(
+                      (p) => `${formatMonth(`${p.period}-01`)} · ${formatDecimal(p.gas, 1)} MMm³/d`,
+                    )}
+                    className="justify-end"
+                  />
                 </td>
                 <td className="text-right">
                   <span className="inline-flex items-center gap-2">
-                    <span className="s-barra hidden w-13 sm:block" aria-hidden>
+                    <span
+                      className="s-barra hidden w-13 sm:block"
+                      aria-hidden
+                      style={{ ['--barra-color' as string]: FLUIDO.gas }}
+                    >
                       <i style={{ width: `${VM.gasSharePct}%` }} />
                     </span>
                     <span className="w-11 text-right">{formatDecimal(VM.gasSharePct, 1)}%</span>
@@ -203,7 +225,20 @@ export default function V2Inicio() {
                     >
                       {formatMonth(`${p.period}-01`)}
                     </span>
-                    <span className={`s-barra flex-1 ${ultimo ? 's-barra--lider' : ''}`}>
+                    {/* El color del petróleo, el mismo que en la card 01 y en
+                        toda la web. Antes el mes de corte iba en acento, y el
+                        acento es para foco, enlaces y detalles: no para decir
+                        "esto es petróleo". Los meses anteriores lo llevan
+                        mezclado al 40% para que el de corte siga saltando sin
+                        cambiar de color, que era lo que rompía la identidad. */}
+                    <span
+                      className="s-barra flex-1"
+                      style={{
+                        ['--barra-color' as string]: ultimo
+                          ? FLUIDO.petroleo
+                          : `color-mix(in srgb, ${FLUIDO.petroleo} 40%, var(--line-strong))`,
+                      }}
+                    >
                       <i style={{ width: `${6 + pct * 94}%` }} />
                     </span>
                     <span

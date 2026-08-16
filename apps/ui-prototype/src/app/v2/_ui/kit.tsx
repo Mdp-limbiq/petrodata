@@ -121,28 +121,6 @@ export function Medidor({ nivel, de = 3 }: { nivel: number; de?: number }) {
   )
 }
 
-/** Serie compacta — extensión nuestra: la referencia no tiene ningún gráfico.
-    Las barras se comparan DENTRO del rango del período, no desde cero, y el
-    último mes lleva el acento. */
-export function Serie({ valores, className = '' }: { valores: number[]; className?: string }) {
-  const min = Math.min(...valores)
-  const max = Math.max(...valores)
-  return (
-    <span className={`s-serie ${className}`} aria-hidden>
-      {valores.map((v, i) => (
-        <span key={i}>
-          {/* el último es el mes de corte y lleva el acento, que en el sistema
-              es para detalles: nunca para llenar */}
-          <i
-            className={i === valores.length - 1 ? 'on' : undefined}
-            style={{ height: `${15 + ((v - min) / (max - min || 1)) * 85}%` }}
-          />
-        </span>
-      ))}
-    </span>
-  )
-}
-
 /** Fila de ranking: rango en mono, nombre, valor a la derecha y barra fina.
     La barra va neutra y sólo el líder toma el acento — el acento es para
     detalles, nunca para llenar superficies. */
@@ -480,6 +458,24 @@ export const PALETA_TAGS = [
   '#ee6572', // rosa
   '#c84f9d', // magenta
 ] as const
+
+/* ── Color por fluido ───────────────────────────────────────────────────
+   ESTABLE en toda la web, y por eso vive acá y no en cada página.
+
+   El resto de los colores categóricos salen de asignarColores(), que reparte
+   la paleta por POSICIÓN dentro de cada lista: "Cuenca Neuquina" es azul en
+   provincias porque es la primera por pozos, no porque el azul signifique
+   cuenca neuquina. Para eso está bien —dentro de una lista, lo único que hace
+   falta es que dos categorías no se repitan—.
+
+   Petróleo y gas son otra cosa: aparecen en cinco pantallas distintas y tienen
+   que ser el mismo color en todas, o el color deja de significar. Así que acá
+   el color está clavado a la cosa y no al orden. Los dos salen de la paleta
+   categórica medida: el 1 y el 4. */
+export const FLUIDO = {
+  petroleo: PALETA_TAGS[0],
+  gas: PALETA_TAGS[3],
+} as const
 
 /** Asigna un color distinto a cada categoría de un conjunto.
  *
