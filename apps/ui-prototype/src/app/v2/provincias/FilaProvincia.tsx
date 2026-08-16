@@ -40,6 +40,7 @@ export function FilaProvincia({
   p,
   n,
   valor,
+  unidad,
   pct,
   lider,
   tagColor,
@@ -59,6 +60,15 @@ export function FilaProvincia({
   /** cifra de cabecera de ESTA lista, ya formateada: pozos en una, MUSD en la
       otra. La fila es la misma pieza en las dos y no sabe cuál está mirando. */
   valor: string
+  /** unidad de esa cifra. Va en CADA fila, no sólo en la cabecera de la card.
+
+      Sin ella las dos listas se confunden: la de pozos abre con "4.688" y la
+      de exportaciones con "4.790", los dos pelados, los dos encabezados por
+      Neuquén y los dos de cinco caracteres empezando en 4. La cabecera decía
+      "6.879 MUSD" pero está a once filas de distancia, y de un vistazo la lista
+      de dólares se lee como la de pozos. Repetir la unidad once veces es barato
+      al lado de eso. */
+  unidad: string
   /** 0..1 sobre el máximo de la lista */
   pct: number
   lider: boolean
@@ -133,8 +143,11 @@ export function FilaProvincia({
             mide 37 (medido con un Range sobre las once filas de cada una), así
             que arriba sobra aire de propósito y abajo se le da lo justo: a 375
             esos píxeles los necesita el nombre de la provincia. */}
-        <span className="s-num w-10 shrink-0 text-right text-[13px] font-medium sm:w-16">
-          {valor}
+        <span className="flex shrink-0 items-baseline justify-end gap-1 sm:w-24">
+          <span className="s-num w-10 text-right text-[13px] font-medium sm:w-auto">{valor}</span>
+          <span className="hidden text-[11px] sm:inline" style={{ color: 'var(--ink-3)' }}>
+            {unidad}
+          </span>
         </span>
         {/* chevron: 14px con trazo 2,2 — el mismo de la traza expandible de la
             referencia. Rota en 300ms, cien menos que el panel. */}

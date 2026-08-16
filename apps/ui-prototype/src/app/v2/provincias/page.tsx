@@ -89,6 +89,7 @@ export default function V2Provincias() {
               p={p}
               n={i + 1}
               valor={formatInteger(p.wells)}
+              unidad="pozos"
               pct={p.wells / maxPozos}
               lider={i === 0}
               tagColor={colorCuenca.get(p.basin)}
@@ -148,6 +149,7 @@ export default function V2Provincias() {
               p={p}
               n={i + 1}
               valor={formatCompactAR(p.exportsMUSD)}
+              unidad="MUSD"
               pct={p.exportsMUSD / maxExpo}
               lider={i === 0}
               tagColor={colorCuenca.get(p.basin)}
