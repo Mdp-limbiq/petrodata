@@ -113,7 +113,11 @@ export default function V2Inicio() {
                   </span>
                 </td>
                 <td className="hidden text-right sm:table-cell">
-                  <Serie valores={doceMeses.map((p) => p.oil)} className="inline-flex align-middle" />
+                  {/* justify-end y no inline-flex: .s-serie es display:flex y le gana a
+                      la utilidad, así que el text-right de la celda no la movía y las
+                      barras quedaban pegadas a la izquierda mientras el resto de la
+                      columna iba a la derecha. */}
+                  <Serie valores={doceMeses.map((p) => p.oil)} className="justify-end" />
                 </td>
                 <td className="text-right">
                   <span className="inline-flex items-center gap-2">
@@ -135,7 +139,7 @@ export default function V2Inicio() {
                   </span>
                 </td>
                 <td className="hidden text-right sm:table-cell">
-                  <Serie valores={doceMeses.map((p) => p.gas)} className="inline-flex align-middle" />
+                  <Serie valores={doceMeses.map((p) => p.gas)} className="justify-end" />
                 </td>
                 <td className="text-right">
                   <span className="inline-flex items-center gap-2">
