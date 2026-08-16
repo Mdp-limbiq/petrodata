@@ -44,11 +44,6 @@ export default function V2Provincias() {
   /* Los doce rótulos de mes son los mismos para todas las filas: se formatean
      una vez acá, en el servidor, y no once veces en el cliente. */
   const meses = NATIONAL_SERIES.slice(-12).map((m) => formatMonth(`${m.period}-01`))
-  /* Cuántos puestos se mueve cada fila entre los dos rankings de la página.
-     Positivo = sube al ordenar por exportaciones. El pie de esta sección venía
-     AFIRMANDO que el orden cambia, sin mostrarlo: había que acordarse de la
-     lista de la sección 02 y compararla de memoria. */
-  const puestoPozosDe = new Map(porPozos.map((p, i) => [p.slug, i + 1]))
   /* El color se asigna por posición sobre las cuencas ordenadas por pozos,
      así cada una tiene el suyo y no cambia entre secciones ni pantallas. */
   const colorCuenca = asignarColores(cuencas.map((c) => c.nombre))
@@ -136,7 +131,7 @@ export default function V2Provincias() {
       <Seccion
         n="03"
         titulo="Perfil exportador"
-        desc="Cuánto exporta cada una y cuántos puestos se mueve respecto de pozos."
+        desc="Cuánto aporta cada provincia a los dólares del complejo."
       >
         <Card>
           <CardHead titulo="Por exportaciones" nota={`${formatCompactAR(totalExpo)} MUSD`} />
@@ -155,7 +150,6 @@ export default function V2Provincias() {
               valor={formatCompactAR(p.exportsMUSD)}
               pct={p.exportsMUSD / maxExpo}
               lider={i === 0}
-              delta={(puestoPozosDe.get(p.slug) ?? i + 1) - (i + 1)}
               tagColor={colorCuenca.get(p.basin)}
               operadoras={(p.operators ?? []).map((s) => NOMBRES.get(s) ?? s)}
               metrica="exportaciones"
@@ -170,10 +164,16 @@ export default function V2Provincias() {
             />
           ))}
         </Card>
-        <Pie>
-          El número de color son los puestos que gana o pierde respecto del ranking por
-          pozos: quien más perfora no es quien más exporta.
-        </Pie>
+        {/* Acá vivía una columna de color con los puestos que cada provincia
+            ganaba o perdía respecto del ranking por pozos, y el pie la
+            explicaba. Las dos cosas fuera: era una sección de exportaciones
+            midiéndose contra pozos, que es exactamente lo contrario de lo que
+            la cabecera anuncia con sus 6.879 MUSD.
+
+            La comparación entre los dos rankings no se pierde, vive donde
+            corresponde: en el desglose de la sección 02, cada provincia dice
+            "Nª de 10 en exportaciones", que es el puesto que ahí no se ve. */}
+        <Pie>Sobre el total del complejo, no sobre las exportaciones del país.</Pie>
       </Seccion>
 
       <Seccion
