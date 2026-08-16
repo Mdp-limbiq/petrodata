@@ -36,20 +36,13 @@ export default function V2Indicadores() {
       <Seccion
         n="01"
         titulo="La tesis en seis datos"
-        desc="Con su variación interanual y su mes de corte."
+        desc="Seis cifras con su mes de corte, que no en todas coincide."
       >
         <Card>
           {TESIS.map((t) => (
             <div key={t.label} className="s-fila s-fila-hover">
               <span className="s-etq min-w-0 flex-1">{t.label}</span>
               <span className="s-num shrink-0 text-[13px] font-medium">{t.value}</span>
-              {/* Sin flecha: el delta medido de la referencia es texto pelado
-                  con su signo, sin triángulo. Ver .s-delta en sistema.css. */}
-              {t.yoy && (
-                <span className="s-delta s-delta--sube s-num w-16 shrink-0 text-right">
-                  +{t.yoy.replace('+', '')}
-                </span>
-              )}
               {!t.yoy && <span className="w-16 shrink-0" />}
               <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
                 {t.asOf}
@@ -160,10 +153,9 @@ export default function V2Indicadores() {
           <CardHead titulo={`Corte ${VM.dataDate}`} />
           <FilaDato etiqueta="Participación en petróleo nacional" valor={`${formatDecimal(VM.oilSharePct, 1)}%`} />
           <FilaDato etiqueta="Participación en gas nacional" valor={`${formatDecimal(VM.gasSharePct, 1)}%`} />
-          <FilaDato etiqueta="Petróleo" valor={formatInteger(VM.oilBbld)} unidad="bbl/d" delta={VM.oilYoY} />
-          <FilaDato etiqueta="Pozos activos" valor={formatInteger(VM.wells)} delta={VM.wellsYoY} />
+          <FilaDato etiqueta="Petróleo" valor={formatInteger(VM.oilBbld)} unidad="bbl/d" />
+          <FilaDato etiqueta="Pozos activos" valor={formatInteger(VM.wells)} />
         </Card>
-        <Pie>Las variaciones de esta sección son interanuales, no mensuales.</Pie>
       </Seccion>
 
       <Seccion
@@ -245,10 +237,14 @@ export default function V2Indicadores() {
                 <span className="s-micro s-num shrink-0" style={{ color: 'var(--ink-2)' }}>
                   {formatDecimal(c.partBoePct, 1)}% → {formatDecimal(c.partUsdPct, 1)}%
                 </span>
+                {/* Sin verde/rojo. Esto NO es una variación: es la diferencia
+                    entre dos participaciones, en puntos porcentuales, y no
+                    tiene período. Pintada como delta se leía igual que un
+                    "creció 2,8%" y no lo es. La cifra se queda porque es el
+                    contenido de la sección; lo que se va es el disfraz. */}
                 <span
-                  className={`s-delta s-num w-14 shrink-0 text-right ${
-                    d >= 0 ? 's-delta--sube' : 's-delta--baja'
-                  }`}
+                  className="s-num w-14 shrink-0 text-right text-[13px] font-medium"
+                  style={{ color: 'var(--ink-2)' }}
                 >
                   {d >= 0 ? '+' : '\u2212'}
                   {formatDecimal(Math.abs(d), 1)}

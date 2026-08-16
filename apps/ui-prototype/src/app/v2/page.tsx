@@ -35,7 +35,7 @@ export default function V2Inicio() {
       <Seccion
         n="01"
         titulo="Vaca Muerta"
-        desc={`BOE del mes con su desglose en petróleo, gas y pozos, contra ${previo}.`}
+        desc="BOE del mes con su desglose en petróleo, gas y pozos."
       >
         <Card>
           {/* El titular. Único 21px de la página y única tinta plena grande. */}
@@ -53,18 +53,15 @@ export default function V2Inicio() {
               etiqueta="Petróleo"
               valor={formatInteger(HEADLINE.oil)}
               unidad="bbl/d"
-              delta={HEADLINE.momOil}
             />
             <FilaDato
               etiqueta="Gas natural"
               valor={formatDecimal(HEADLINE.gas, 1)}
               unidad="MMm³/d"
-              delta={HEADLINE.momGas}
             />
             <FilaDato
               etiqueta="Pozos activos"
               valor={formatInteger(HEADLINE.activeWells)}
-              delta={HEADLINE.momWells}
             />
             <FilaDato
               etiqueta="Participación en el BOE nacional"
@@ -73,8 +70,7 @@ export default function V2Inicio() {
           </div>
         </Card>
         <Pie>
-          Variación contra {previo}. La participación es sobre producción nacional de
-          hidrocarburos, sin variación mensual publicada.
+          La participación es sobre producción nacional de hidrocarburos.
         </Pie>
       </Seccion>
 
