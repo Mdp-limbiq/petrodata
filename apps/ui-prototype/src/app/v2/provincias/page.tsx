@@ -200,17 +200,41 @@ export default function V2Provincias() {
         desc="Las cinco cuencas con actividad y cuántas provincias abarca cada una."
       >
         <Card>
-          <CardHead titulo="Por cuenca" nota={`${cuencas.length} cuencas`} />
-          {cuencas.map((c) => (
+          {/* La cabecera decía "5 cuencas", que es un conteo de filas y no el
+              total de la columna. Las otras dos cards anuncian ahí su total
+              —14.441 y 6.879 MUSD— y ésta no anunciaba nada, así que la columna
+              de la derecha quedaba sin unidad y sin referencia: números sueltos.
+              Ahora dice el total, y cuántas cuencas son se lee en el rótulo de
+              la sección y contando cinco filas. */}
+          <CardHead titulo="Por cuenca" nota={`${formatInteger(pozosEnCuencas)} pozos`} />
+          {/* Misma gramática de fila que las otras dos listas: número de orden,
+              identidad, barra de magnitud y cifra con su unidad. Era la tercera
+              forma de fila de la página —sin orden, sin barra y sin unidad— y no
+              hay motivo: es una lista rankeada como las otras dos. */}
+          {cuencas.map((c, i) => (
             <div key={c.nombre} className="s-fila s-fila-hover">
+              <span className="s-mono w-5 shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
               <span className="min-w-0 flex-1">
                 <Tag color={colorCuenca.get(c.nombre)!}>{c.nombre}</Tag>
               </span>
-              <span className="s-micro shrink-0" style={{ color: 'var(--ink-2)' }}>
+              <span className="s-micro hidden shrink-0 sm:block" style={{ color: 'var(--ink-2)' }}>
                 {c.provincias} {c.provincias === 1 ? 'provincia' : 'provincias'}
               </span>
-              <span className="s-num w-16 shrink-0 text-right text-[13px] font-medium">
-                {formatInteger(c.pozos)}
+              <span
+                className={`s-barra hidden w-16 shrink-0 sm:block ${i === 0 ? 's-barra--lider' : ''}`}
+                aria-hidden
+              >
+                <i style={{ width: `${Math.max(3, (c.pozos / cuencas[0].pozos) * 100)}%` }} />
+              </span>
+              <span className="flex shrink-0 items-baseline justify-end gap-1 sm:w-24">
+                <span className="s-num w-10 text-right text-[13px] font-medium sm:w-auto">
+                  {formatInteger(c.pozos)}
+                </span>
+                <span className="hidden text-[11px] sm:inline" style={{ color: 'var(--ink-3)' }}>
+                  pozos
+                </span>
               </span>
             </div>
           ))}
