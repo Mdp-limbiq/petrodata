@@ -541,6 +541,31 @@
 .s-delta--sube { color: var(--green); }
 .s-delta--baja { color: var(--red); }
 
+/* ── Globo ──────────────────────────────────────────────────────────────
+   EXTENSIÓN. La referencia no tiene NINGÚN tooltip: cero role="tooltip", cero
+   popover, cero capas flotantes; lo único que usa son 27 `title` nativos. Así
+   que la superficie se toma de lo que el sistema sí tiene para lo que flota
+   —los paneles del mapa—: --surface OPACO, --shadow-card, y cero
+   backdrop-filter, que está prohibido.
+
+   z-index 10 es el máximo del sistema, no un 9999. Radio 6, que es el que le
+   toca a una caja de este tamaño. pointer-events:none para que el globo no se
+   robe el hover del segmento que lo abrió y quede parpadeando. */
+.s-globo {
+  position: absolute;
+  z-index: 10;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: var(--radius-chip);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  line-height: 17px;
+}
+
 /* ── Pila ───────────────────────────────────────────────────────────────
    Barra de una sola línea partida en categorías. EXTENSIÓN: la referencia no
    tiene ninguna, igual que no tiene gráficos. Sale de sus reglas:
@@ -558,14 +583,26 @@
    una cuenca chica —Noroeste tiene 24 pozos sobre 14.441— siga estando. */
 .s-pila {
   display: flex;
-  gap: 1.5px;
-  height: 4px;
-  overflow: hidden;
+  align-items: center;
+  height: 16px;
 }
-.s-pila > i {
+/* El envoltorio es la zona sensible: se lleva la separación como padding y
+   ocupa los 16px de alto, así los segmentos son contiguos y hay dónde
+   apuntar. La barra visible son 8px. */
+.s-pila > span {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  min-width: 4.5px;
+  padding-right: 1.5px;
+}
+.s-pila > span:last-child { padding-right: 0; }
+.s-pila i {
   display: block;
-  min-width: 3px;
-  border-radius: 1px;
+  width: 100%;
+  height: 8px;
+  border-radius: 2px;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 /* ── Serie compacta ─────────────────────────────────────────────────────

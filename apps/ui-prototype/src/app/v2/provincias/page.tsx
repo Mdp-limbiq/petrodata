@@ -1,4 +1,5 @@
-import { Seccion, Card, CardHead, Cifras, Pie, Tag, asignarColores } from '../_ui/kit'
+import { Seccion, Card, CardHead, Pie, Tag, asignarColores } from '../_ui/kit'
+import { Cifras } from '../_ui/Cifras'
 import { FilaProvincia } from './FilaProvincia'
 import { COMPANIES } from '@/fixtures/companies'
 import { PROVINCES, SOLO_PROVINCIAS } from '@/fixtures/provinces'
@@ -48,17 +49,38 @@ export default function V2Provincias() {
      cuenca tiene en los tags y en la card de cuencas. El Estado Nacional no
      está en ninguna cuenca y va como segmento neutro —sin color— para que las
      tres pilas sumen exacto su cifra en vez de dejar un resto mudo. */
-  const repartoPorCuenca = (medir: (p: (typeof PROVINCES)[number]) => number) => [
-    ...cuencas.map((c) => ({
-      nombre: c.nombre,
-      color: colorCuenca.get(c.nombre),
-      valor: SOLO_PROVINCIAS.filter((p) => p.basin === c.nombre).reduce((s, p) => s + medir(p), 0),
-    })),
-    ...PROVINCES.filter((p) => p.esProvincia === false).map((p) => ({
-      nombre: `${p.name} · sin cuenca`,
-      valor: medir(p),
-    })),
-  ].filter((x) => x.valor > 0)
+  const repartoPorCuenca = (
+    medir: (p: (typeof PROVINCES)[number]) => number,
+    rotular: (v: number) => string,
+  ) => {
+    const total = PROVINCES.reduce((s, p) => s + medir(p), 0)
+    /* Un decimal debajo del 10%: Noroeste son 24 pozos sobre 14.441, o sea
+       0,17%, y redondeado a entero decía "0%", que se lee como error. Arriba
+       del 10% el decimal es ruido. */
+    const parte = (v: number) => {
+      const pct = (v / total) * 100
+      return `${rotular(v)} · ${pct >= 10 ? Math.round(pct) : formatDecimal(pct, 1)}%`
+    }
+    return [
+      ...cuencas.map((c) => {
+        const valor = SOLO_PROVINCIAS.filter((p) => p.basin === c.nombre).reduce(
+          (s, p) => s + medir(p),
+          0,
+        )
+        return {
+          nombre: c.nombre,
+          color: colorCuenca.get(c.nombre),
+          valor,
+          detalle: parte(valor),
+        }
+      }),
+      ...PROVINCES.filter((p) => p.esProvincia === false).map((p) => ({
+        nombre: 'Sin cuenca',
+        valor: medir(p),
+        detalle: parte(medir(p)),
+      })),
+    ].filter((x) => x.valor > 0)
+  }
   /* Los doce rótulos de mes son los mismos para todas las filas: se formatean
      una vez acá, en el servidor, y no once veces en el cliente. */
   const meses = NATIONAL_SERIES.slice(-12).map((m) => formatMonth(`${m.period}-01`))
@@ -78,13 +100,16 @@ export default function V2Provincias() {
               rotulo: 'Pozos activos',
               valor: formatInteger(totalPozos),
               apoyo: `en ${cuencas.length} cuencas`,
-              partes: repartoPorCuenca((p) => p.wells),
+              partes: repartoPorCuenca((p) => p.wells, (v) => `${formatInteger(v)} pozos`),
             },
             {
               rotulo: 'Exportaciones',
               valor: formatCompactAR(totalExpo),
               apoyo: 'MUSD · año móvil',
-              partes: repartoPorCuenca((p) => p.exportsMUSD),
+              partes: repartoPorCuenca(
+                (p) => p.exportsMUSD,
+                (v) => `${formatCompactAR(v)} MUSD`,
+              ),
             },
             {
               /* El apoyo explica por qué las listas de abajo tienen once filas
@@ -93,7 +118,10 @@ export default function V2Provincias() {
               rotulo: 'Provincias',
               valor: String(SOLO_PROVINCIAS.length),
               apoyo: '+ Estado Nacional',
-              partes: repartoPorCuenca(() => 1),
+              partes: repartoPorCuenca(
+                () => 1,
+                (v) => `${v} ${v === 1 ? 'provincia' : 'provincias'}`,
+              ),
             },
           ]}
         />
