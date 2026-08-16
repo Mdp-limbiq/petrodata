@@ -87,14 +87,14 @@ export default function V2Provincias() {
         desc="Cuántos aporta cada provincia, sobre el total del país."
       >
         <Card>
-          <CardHead titulo="Por cantidad de pozos" nota={formatInteger(totalPozos)} />
+          <CardHead titulo="Por cantidad de pozos" nota={`${formatInteger(totalPozos)} pozos`} />
           {porPozos.map((p, i) => (
             <FilaProvincia
               key={p.slug}
               p={p}
               n={i + 1}
               valor={formatInteger(p.wells)}
-              unidad="pozos"
+              unidad={p.wells === 1 ? 'pozo' : 'pozos'}
               pct={p.wells / maxPozos}
               lider={i === 0}
               tagColor={colorCuenca.get(p.basin)}
