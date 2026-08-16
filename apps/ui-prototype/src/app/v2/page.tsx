@@ -17,6 +17,8 @@ import {
 import { Cifras } from './_ui/Cifras'
 import { Serie } from './_ui/Serie'
 import { SerieLinea } from './_ui/SerieLinea'
+import { MiniMapa } from './_ui/MiniMapa'
+import { WELLS } from '@/fixtures/wells'
 import { VM } from '@/fixtures/indicadores'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
@@ -258,32 +260,33 @@ export default function V2Inicio() {
       <Seccion
         n="04"
         titulo="Mapa de actividad"
-        desc="Tamaño del catálogo y de las series que alimentan estas pantallas."
+        desc="Dónde están los pozos, sobre el catálogo y las series que alimentan la página."
       >
-        {/* Eran tres cards, una por número: tres planos separados para tres
-            lecturas del mismo resumen. La referencia usa UNA card con columnas
-            flex-1 —es el único lugar donde pone cifras grandes— y eso es lo que
-            estas tres son: partes de un mismo apunte sobre el tamaño de los
-            datos que alimentan la página. */}
-        <Cifras
-          items={[
-            {
-              rotulo: 'Pozos en el catálogo',
-              valor: formatInteger(HEADLINE.catalogWells),
-              apoyo: `${formatInteger(HEADLINE.activeWells)} activos`,
-            },
-            {
-              rotulo: 'Meses de serie',
-              valor: String(NATIONAL_SERIES.length),
-              apoyo: `hasta ${periodo}`,
-            },
-            {
-              rotulo: 'Operadoras seguidas',
-              valor: String(TOP_OPERATORS.length),
-              apoyo: 'del ranking del mes',
-            },
-          ]}
+        <MiniMapa
+          href="/v2/mapa"
+          pie={`${formatInteger(WELLS.length)} pozos de la muestra, de ${formatInteger(HEADLINE.catalogWells)} del catálogo`}
         />
+        <div className="mt-3">
+          <Cifras
+            items={[
+              {
+                rotulo: 'Pozos en el catálogo',
+                valor: formatInteger(HEADLINE.catalogWells),
+                apoyo: `${formatInteger(HEADLINE.activeWells)} activos`,
+              },
+              {
+                rotulo: 'Meses de serie',
+                valor: String(NATIONAL_SERIES.length),
+                apoyo: `hasta ${periodo}`,
+              },
+              {
+                rotulo: 'Operadoras seguidas',
+                valor: String(TOP_OPERATORS.length),
+                apoyo: 'del ranking del mes',
+              },
+            ]}
+          />
+        </div>
       </Seccion>
 
       <Seccion
