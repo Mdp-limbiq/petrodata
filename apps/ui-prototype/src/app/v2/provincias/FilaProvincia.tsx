@@ -516,7 +516,7 @@ function Paso({
           <span className="s-num shrink-0 text-[12.5px] font-medium">{cifra}</span>
         ))}
       {unidad && (
-        <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-3)' }}>
+        <span className="shrink-0 text-[11.5px]" style={{ color: 'var(--ink-2)' }}>
           {unidad}
         </span>
       )}

@@ -164,7 +164,7 @@ function Columna({
         <span
           className="s-mono mt-0.5 block text-[11.5px]"
           style={{
-            color: 'var(--ink-3)',
+            color: 'var(--ink-2)',
             minHeight: it.partes ? 25 : undefined,
             opacity: propio ? 0 : 1,
             transition: 'opacity var(--dur-fast) var(--ease-out)',

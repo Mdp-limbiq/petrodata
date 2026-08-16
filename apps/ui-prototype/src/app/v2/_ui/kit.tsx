@@ -87,7 +87,7 @@ export function Dato({
               {d.label}
             </span>
           )}
-          {nota && <span style={{ color: 'var(--ink-3)' }}>{nota}</span>}
+          {nota && <span style={{ color: 'var(--ink-2)' }}>{nota}</span>}
         </p>
       )}
     </div>
@@ -282,7 +282,7 @@ export function CardHead({ titulo, nota }: { titulo: string; nota?: string }) {
       style={{ borderColor: 'var(--line)' }}
     >
       <span className="s-etq">{titulo}</span>
-      {nota && <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>{nota}</span>}
+      {nota && <span className="s-micro s-num" style={{ color: 'var(--ink-2)' }}>{nota}</span>}
     </div>
   )
 }
@@ -410,11 +410,14 @@ export function FilaNoticia({
       className="s-fila s-fila-hover no-underline"
       style={{ color: 'inherit', alignItems: 'flex-start' }}
     >
-      {/* Cuadrado fijo, con aspectRatio 1 explícito. Las seis fotos tienen
-          proporciones distintas —hay apaisadas y verticales— así que dejarle
-          el alto libre las dibujaba de alturas distintas: una fila medía 115
-          y la de al lado 81. El recorte a 1:1 las iguala, y como el texto
-          también tiene alto fijo, todas las filas terminan midiendo lo mismo. */}
+      {/* Cuadrado de 56×56 en PÍXELES, sin aspect-ratio: el sistema lo prohíbe
+          —"alturas fijas con min-height en px, para que el contenido no haga
+          saltar el layout"— y acá no hacía falta, porque el lado ya está fijo
+          en los dos ejes. El objectFit sigue recortando.
+
+          La razón del cuadrado se mantiene: las seis fotos tienen proporciones
+          distintas —hay apaisadas y verticales— así que con alto libre las
+          filas medían 115 y 81 alternadas. */}
       <img
         src={src}
         alt=""
@@ -426,7 +429,6 @@ export function FilaNoticia({
         style={{
           width: 56,
           height: 56,
-          aspectRatio: '1 / 1',
           objectFit: 'cover',
           borderRadius: 'var(--radius-control)',
           filter: 'grayscale(1) contrast(0.9)',

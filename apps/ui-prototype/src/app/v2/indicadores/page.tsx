@@ -85,7 +85,7 @@ export default function V2Indicadores() {
             <div key={t.label} className="s-fila s-fila-hover">
               <span className="s-etq min-w-0 flex-1">{t.label}</span>
               <span className="s-num shrink-0 text-[13px] font-medium">{t.value}</span>
-              <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
+              <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
                 {t.asOf}
               </span>
             </div>
@@ -160,7 +160,7 @@ export default function V2Indicadores() {
                 const pct = (b.usdBbl - minBe) / (maxBe - minBe || 1)
                 return (
                   <li key={b.year} className="flex items-center gap-2.5">
-                    <span className="s-mono w-10 shrink-0 text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
+                    <span className="s-mono w-10 shrink-0 text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
                       {b.year}
                     </span>
                     <span className={`s-barra flex-1 ${ultimo ? 's-barra--lider' : ''}`}>

@@ -90,7 +90,7 @@ export default function V2Inicio() {
               {formatPercent(HEADLINE.vmShare)} del BOE nacional
             </span>
             <span className="flex-1" />
-            <span className="s-micro shrink-0" style={{ color: 'var(--ink-3)' }}>
+            <span className="s-micro shrink-0" style={{ color: 'var(--ink-2)' }}>
               Vaca Muerta · {periodo}
             </span>
           </CardBarra>

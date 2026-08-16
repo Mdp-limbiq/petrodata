@@ -312,7 +312,10 @@
 .s-chip--ok { background: var(--green-tint); color: var(--green); }
 .s-chip--warn { background: var(--orange-tint); color: var(--orange); }
 .s-chip--bad { background: var(--red-tint); color: var(--red); }
-.s-chip--info { background: var(--accent-tint); color: var(--accent-ink); }
+/* --accent-ink sobre --accent-tint daba 4,29:1, apenas debajo de AA. El texto
+   baja a la tinta plena mezclada con el acento: conserva el tono azul del chip
+   y pasa a 8,4. El fondo no se toca, que es lo que le da identidad. */
+.s-chip--info { background: var(--accent-tint); color: color-mix(in srgb, var(--accent-ink) 55%, var(--ink)); }
 .s-chip--neutro { background: var(--field); color: var(--ink-2); }
 /* Mini: la misma escala a la que bajó el tag —19px de alto, 10,5 de texto y
    radio 5—. Es para cuando el chip va adentro de una fila de 28: a 22px se
@@ -511,7 +514,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   border: 1px solid color-mix(in srgb, var(--tag-color) 24%, var(--surface));
-  color: color-mix(in srgb, var(--tag-color) 82%, var(--ink));
+  /* 55% y no 82%. Con 82 —que es lo medido en la referencia— cinco de los seis
+     tags de la página no llegaban a AA: Golfo San Jorge daba 2,77:1 y Cuenca
+     Austral 3,35. Barrí la paleta entera de ocho colores contra su propio
+     fondo y 55% es el primer escalón donde los OCHO pasan 4,5 (el mínimo queda
+     en 4,66). El tono se conserva —sigue siendo el color de la categoría—, lo
+     que cambia es cuánta tinta lleva mezclada.
+     Es la trampa 10.1 de SISTEMA.md aplicada al tag: la referencia calibra sus
+     colores para desaparecer y nosotros necesitamos leerlos. */
+  color: color-mix(in srgb, var(--tag-color) 55%, var(--ink));
   background: color-mix(in srgb, var(--tag-color) 13%, var(--surface));
 }
 /* Variante sin categoría: gris de campo, sin punto de color. La usa lo que

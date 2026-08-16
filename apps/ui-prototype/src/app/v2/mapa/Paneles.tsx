@@ -156,7 +156,7 @@ export function PanelFiltros({
           {formatInteger(visibles)} pozos
         </span>
         {limpio ? (
-          <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>
+          <span className="s-micro s-num" style={{ color: 'var(--ink-2)' }}>
             de {formatInteger(total)}
           </span>
         ) : (
@@ -285,7 +285,7 @@ export function PanelOperadores({
         <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
           {seleccionada ? 'Clic de nuevo para quitarlo' : 'Haz clic para filtrar el mapa'}
         </span>
-        <span className="s-micro s-num" style={{ color: 'var(--ink-3)' }}>
+        <span className="s-micro s-num" style={{ color: 'var(--ink-2)' }}>
           {filtradas.length === operadoras.length ? `${operadoras.length}` : `${filtradas.length}/${operadoras.length}`}
         </span>
       </Pie>

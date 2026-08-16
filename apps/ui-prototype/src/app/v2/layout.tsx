@@ -49,7 +49,7 @@ export default function V2Layout({ children }: { children: React.ReactNode }) {
             <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
               Prototipo · datos simulados sobre cifras públicas
             </span>
-            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
+            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
               sistema v2
             </span>
           </footer>

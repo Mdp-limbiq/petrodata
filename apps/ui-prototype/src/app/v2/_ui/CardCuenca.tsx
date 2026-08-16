@@ -41,8 +41,9 @@ export function CardCuenca() {
           decoding="async"
           className="block w-full"
           style={{
-            aspectRatio: '16 / 9',
-            height: 'auto',
+            /* Alto fijo en px y no aspect-ratio, que el sistema prohíbe. 168 es
+               lo que daba el 16:9 al ancho de esta card. */
+            height: 168,
             objectFit: 'cover',
             filter: 'grayscale(1) contrast(0.9)',
           }}

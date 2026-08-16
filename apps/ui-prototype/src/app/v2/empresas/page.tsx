@@ -124,7 +124,7 @@ export default function V2Empresas() {
                 <tr className="s-cierre">
                   <td />
                   <td>
-                    {COMPANIES.length} <span style={{ color: 'var(--ink-3)' }}>empresas</span>
+                    {COMPANIES.length} <span style={{ color: 'var(--ink-2)' }}>empresas</span>
                   </td>
                   <td className="s-sep text-right">
                     {formatDecimal(

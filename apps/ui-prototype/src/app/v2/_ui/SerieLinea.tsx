@@ -243,10 +243,10 @@ export function SerieLinea({
             )}
           </svg>
           <div className="mt-0.5 flex justify-between">
-            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
+            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
               {meses[0]}
             </span>
-            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
+            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
               {meses[n - 1]}
             </span>
           </div>
