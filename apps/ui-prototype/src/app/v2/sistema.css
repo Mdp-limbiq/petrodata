@@ -198,6 +198,35 @@
   overflow: hidden;
 }
 
+/* ── Barra y pie de card ────────────────────────────────────────────────
+   Las dos primitivas con nombre propio en el CSS de la referencia que v2 no
+   estaba usando. Están medidas y comparten padding:
+
+     .primitive-card-bar, .primitive-card-footer { padding: 10px 12px }
+
+   La barra lleva borde ABAJO y fondo transparente; el pie lleva borde ARRIBA y
+   fondo --inset. Son cinco usos de barra y tres de pie en el sitio, así que la
+   barra es la ranura más usada de la card, más que el propio card-pad.
+
+   Corrijo acá una afirmación que dejé escrita en los paneles del mapa: ahí
+   escribí que la referencia NO tiene barra de cabecera. Sí la tiene, y es su
+   ranura más frecuente. */
+.s-barra-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.s-pie-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--inset);
+}
+
 /* ── Filas de datos: divisorias SÓLIDAS (adentro de un componente) ─────── */
 .s-fila {
   display: flex;
@@ -336,7 +365,21 @@
   0%, to { transform: scaleY(0.35); }
   50% { transform: scaleY(1); }
 }
-.s-eq > i { display: block; width: 2px; height: 100%; border-radius: 1px; background: var(--ink-3);
+/* La geometría sale del MEDIDOR de la Recommendation Card, que es la pieza que
+   la referencia usa para mostrar nivel: tres barras de 4×10 con 2px de
+   separación y radio completo, alineadas abajo.
+
+     <span class="flex items-end gap-0.5">
+       <span class="w-1 rounded-full">   ← 4x10
+       …
+
+   Nuestro ecualizador tenía 2px de ancho y radio 1: la misma idea con otras
+   medidas, inventadas. Ahora comparte la caja con el medidor, así que las dos
+   piezas de "tres barritas" de v2 son la misma pieza. */
+.s-medidor { display: flex; align-items: flex-end; gap: 2px; height: 10px; }
+.s-medidor > i { display: block; width: 4px; height: 100%; border-radius: 999px; background: var(--line-strong); }
+.s-medidor > i.on { background: var(--ink-3); }
+.s-eq > i { display: block; width: 4px; height: 100%; border-radius: 999px; background: var(--ink-3);
   animation: s-eq 900ms var(--ease-in-out) infinite; transform-origin: bottom; }
 .s-eq > i:nth-child(2) { animation-delay: 150ms; }
 .s-eq > i:nth-child(3) { animation-delay: 300ms; }

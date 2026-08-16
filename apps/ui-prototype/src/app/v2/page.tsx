@@ -1,5 +1,17 @@
 import Link from 'next/link'
-import { Seccion, Dato, FilaDato, FilaRanking, Card, CardHead, Pie, FilaNoticia } from './_ui/kit'
+import {
+  Seccion,
+  Dato,
+  FilaDato,
+  FilaRanking,
+  Card,
+  CardBarra,
+  CardHead,
+  CardPie,
+  Medidor,
+  Pie,
+  FilaNoticia,
+} from './_ui/kit'
 import { Cifras } from './_ui/Cifras'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
@@ -38,40 +50,60 @@ export default function V2Inicio() {
         desc="BOE del mes con su desglose en petróleo, gas y pozos."
       >
         <Card>
-          {/* El titular. Único 21px de la página y única tinta plena grande. */}
-          <div className="flex items-end justify-between gap-4 px-3 py-3">
-            <Dato
-              rotulo={`Barriles equivalentes · ${periodo}`}
-              valor={formatInteger(HEADLINE.boeMonth)}
-              unidad="BOE"
-              grande
-            />
+          {/* La card usa ahora las tres ranuras MEDIDAS de la referencia, que
+              el dashboard no estaba usando ninguna:
+
+                .primitive-card-bar      padding 10×12, borde ABAJO
+                .primitive-card-pad      padding 12
+                .primitive-card-footer   padding 10×12, borde ARRIBA, --inset
+
+              La barra es la ranura más frecuente del sitio —cinco usos contra
+              tres del pie y tres del pad—, y nosotros la teníamos reemplazada
+              por un div con padding a ojo. */}
+          <CardBarra>
+            <span className="s-etq min-w-0 flex-1">Barriles equivalentes · {periodo}</span>
             <Pulso />
+          </CardBarra>
+
+          <div className="px-3 py-3">
+            <p className="m-0 flex items-baseline gap-1.5">
+              <span className="s-cifra">{formatInteger(HEADLINE.boeMonth)}</span>
+              <span className="text-[11px]" style={{ color: 'var(--ink-3)' }}>
+                BOE
+              </span>
+            </p>
           </div>
+
           <div className="border-t" style={{ borderColor: 'var(--line)' }}>
-            <FilaDato
-              etiqueta="Petróleo"
-              valor={formatInteger(HEADLINE.oil)}
-              unidad="bbl/d"
-            />
+            <FilaDato etiqueta="Petróleo" valor={formatInteger(HEADLINE.oil)} unidad="bbl/d" />
             <FilaDato
               etiqueta="Gas natural"
               valor={formatDecimal(HEADLINE.gas, 1)}
               unidad="MMm³/d"
             />
-            <FilaDato
-              etiqueta="Pozos activos"
-              valor={formatInteger(HEADLINE.activeWells)}
-            />
-            <FilaDato
-              etiqueta="Participación en el BOE nacional"
-              valor={formatPercent(HEADLINE.vmShare)}
-            />
+            <FilaDato etiqueta="Pozos activos" valor={formatInteger(HEADLINE.activeWells)} />
           </div>
+
+          {/* La participación baja al pie y no es una fila más del desglose:
+              las otras tres son PARTES del BOE del mes, y ésta mide ese BOE
+              contra un total más grande. Es otra clase de afirmación, y el
+              escalón de fondo del pie es justamente lo que la referencia usa
+              para separar lo que califica a la card de lo que la compone.
+
+              El medidor dice en cuántos tercios cae la proporción: 77,9% son
+              tres de tres. La cifra exacta está al lado; el medidor es el
+              vistazo. Es la misma pieza que la referencia usa para el nivel de
+              confianza de su Recommendation Card. */}
+          <CardPie>
+            <Medidor nivel={Math.ceil(HEADLINE.vmShare * 3)} />
+            <span className="s-micro min-w-0 flex-1" style={{ color: 'var(--ink-2)' }}>
+              Del BOE nacional de hidrocarburos
+            </span>
+            <span className="s-num shrink-0 text-[13px] font-medium">
+              {formatPercent(HEADLINE.vmShare)}
+            </span>
+          </CardPie>
         </Card>
-        <Pie>
-          La participación es sobre producción nacional de hidrocarburos.
-        </Pie>
       </Seccion>
 
       <Seccion

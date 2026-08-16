@@ -13,7 +13,9 @@
 export function Pulso() {
   return (
     <span className="flex shrink-0 items-center gap-2" aria-hidden>
-      <span className="s-eq flex h-3 items-end gap-[2px]">
+      {/* h-2.5 y gap 2: la caja del MEDIDOR de la referencia, 4×10 por
+          barra. Estaba en h-3 con 2px de ancho, medidas inventadas. */}
+      <span className="s-eq flex h-2.5 items-end gap-[2px]">
         <i />
         <i />
         <i />

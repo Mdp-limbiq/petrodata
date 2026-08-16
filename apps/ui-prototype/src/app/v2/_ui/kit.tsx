@@ -94,6 +94,33 @@ export function Dato({
   )
 }
 
+/** Barra de cabecera de card — .primitive-card-bar MEDIDO: padding 10×12 y
+    borde abajo. Es la ranura más usada de la card en la referencia: cinco
+    usos, más que el propio card-pad. */
+export function CardBarra({ children }: { children: ReactNode }) {
+  return <div className="s-barra-card">{children}</div>
+}
+
+/** Pie de card — .primitive-card-footer MEDIDO: mismo padding 10×12, borde
+    ARRIBA y fondo --inset. Es donde la referencia baja lo que califica a la
+    card entera, separado del cuerpo por el escalón de fondo. */
+export function CardPie({ children }: { children: ReactNode }) {
+  return <div className="s-pie-card">{children}</div>
+}
+
+/** Medidor de tres barras — MEDIDO en la Recommendation Card: 4×10 cada una,
+    2px de separación, radio completo, alineadas abajo. Allá dice el nivel de
+    confianza del agente; acá, en cuántos tercios cae una proporción. */
+export function Medidor({ nivel, de = 3 }: { nivel: number; de?: number }) {
+  return (
+    <span className="s-medidor shrink-0" aria-hidden>
+      {Array.from({ length: de }, (_, i) => (
+        <i key={i} className={i < nivel ? 'on' : undefined} />
+      ))}
+    </span>
+  )
+}
+
 /** Fila de ranking: rango en mono, nombre, valor a la derecha y barra fina.
     La barra va neutra y sólo el líder toma el acento — el acento es para
     detalles, nunca para llenar superficies. */
