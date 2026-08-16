@@ -1,4 +1,15 @@
-import { Seccion, Card, CardHead, FilaDato, FilaRanking, Dato, Pie, Chip } from '../_ui/kit'
+import {
+  Seccion,
+  Card,
+  CardHead,
+  FilaDato,
+  FilaRanking,
+  Dato,
+  Pie,
+  Chip,
+  FLUIDO,
+  PALETA_TAGS,
+} from '../_ui/kit'
 import { DAY_VALUE, BRENT, VM, TESIS, RIGI, TRANSPORT, BREAKEVEN, EXPORTS_SUMMARY, CONTRIBUTION } from '@/fixtures/indicadores'
 import { OIL_PRODUCERS } from '@/fixtures/operators'
 import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
@@ -19,6 +30,37 @@ import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
 
    Las secciones 06 a 08 venían de una página "Operadoras" que yo había
    inventado y que el sitio no tiene: acá es donde vive ese dato. */
+
+/* Dos de los tres sectores exportadores son nuestros fluidos y llevan su color
+   de siempre; minería toma otro de la paleta categórica. Con los tres pintados,
+   el acento del líder sale de la lista: cuando la categoría significa algo, el
+   color tiene que decir la categoría y no el puesto. */
+const COLOR_SECTOR: Record<string, string> = {
+  'Petróleo': FLUIDO.petroleo,
+  'Gas': FLUIDO.gas,
+  'Minería': PALETA_TAGS[2],
+}
+
+function CardPieSuelto({ gasKm, oilKm, totalKm }: { gasKm: number; oilKm: number; totalKm: number }) {
+  return (
+    <div className="s-card mt-3">
+      <div className="s-pie-card" style={{ borderTop: 0 }}>
+        <span className="s-pila w-24 shrink-0" aria-hidden>
+          <span style={{ flex: gasKm }}>
+            <i style={{ background: FLUIDO.gas }} />
+          </span>
+          <span style={{ flex: oilKm }}>
+            <i style={{ background: FLUIDO.petroleo }} />
+          </span>
+        </span>
+        <span className="s-micro min-w-0 flex-1" style={{ color: 'var(--ink-2)' }}>
+          {formatInteger(gasKm)} km de gas y {formatInteger(oilKm)} de petróleo
+        </span>
+        <span className="s-num shrink-0 text-[13px] font-medium">{formatInteger(totalKm)} km</span>
+      </div>
+    </div>
+  )
+}
 
 export default function V2Indicadores() {
   const maxKm = Math.max(...TRANSPORT.gasByOperator.map((o) => o.km))
@@ -150,9 +192,27 @@ export default function V2Indicadores() {
       >
         <Card>
           <CardHead titulo={`Corte ${VM.dataDate}`} />
-          <FilaDato etiqueta="Participación en petróleo nacional" valor={`${formatDecimal(VM.oilSharePct, 1)}%`} />
-          <FilaDato etiqueta="Participación en gas nacional" valor={`${formatDecimal(VM.gasSharePct, 1)}%`} />
-          <FilaDato etiqueta="Petróleo" valor={formatInteger(VM.oilBbld)} unidad="bbl/d" />
+          {/* Los dos fluidos con su color, el mismo de toda la web. Es la
+              sección que más lo pide: su descripción dice "de cada fluido", o
+              sea que la comparación entre los dos ES el contenido. */}
+          <FilaDato
+            etiqueta="Participación en petróleo nacional"
+            valor={`${formatDecimal(VM.oilSharePct, 1)}%`}
+            color={FLUIDO.petroleo}
+          />
+          <FilaDato
+            etiqueta="Participación en gas nacional"
+            valor={`${formatDecimal(VM.gasSharePct, 1)}%`}
+            color={FLUIDO.gas}
+          />
+          <FilaDato
+            etiqueta="Petróleo"
+            valor={formatInteger(VM.oilBbld)}
+            unidad="bbl/d"
+            color={FLUIDO.petroleo}
+          />
+          {/* Sin punto: los pozos no son un fluido. El color se gana
+              significando algo. */}
           <FilaDato etiqueta="Pozos activos" valor={formatInteger(VM.wells)} />
         </Card>
       </Seccion>
@@ -298,10 +358,15 @@ export default function V2Indicadores() {
             />
           ))}
         </Card>
-        <Pie>
-          Red total {formatInteger(TRANSPORT.totalKm)} km: {formatInteger(TRANSPORT.gasKm)} de gas
-          y {formatInteger(TRANSPORT.oilKm)} de petróleo.
-        </Pie>
+        {/* El reparto de la red pasa de frase a pila: son dos magnitudes que se
+            comparan, y compararlas es más rápido mirando que leyendo. Va en el
+            pie de card medido —fondo --inset y filete arriba— y con los colores
+            de los dos fluidos. */}
+        <CardPieSuelto
+          gasKm={TRANSPORT.gasKm}
+          oilKm={TRANSPORT.oilKm}
+          totalKm={TRANSPORT.totalKm}
+        />
       </Seccion>
 
       <Seccion
@@ -320,6 +385,7 @@ export default function V2Indicadores() {
               pct={s.busd / maxExp}
               lider={i === 0}
               nota={`${formatDecimal(s.sharePct, 1)}% del total`}
+              color={COLOR_SECTOR[s.name] ?? undefined}
             />
           ))}
         </Card>

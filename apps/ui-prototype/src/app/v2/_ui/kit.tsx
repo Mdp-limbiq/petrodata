@@ -136,6 +136,7 @@ export function FilaRanking({
   tagColor,
   delta,
   unidad,
+  color,
 }: {
   n: number
   nombre: string
@@ -156,6 +157,10 @@ export function FilaRanking({
       a once filas de distancia la cabecera no alcanza para saber qué se está
       mirando, que es como confundimos pozos con MUSD en provincias. */
   unidad?: string
+  /** color categórico de la fila. Si viene, lo toma la barra y desplaza al
+      acento del líder: cuando la categoría significa algo, el color tiene que
+      decir la categoría y no el puesto. */
+  color?: string
 }) {
   /* La barra va en su PROPIA columna, no debajo del nombre: pegada al texto
      se lee como un subrayado y no como una magnitud. Y el riel se dibuja
@@ -195,8 +200,9 @@ export function FilaRanking({
         {nota && <span className="s-chip s-chip--neutro s-chip--mini shrink-0">{nota}</span>}
       </span>
       <span
-        className={`s-barra hidden w-16 shrink-0 sm:block ${lider ? 's-barra--lider' : ''}`}
+        className={`s-barra hidden w-16 shrink-0 sm:block ${lider && !color ? 's-barra--lider' : ''}`}
         aria-hidden
+        style={color ? { ['--barra-color' as string]: color } : undefined}
       >
         <i style={{ width: `${Math.max(3, pct * 100)}%` }} />
       </span>
@@ -218,15 +224,26 @@ export function FilaDato({
   valor,
   delta = null,
   unidad,
+  color,
 }: {
   etiqueta: string
   valor: string
   delta?: number | null
   unidad?: string
+  /** color de la categoría a la que pertenece la fila. Un punto y nada más:
+      el sistema no tiene filas de color, tiene marcas de color. */
+  color?: string
 }) {
   const d = formatDelta(delta)
   return (
     <div className="s-fila s-fila-hover">
+      {color && (
+        <i
+          aria-hidden
+          className="block size-1.5 shrink-0 rounded-full"
+          style={{ background: color }}
+        />
+      )}
       <span className="s-etq min-w-0 flex-1 truncate">{etiqueta}</span>
       <span className="flex shrink-0 items-baseline gap-1.5">
         <span className="s-num text-[13px] font-medium">{valor}</span>
