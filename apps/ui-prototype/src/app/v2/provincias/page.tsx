@@ -65,7 +65,12 @@ export default function V2Provincias() {
           </Card>
           <Card>
             <div className="px-3 py-3">
-              <Dato rotulo="Exportaciones" valor={formatCompactAR(totalExpo)} unidad="MUSD" />
+              <Dato
+                rotulo="Exportaciones"
+                valor={formatCompactAR(totalExpo)}
+                unidad="MUSD"
+                nota="año móvil"
+              />
             </div>
           </Card>
           <Card>
@@ -135,7 +140,10 @@ export default function V2Provincias() {
         desc="Cuánto aporta cada provincia a los dólares del complejo."
       >
         <Card>
-          <CardHead titulo="Por exportaciones" nota={`${formatCompactAR(totalExpo)} MUSD`} />
+          {/* La cifra llevaba unidad pero no período, que en una cifra de
+              dinero es la mitad del dato. El sitio la publica como año móvil,
+              o sea los últimos doce meses. */}
+          <CardHead titulo="Por exportaciones" nota={`${formatCompactAR(totalExpo)} MUSD · año móvil`} />
           {/* La MISMA fila que la sección 02. Antes era FilaRanking con la nota
               en un segundo renglón, y entre las dos listas no coincidía nada:
               60px de alto contra 40, dos renglones contra uno, sin tag de
@@ -175,7 +183,14 @@ export default function V2Provincias() {
             La comparación entre los dos rankings no se pierde, vive donde
             corresponde: en el desglose de la sección 02, cada provincia dice
             "Nª de 10 en exportaciones", que es el puesto que ahí no se ve. */}
-        <Pie>Sobre el total del complejo, no sobre las exportaciones del país.</Pie>
+        {/* La aclaración importa porque las dos cifras existen y se llevan un
+            factor de 2,5: la Argentina exportó US$ 17,1B en el año móvil según
+            el propio sitio —minería incluida— y estas once filas suman 6.879,
+            o sea el 40,2%. Neuquén es 69,6% de esta tabla y 28,0% del país. */}
+        <Pie>
+          Los porcentajes son sobre estos 6.879 MUSD, no sobre las exportaciones totales
+          del país, que son US$ 17,1B en el año móvil.
+        </Pie>
       </Seccion>
 
       <Seccion

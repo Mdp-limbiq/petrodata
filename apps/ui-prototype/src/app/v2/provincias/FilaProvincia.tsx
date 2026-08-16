@@ -82,8 +82,9 @@ export function FilaProvincia({
   /** porcentaje de los pozos del país que aporta la provincia */
   pctPozos: number
   /** participación en la COLUMNA de exportaciones, la que cierra contra el
-      total de la cabecera. No confundir con Province.expSharePct, que tiene
-      otro denominador: ver el comentario del fixture. */
+      total de la cabecera. Es sobre el complejo, no sobre el país: no
+      confundir con Province.expSharePct, que es sobre los US$ 17,1B de
+      exportaciones totales de la Argentina. Ver el fixture. */
   pctExpo: number
   /** MUSD exportados por pozo activo en todo el país: 6.879 / 14.441 = 0,476.
       Es la vara contra la que se compara la intensidad de cada provincia. */
@@ -288,7 +289,18 @@ export function FilaProvincia({
                     valor={formatInteger(p.exportsMUSD)}
                     unidad="MUSD"
                     badges={[
-                      `${formatDecimal(pctExpo, 1)}% del país`,
+                      /* "del complejo" y NO "del país". Los once exportsMUSD
+                         suman 6.879, pero las exportaciones totales de la
+                         Argentina son US$ 17,1B en el año móvil —el número que
+                         publica el sitio, minería incluida—. Neuquén es 69,6%
+                         de esta columna y 28,0% del país; decir "69,6% del
+                         país" era afirmar algo falso por un factor de 2,5.
+
+                         La comprobación: 6.879/17.100 = 40,2%, que es
+                         exactamente lo que suman los once expSharePct (40,4%).
+                         O sea que expSharePct SÍ es la participación en el
+                         país, y esta otra es la participación en la columna. */
+                      `${formatDecimal(pctExpo, 1)}% del complejo`,
                       ...(metrica === 'pozos' && puestoExpo
                         ? [`${puestoExpo}ª de ${totalProvincias} en exportaciones`]
                         : []),
