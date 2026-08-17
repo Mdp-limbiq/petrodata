@@ -53,6 +53,14 @@
   --red: #e3474c;
   --red-tint: #fcecec;
 
+  /* Caja del checkbox de la Records Table. La referencia la tiene en literales
+     y no en tokens —es la única pieza del sistema que no usa la escala de
+     grises—, así que se copian tal cual, pero con nombre para que el tema
+     oscuro los pueda cambiar. */
+  --check-line: #c7cdd3;
+  --check-bg: #fff;
+  --check-ink: #4d555e;
+
   --shadow-hairline: 0 0 0 1px var(--line);
   --shadow-btn: 0 0 0 1px var(--line-strong), 0 1px 2px #1018280d;
   --shadow-card: 0 0 0 1px var(--line), 0 1px 2px #1018280a, 0 2px 6px #10182808;
@@ -88,6 +96,9 @@
   --dot: #ffffff0f;
   --dot-bg: #1b1c1e;
   --panel: #1f2022;
+  --check-line: #4a4d52;
+  --check-bg: #2b2c2f;
+  --check-ink: #e0e4e8;
   --accent: #3d9aff;
   --accent-ink: #7ec0ff;
   --accent-tint: #3d9aff29;
@@ -856,3 +867,317 @@
    con lo cual el codo apuntaría a un hueco. 12px es donde está el centro del
    ícono: 2 de padding + 3 de corrección de línea de base + 7 de medio ícono. */
 .s-rama > .s-paso--intro::after { top: 12px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REGISTRO — la Records Table (§12) completa.
+
+   Es la sección del catálogo que más se parece a lo que tenemos que resolver:
+   literalmente una tabla de empresas. v2 la estaba usando al 30% —cabecera
+   plana, celdas y una fila de cierre— y le faltaban ocho piezas. Todo lo que
+   sigue está MEDIDO contra la referencia; donde me aparto, lo digo.
+
+   La diferencia con .s-tabla, que sigue viva: aquella es para listas cortas
+   dentro de una card. Ésta es un componente propio, con su barra de controles,
+   su scroll y sus agregados. No hay que unificarlas.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* El shell NO es .s-card: lleva borde real de 1px y una sombra más liviana. */
+.s-reg {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: 0 1px 2px #0000000f;
+}
+
+/* La barra de controles separa con --line-STRONG y no con --line. Es la única
+   divisoria fuerte del sistema, y dice que arriba hay controles y abajo datos.
+   52px de alto mínimo: más que la barra de card (que da 38) porque adentro
+   viven botones de 32. */
+.s-reg-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--surface);
+}
+.s-reg-grupo { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+
+/* Los botones de la barra comparten caja: 32 de alto, 12px en peso 550. El 550
+   es de la referencia y no un redondeo mío: a 12px, 500 se lee liviano al lado
+   de las celdas de 12,5/500 y 600 se lee como título. */
+.s-reg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  white-space: nowrap;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out-strong),
+    color var(--dur-fast) var(--ease-out-strong),
+    transform var(--dur-fast) var(--ease-out-strong);
+}
+.s-reg-btn:hover { background: var(--hover); color: var(--ink); }
+.s-reg-btn:active { transform: scale(0.96); }
+.s-reg-btn--marco { border: 1px solid var(--line); background: var(--surface); color: var(--ink); gap: 8px; }
+.s-reg-btn[aria-pressed='true'] { background: var(--accent-tint); color: var(--accent-ink); }
+/* Acá me aparto de lo medido y conviene que quede escrito. El botón primario de
+   la §12 es `background:var(--accent); color:#fff` y da 3,62:1 sobre su propio
+   fondo: no llega a AA. Pero la referencia tiene OTRO botón sólido, el de
+   enviar de la §19, que es `bg-ink text-surface` —la tinta plena sobre la
+   superficie invertida, el contraste máximo del sistema—. Uso ése. Es una
+   pieza medida, no un invento, y resuelve el único caso donde el acento tenía
+   que llevar texto encima. */
+.s-reg-btn--fuerte { margin-left: 3px; background: var(--ink); color: var(--surface); }
+.s-reg-btn--fuerte:hover { background: var(--ink); color: var(--surface); opacity: 0.88; }
+/* El punto de "hay un filtro puesto", pegado al rótulo del botón. */
+.s-reg-punto { width: 5px; height: 5px; margin-left: -2px; border-radius: 999px; background: var(--accent); }
+
+.s-reg-scroll {
+  max-height: 438px;
+  overflow: auto;
+  overscroll-behavior: none;
+  scrollbar-gutter: stable;
+  /* La barra de scroll VISIBLE y en --line-strong está medida en la referencia
+     y es la única del sistema que se declara. Acá gana el trabajo que allá no
+     tenía que hacer: la tabla mide 670 en una ranura de 582, y esta barra es lo
+     que dice que hay una columna más del otro lado. */
+  scrollbar-color: var(--line-strong) transparent;
+}
+.s-reg-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.s-reg-tabla {
+  width: 100%;
+  /* La suma exacta de las cinco columnas. La sección mide 672 y el marco se
+     come 24, así que la tabla no entra: quedan ~100px del lado derecho, y para
+     eso está la columna congelada. Es el mismo trato que hace la referencia,
+     que mete una tabla de 990 en el mismo marco de 672. */
+  min-width: 670px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  color: var(--ink);
+  font-size: 12px;
+}
+/* La grilla COMPLETA —vertical y horizontal— atenuada al 78%. Se ve la
+   estructura de la tabla sin que las líneas compitan con el dato. Es la única
+   parte del sistema donde hay divisorias verticales en todas las columnas. */
+.s-reg-tabla td,
+.s-reg-tabla th {
+  text-align: left;
+  vertical-align: middle;
+  border-right: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+}
+.s-reg-tabla tr > :last-child { border-right: 0; }
+.s-reg-tabla thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 42px;
+  padding: 0;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+/* La cabecera es un BOTÓN de alto completo: el área de click es la celda
+   entera, no el texto. El padding vive acá y no en el th. */
+.s-reg-th {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.s-reg-th:hover { background: var(--hover); color: var(--ink); }
+.s-reg-th-ico { display: inline-flex; flex-shrink: 0; color: var(--ink-3); }
+/* La flecha de orden vive escondida y aparece en hover: la cabecera avisa que
+   es ordenable justo cuando la vas a usar, y no antes. La visible marca por
+   cuál columna está ordenada. */
+.s-reg-orden {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-left: auto;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-base) var(--ease-out-strong);
+}
+.s-reg-th:hover .s-reg-orden,
+.s-reg-orden.on { opacity: 1; }
+.s-reg-orden.asc { transform: rotate(180deg); }
+
+.s-reg-celda { height: 42px; padding: 0 12px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* Columna congelada: se queda a la izquierda al desplazar y avisa con una
+   sombra de un solo lado que hay más tabla escondida. Es lo que permite que la
+   tabla tenga 820px de ancho mínimo sin que el nombre se pierda. */
+.s-reg-fija { position: sticky; left: 0; z-index: 2; background: var(--surface); box-shadow: 5px 0 8px -10px #0006; }
+.s-reg-emp { display: flex; align-items: center; gap: 4px; padding-left: 6px; overflow: visible; }
+.s-reg-fila > .s-reg-celda {
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.s-reg-fila:hover > .s-reg-celda { background: var(--hover); }
+.s-reg-fila.sel > .s-reg-celda { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.s-reg-cab-emp { display: flex; align-items: center; gap: 8px; width: 100%; height: 42px; padding: 0 12px 0 6px; }
+
+/* Checkbox MEDIDO: 24 de zona sensible, caja de 18, radio 6. Los grises del
+   borde y el fondo son literales en la referencia —no salen de un token— así
+   que van como tokens propios, uno por tema. */
+.s-check { position: relative; display: inline-flex; flex: 0 0 24px; width: 24px; height: 24px;
+  align-items: center; justify-content: center; border-radius: var(--radius-chip); cursor: pointer; }
+.s-check input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.s-check-caja {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--check-line);
+  border-radius: 6px;
+  background: var(--check-bg);
+  color: var(--check-ink);
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out-strong);
+}
+.s-check:hover .s-check-caja { border-color: var(--ink-3); }
+.s-check:active .s-check-caja { transform: scale(0.96); }
+.s-check input:checked + .s-check-caja { border-color: var(--accent); background: var(--accent); color: #fff; }
+.s-check-caja svg { opacity: 0; }
+.s-check input:checked + .s-check-caja svg { opacity: 1; }
+.s-check input:focus-visible + .s-check-caja { outline: 2px solid var(--accent); outline-offset: 2px; }
+.s-check-guion { width: 8px; height: 1.5px; border-radius: 999px; background: var(--check-ink); }
+
+.s-reg-nombre {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+}
+a.s-reg-nombre:hover { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+/* Punto de 8px + texto: la pieza con la que la referencia muestra un NIVEL en
+   palabras en vez de en una barra. Acá dice el fluido que predomina, y el punto
+   lleva el color que ese fluido ya tiene en toda la web. */
+.s-nivel { display: inline-flex; align-items: center; gap: 8px; color: var(--ink-2); }
+.s-nivel > i { display: inline-block; flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; }
+/* Enlace externo: subrayado al 35% que se llena en hover. Es el único subrayado
+   del sistema. */
+.s-reg-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--accent-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 3px;
+  transition: color var(--dur-fast) var(--ease-out), text-decoration-color var(--dur-fast) var(--ease-out);
+}
+.s-reg-link:hover { color: var(--ink); text-decoration-color: currentColor; }
+/* ink-2 y no ink-3: acá viven los agregados del pie, que son datos. El guion de
+   una celda vacía sí es metadata pura y lleva la otra clase. */
+.s-reg-mudo { color: var(--ink-2); }
+.s-reg-vacio { color: var(--ink-3); }
+
+/* Pie de DOS renglones, los dos pegados al fondo, el de arriba más claro. Cada
+   columna trae su propio tipo de agregado —recuento, suma, promedio— y no la
+   misma operación repetida: eso es lo que hace que el pie diga algo. */
+.s-reg-tabla tfoot td {
+  position: sticky;
+  bottom: 0;
+  z-index: 4;
+  height: 38px;
+  background: var(--inset);
+  color: var(--ink-2);
+  font-size: 11.5px;
+}
+.s-reg-tabla tfoot .s-reg-fija { z-index: 6; background: var(--inset); }
+.s-reg-tabla tfoot tr.s-reg-calc2 td { bottom: 38px; background: color-mix(in srgb, var(--inset) 70%, var(--surface)); }
+.s-reg-tabla tfoot tr.s-reg-calc2 .s-reg-fija { background: color-mix(in srgb, var(--inset) 70%, var(--surface)); }
+.s-reg-cifra { margin-right: 3px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.s-reg-rot { color: var(--ink-2); font-weight: 550; }
+
+/* ── Contador de grupo. MEDIDO §10: 20 de alto sobre --inset con filete. Es el
+      número que acompaña a un rótulo de grupo, no un chip de estado. ─────── */
+.s-contador {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-chip);
+  background: var(--inset);
+  box-shadow: var(--shadow-hairline);
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Píldora de adjunto. MEDIDA §10 —la del PDF—: 24 de alto, radio completo,
+      --inset con anillo de botón, y un cuadradito de 14 con tres letras a 7px
+      en peso 700. Allá el cuadradito dice el formato del archivo; acá, el
+      fluido, la bolsa o la unidad. ─────────────────────────────────────── */
+.s-adj {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--inset);
+  box-shadow: var(--shadow-btn);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color var(--dur-slow) var(--ease-out-strong);
+}
+.s-adj:hover { background: var(--hover); }
+.s-adj > b {
+  display: flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* ── Colapso. MEDIDO §13 y §9: 1fr → 0fr sobre grid-template-rows. Es la forma
+      que tiene el sistema de hacer aparecer y desaparecer un bloque sin animar
+      la altura, que no se puede interpolar cuando es `auto`. ────────────── */
+.s-colapsa {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows var(--dur-slow) var(--ease-out-strong),
+    opacity var(--dur-slow) var(--ease-out-strong);
+}
+.s-colapsa[data-abierto='no'] { grid-template-rows: 0fr; opacity: 0; }
+.s-colapsa > * { overflow: hidden; }
