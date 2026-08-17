@@ -52,6 +52,23 @@ function mixDe(c: Company): { rot: string; color?: string; razon?: string } {
   return { rot: 'Mixto', color: MIXTO, razon }
 }
 
+/* La reseña de reemplazo, para las 45 empresas que no traen `blurb` en la
+   fuente. Describe el mix con los números que ya están —cuánto pesa en volumen
+   contra cuánto en valor— y no afirma nada sobre la empresa que el dato no
+   sostenga. Es una sola función porque la usan las cards de la 01 y las fichas
+   de la 03: dos textos distintos para el mismo hueco serían dos voces. */
+function resenaDe(c: Company, mix: string): string {
+  if (c.blurb) return c.blurb
+  const vol = formatDecimal(c.pctNacional, 1)
+  const val = formatDecimal(c.pctValor, 1)
+  if (mix === 'Gas') return `El grueso de lo que produce es gas: pesa ${vol}% del volumen del país y ${val}% del valor.`
+  if (mix === 'Petróleo') return `Producción volcada al petróleo: pesa ${vol}% del volumen del país y ${val}% del valor.`
+  if (mix === 'Mixto') return 'Mezcla pareja de petróleo y gas: pesa casi lo mismo en volumen que en valor.'
+  /* Las 21 que están en 0,0% en las dos columnas no tienen mix calculable, así
+     que la frase se apoya en lo único que sí se sabe de ellas: sus pozos. */
+  return `Opera ${formatInteger(c.proyectos)} pozos y no llega al 0,1% de la producción del país.`
+}
+
 const TRAMOS = [
   { rot: 'Con peso propio', nota: '1% o más del país', nivel: 3, test: (c: Company) => c.pctNacional >= 1 },
   { rot: 'Con producción', nota: 'entre 0,1% y 0,9%', nivel: 2, test: (c: Company) => c.pctNacional > 0 && c.pctNacional < 1 },
@@ -95,6 +112,11 @@ export default function V2Empresas() {
 
   const filas: FilaEmpresa[] = orden.map((c) => {
     const m = mixDe(c)
+    const pctPozos = (c.proyectos / pozosTotal) * 100
+    /* Mismo cálculo que en la sección 01: cuánto rinde cada pozo contra la
+       media del país. Sin pozos no hay división posible y la fila lo omite en
+       vez de mostrar un infinito. */
+    const rinde = pctPozos > 0 && c.pctNacional > 0 ? c.pctNacional / pctPozos : null
     return {
       slug: c.slug,
       nombre: c.name,
@@ -102,9 +124,25 @@ export default function V2Empresas() {
       cotiza: c.isPublic,
       nacional: `${formatDecimal(c.pctNacional, 1)}%`,
       nacional_n: c.pctNacional,
-      mix: { rot: m.rot, color: m.color },
+      mix: { rot: m.rot, color: m.color, razon: m.razon },
       pozos: formatInteger(c.proyectos),
       pozos_n: c.proyectos,
+      resena: resenaDe(c, m.rot),
+      valor: `${formatDecimal(c.pctValor, 1)}%`,
+      pctPozos: `${formatDecimal(pctPozos, 1)}%`,
+      rinde: rinde ? `×${formatDecimal(rinde, 1)}` : null,
+      rindeNivel: rinde ? (rinde >= 2 ? 3 : rinde >= 1 ? 2 : 1) : 1,
+      bolsa:
+        c.isPublic && c.exchange && c.ticker
+          ? {
+              ticker: c.ticker,
+              mercado: c.exchange,
+              precio: formatDecimal(c.price ?? 0, 2),
+              delta: c.change ?? 0,
+            }
+          : undefined,
+      website: c.website,
+      logoUrl: c.logoUrl,
     }
   })
 
@@ -166,12 +204,7 @@ export default function V2Empresas() {
                         cuánto en valor— y no afirma nada sobre la empresa que el
                         dato no sostenga. */}
                     <p className="s-desc m-0 mt-0.5" style={{ ...recorte(2, 18.75), marginTop: 2 }}>
-                      {c.blurb ??
-                        (m.rot === 'Gas'
-                          ? `El grueso de lo que produce es gas: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
-                          : m.rot === 'Petróleo'
-                            ? `Producción volcada al petróleo: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
-                            : `Mezcla pareja de petróleo y gas: pesa casi lo mismo en volumen que en valor.`)}
+                      {resenaDe(c, m.rot)}
                     </p>
                     {/* Las tres columnas que el fixture tiene y la página no
                         estaba mostrando juntas. Producción y Valor lado a lado
@@ -338,7 +371,7 @@ export default function V2Empresas() {
         </Card>
       </Seccion>
 
-      <Seccion n="03" titulo="La lista" desc="Las 52, filtrables por fluido y buscables por nombre.">
+      <Seccion n="03" titulo="La lista" desc="Las 52: filtrá, buscá y abrí cualquiera para ver su ficha.">
         <ListaEmpresas
           filas={filas}
           grupos={grupos}

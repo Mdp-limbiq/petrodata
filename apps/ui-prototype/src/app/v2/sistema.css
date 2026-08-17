@@ -953,14 +953,32 @@
 .s-gfila,
 .s-gcab {
   display: grid;
-  grid-template-columns: 1.5fr 0.62fr 0.8fr 0.62fr;
+  /* La quinta columna es el chevron: 16px fijos, fuera del reparto en fr para
+     que no se mueva cuando cambia el ancho de la card. */
+  grid-template-columns: 1.5fr 0.62fr 0.8fr 0.62fr 16px;
   align-items: center;
   padding: 8px 12px;
   border-bottom: 1px solid var(--line);
 }
 .s-gcab { font-size: 11.5px; font-weight: 500; color: var(--ink-2); }
-.s-gfila { font-size: 12px; transition: background-color var(--dur-instant) var(--ease-out); }
+.s-gfila {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-instant) var(--ease-out);
+}
 .s-gfila:hover { background: var(--hover); }
+/* Abierta se queda realzada: dice cuál de las 52 es la que estás mirando
+   cuando el desglose ya empujó la fila fuera del centro de la vista. */
+.s-gfila[aria-expanded='true'] { background: var(--hover); }
+.s-gcab { cursor: default; }
 /* Chip de estado de la §13: 20 de alto y radio 5, más chico que el chip
    general de 22. Es por la caja que lo contiene: en una celda de 8px de
    padding, un chip de 22 se come el renglón. */
@@ -973,6 +991,26 @@
   font-size: 11px;
   font-weight: 500;
 }
+
+/* ── Ficha ──────────────────────────────────────────────────────────────
+   El desglose que se abre al clickear una fila de la lista: etiqueta a la
+   izquierda, valor a la derecha, un renglón por dato.
+
+   Es la misma gramática de .s-fila —divisoria sólida abajo, porque estamos
+   adentro de un componente— pero más apretada: 5px de padding vertical en vez
+   de 10, y sin hover, porque el renglón no es accionable. Cinco datos que
+   caben en la altura de dos filas de la tabla que los contiene.
+
+   El último no lleva divisoria: cerraría contra el borde del bloque hundido y
+   se verían dos líneas pegadas. */
+.s-ficha-fila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+}
+.s-ficha-fila:last-child { border-bottom: 0; }
 
 /* ── Colapso. MEDIDO §13 y §9: 1fr → 0fr sobre grid-template-rows. Es cómo el
       sistema hace aparecer y desaparecer un bloque sin animar una altura

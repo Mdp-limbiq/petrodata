@@ -5,9 +5,27 @@
    día (producción las refresca cada 5 min contra /api/v2/companies/prices).
    `website` alimenta el favicon de Google, igual que CompanyLogo en producción.
    `logoUrl` es el ícono resuelto del sitio de la empresa, verificado a mano
-   (2026-08-11) para las que Google no indexa: se confirmó que el sitio es de
-   esa empresa y que la URL devuelve una imagen. Las 33 restantes no tienen
+   para las que Google no indexa o indexa mal: se confirmó que el sitio es de
+   esa empresa y que la URL devuelve una imagen. Las restantes no tienen
    presencia web y caen al monograma.
+
+   Segunda pasada (2026-08-17). El favicon de Google devuelve 16x16 incluso
+   pidiendo sz=128, y a 48px de placa eso se ve como un borrón, así que se
+   fueron a buscar los logos del header y del app icon de cada sitio. Se
+   midieron uno por uno: tamaño real, cuadratura, canal alfa y luminancia
+   media. Entraron seis —YPF (SVG 300x81), TotalEnergies (208x152), Pampa,
+   GeoPark, CAPEX y PAE, que pasa del favicon al apple-touch-icon porque es
+   cuadrado y llena la placa—. Los seis con transparencia.
+
+   Dos advertencias para el que agregue más:
+   · varios sitios publican SÓLO la versión blanca del logo, para header
+     oscuro. Es el caso del lockup de PAE (luminancia 255 medida): sobre una
+     placa clara desaparece. Hay que medir la luminancia, no confiar en que
+     "se ve bien" en el sitio de origen.
+   · los lockups son apaisados y la placa es cuadrada, así que se dibujan
+     chicos —el de YPF, a 13px de alto sobre 48—. Se leen igual porque son
+     letras grandes, y llenar la placa exigiría recortar el logo, que a una
+     marca no se le hace.
    NO editar a mano los números: se regeneran re-scrapeando el sitio. */
 
 export type Company = {
@@ -60,11 +78,12 @@ export const COMPANIES: Company[] = [
     price: 48.76,
     change: -1.8,
     website: 'www.ypf.com',
+    logoUrl: 'https://ypf.com/images/menu-principal/ypf_logoazul.svg',
     blurb: 'La mayor operadora del país y ancla del desarrollo de Vaca Muerta.',
   }),
   c(2, 'pae', 'PAN AMERICAN ENERGY SL', 10.9, 10.9, 4471, {
     blurb: 'Integrada privada líder, del Golfo San Jorge al gas de Vaca Muerta.',
-    logoUrl: 'https://www.pan-energy.com/Style%20Library/PAE/images/favicon.png',
+    logoUrl: 'https://www.pan-energy.com/Style%20Library/PAE/images/apple-touch-icon-114x114.png',
   }),
   c(3, 'cgc', 'CGC (Compañía General de Combustibles)', 2.6, 1.9, 1521, {
     website: 'www.cgcenergia.com.ar',
@@ -86,6 +105,7 @@ export const COMPANIES: Company[] = [
     price: 3400,
     change: -8.6,
     website: 'www.capex.com.ar',
+    logoUrl: 'https://capex.com.ar/wp-content/uploads/2023/11/isotipo-seccion-con-fondo.svg',
   }),
   c(12, 'aconcagua', 'Petrolera Aconcagua Energía S.A.', 0.5, 0.7, 722, { logoUrl: 'https://aconcaguaenergia.com/wp-content/uploads/2026/05/cropped-favicon-32x32.png' }),
   c(13, 'crown_point', 'CROWN POINT ENERGIA S.A.', 0.3, 0.6, 697, { logoUrl: 'https://crownpointenergy.com/wp-content/uploads/2020/05/logo-45x45.png' }),
@@ -109,6 +129,7 @@ export const COMPANIES: Company[] = [
     price: 88.18,
     change: 3.5,
     website: 'www.totalenergies.com',
+    logoUrl: 'https://totalenergies.com/themes/custom/totalenergies_com/dist/img/logo_totalenergies.png',
   }),
   c(20, 'tecpetrol', 'Tecpetrol S.A.', 7.7, 2.4, 349, {
     website: 'www.tecpetrol.com',
@@ -122,6 +143,7 @@ export const COMPANIES: Company[] = [
     price: 79.77,
     change: -5.9,
     website: 'www.pampaenergia.com',
+    logoUrl: 'https://pampa.com/wp-content/uploads/2023/12/pampa-favicon.svg',
   }),
   c(23, 'brest_sa_de_servicios_petroleros', 'BREST S.A. DE SERVICIOS PETROLEROS', 0.1, 0.1, 175),
   c(24, 'shell', 'Shell Argentina', 2.4, 3.9, 162, {
@@ -168,6 +190,7 @@ export const COMPANIES: Company[] = [
     price: 9.35,
     change: -0.4,
     website: 'www.geo-park.com',
+    logoUrl: 'https://www.geo-park.com/wp-content/uploads/2022/04/cropped-favicon_new-192x192.png',
   }),
   c(46, 'patagonia_energy_sa', 'PATAGONIA ENERGY S.A.', 0.0, 0.0, 9),
   c(47, 'petrolsur_energia_sa', 'PETROLSUR ENERGIA S.A.', 0.0, 0.0, 9),
