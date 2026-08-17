@@ -2,7 +2,6 @@
 
 import { useId, useMemo, useState } from 'react'
 import { Icono, PATH } from './iconos'
-import { LogoEmpresa } from './LogoEmpresa'
 
 /* LISTA FILTRABLE — la Filter Table (§13) con el buscador de la §15 y un
    desglose por fila.
@@ -19,11 +18,18 @@ import { LogoEmpresa } from './LogoEmpresa'
    usa dos veces: al filtrar, para que las filas que salen se colapsen en vez de
    desaparecer de un frame al otro, y al clickear una fila, para abrir su ficha.
 
-   La ficha es la opción C de las cinco que se probaron en
-   design-research/beautifului-dev/empresa-card-5.html: placa de logo a la
-   izquierda, reseña y cinco renglones etiqueta→valor. Ahí vivía en su propia
-   card; acá cuelga de la fila, que es donde tiene más sentido — la tabla da el
-   panorama y la ficha, el detalle de la que te interesa.
+   El desglose es el MISMO que el de provincias: riel vertical con un codo por
+   línea, y cada línea un `.s-paso` con su ícono de 14. No es parecido, es la
+   misma pieza — la geometría del riel, el paso, los badges mini y el ícono de
+   introducción salen todos de sistema.css, y los cuatro íconos que comparten
+   —producción, barras, intensidad, información— son los mismos paths. Dos
+   desgloses distintos para la misma acción serían dos vocabularios.
+
+   Pasó por una versión con placa de logo y renglones etiqueta→valor, que era
+   la opción C de design-research/beautifului-dev/empresa-card-5.html. El logo
+   se fue (pedido de Mariano, 2026-08-17): en una card suelta anclaba la
+   identidad, pero acá el nombre ya está impreso en la fila justo arriba, así
+   que ocupaba 56px de ancho para repetir lo que ya se sabía.
 
    Todo llega ya formateado desde el servidor —los `*_n` son sólo para
    comparar— por la razón de siempre: una función de formato no cruza el
@@ -57,8 +63,6 @@ export type FilaEmpresa = {
   /** en qué tercio cae ese rinde: 1, 2 o 3 */
   rindeNivel: number
   bolsa?: { ticker: string; mercado: string; precio: string; delta: number }
-  website?: string
-  logoUrl?: string
 }
 
 export type GrupoFiltro = {
@@ -279,104 +283,134 @@ export function ListaEmpresas({
   )
 }
 
-/* ── La ficha ───────────────────────────────────────────────────────────
-   La opción C de las cinco probadas: placa de logo a la izquierda —la misma
-   composición que la fila de noticias y que las cards de la sección 01—, la
-   reseña arriba y cinco renglones etiqueta→valor.
+/* ── El desglose ────────────────────────────────────────────────────────
+   La misma composición que el de provincias, con la geometría del riel
+   adaptada a esta fila.
 
-   Va sobre --inset y no sobre --surface: es un plano por detrás de la fila que
-   lo abrió, y ese escalón es lo que hace que se lea como su desglose y no como
-   cinco filas más de la tabla. */
+   Allá el riel cae en el centro de la pastilla de la inicial (52px) porque hay
+   una pastilla donde engancharse. Acá la fila es una grilla sin marca a la
+   izquierda, así que el riel va en 20 —adentro de los 12 de padding de la
+   celda, debajo del nombre— y el contenido en 27. Lo que se conserva es la
+   RELACIÓN: 7px entre el riel y la caja del paso, y con los 6 de padding del
+   paso, 13 entre el riel y el ícono. Los mismos que en provincias. */
 function Ficha({ f }: { f: FilaEmpresa }) {
   return (
     <div
-      className="flex items-start gap-3 px-3 py-3"
-      style={{ background: 'var(--inset)', borderBottom: '1px solid var(--line)' }}
+      style={{
+        padding: '4px 12px 12px 27px',
+        background: 'var(--inset)',
+        borderBottom: '1px solid var(--line)',
+      }}
     >
-      <LogoEmpresa nombre={f.nombre} website={f.website} logoUrl={f.logoUrl} caja={56} />
-      <div className="min-w-0 flex-1">
-        <p className="s-desc m-0">{f.resena}</p>
-        <div className="mt-1.5">
-          <FichaFila rotulo="Producción" valor={f.nacional} apoyo="del país" />
-          <FichaFila rotulo="Valor en dólares" valor={f.valor} apoyo="del país" />
-          <FichaFila rotulo="Pozos" valor={f.pozos} apoyo={`${f.pctPozos} del país`} />
-          {f.rinde && (
-            <FichaFila
-              rotulo="Rinde por pozo"
-              valor={f.rinde}
-              apoyo="contra la media"
-              marca={
-                <span className="s-medidor shrink-0" aria-hidden>
-                  {[1, 2, 3].map((i) => (
-                    <i key={i} className={i <= f.rindeNivel ? 'on' : undefined} />
-                  ))}
-                </span>
-              }
-            />
-          )}
-          <FichaFila
-            rotulo="Fluido"
-            valor={f.mix.rot}
-            /* «val/vol» abreviado y no «valor/volumen»: el apoyo tiene 86px y
-               el texto entero envolvía a dos líneas, que era el único renglón
-               de la ficha que rompía el ritmo. Lo que significa está dicho en
-               el pie de la sección. */
-            apoyo={f.mix.razon ? `${f.mix.razon} val/vol` : 'sin relación'}
-            marca={
-              <span
-                aria-hidden
-                className="block size-2 shrink-0 rounded-full"
-                style={{ background: f.mix.color ?? 'var(--line-strong)' }}
-              />
-            }
-          />
-          {/* El renglón de cotización sólo existe si la empresa cotiza. Poner
-              «Cotización — privada» sería gastar un renglón en decir que no hay
-              nada; que falte ya lo dice, y el filtro «Cotizan» de arriba está
-              para quien lo busque. */}
-          {f.bolsa && (
-            <FichaFila
-              rotulo={`Cotización · ${f.bolsa.mercado}`}
-              valor={`US$ ${f.bolsa.precio}`}
-              apoyo={
-                <span
-                  className={`s-delta ${f.bolsa.delta >= 0 ? 's-delta--sube' : 's-delta--baja'}`}
-                >
-                  {f.bolsa.delta >= 0 ? '+' : '−'}
-                  {Math.abs(f.bolsa.delta).toFixed(1).replace('.', ',')}%
-                </span>
-              }
-            />
-          )}
+      {/* Todo cuelga como hijo DIRECTO del riel: envolver algo en un contenedor
+          haría que el codo se enganche al contenedor y hubiera un solo codo
+          para todo el grupo. */}
+      <div className="s-rama flex flex-col gap-1">
+        {/* La reseña cuelga del riel como el resto, con la variante de
+            introducción: el ícono se alinea al primer renglón —la prosa
+            envuelve— y el codo lo sigue hasta ahí. */}
+        <div className="s-paso s-paso--intro">
+          <span className="mt-[3px] shrink-0" style={{ color: 'var(--ink-3)' }}>
+            <Icono d={PATH.info} size={14} grosor={2} />
+          </span>
+          <p
+            className="m-0 min-w-0 flex-1 text-[12.5px] leading-relaxed"
+            style={{ color: 'var(--ink-2)', textWrap: 'pretty' }}
+          >
+            {f.resena}
+          </p>
         </div>
+
+        <Paso icono={PATH.tendencia} rotulo="Producción" valor={f.nacional} badges={['del país']} />
+        <Paso icono={PATH.barras} rotulo="Valor en dólares" valor={f.valor} badges={['del país']} />
+        <Paso
+          icono={PATH.pozo}
+          rotulo="Pozos"
+          valor={f.pozos}
+          badges={[`${f.pctPozos} del país`]}
+        />
+        {f.rinde && (
+          <Paso
+            icono={PATH.intensidad}
+            rotulo="Rinde por pozo"
+            valor={f.rinde}
+            badges={['contra la media del país']}
+          />
+        )}
+        {/* El fluido es el rótulo, no un valor: «Petróleo» ES la información.
+            El color va en la gota, que es donde significa algo — un chip de
+            color al lado del rótulo sería el mismo dato dos veces. */}
+        <Paso
+          icono={PATH.gota}
+          color={f.mix.color}
+          rotulo={f.mix.rot}
+          badges={f.mix.razon ? [`${f.mix.razon} valor/volumen`] : ['sin relación calculable']}
+        />
+        {/* Sólo si cotiza: un renglón que diga «no cotiza» gasta una línea en
+            informar que no hay nada. */}
+        {f.bolsa && (
+          <Paso
+            icono={PATH.moneda}
+            rotulo={`${f.bolsa.ticker} · ${f.bolsa.mercado}`}
+            valor={`US$ ${f.bolsa.precio}`}
+            delta={f.bolsa.delta}
+          />
+        )}
       </div>
     </div>
   )
 }
 
-function FichaFila({
+/* Un renglón del riel. Es .s-paso, MEDIDO en la traza «Thinking» de la
+   referencia: 28 de alto mínimo, fondo transparente, sin anillo y sin sombra.
+   Todos los hijos del riel son esta misma pieza, y ahí está la mitad del valor
+   — cinco cosas que cuelgan del mismo riel se leen como pares porque tienen la
+   misma forma. */
+function Paso({
+  icono,
   rotulo,
   valor,
-  apoyo,
-  marca,
+  badges = [],
+  delta,
+  color,
 }: {
+  icono: string
   rotulo: string
-  valor: string
-  /** columna derecha: qué califica al valor. Acepta nodo porque el delta de la
-      cotización va acá y no en `marca` — un «−1,8%» a la izquierda del precio
-      se lee como si el precio fuera negativo. */
-  apoyo?: React.ReactNode
-  /** punto de color o medidor, pegado a la izquierda del valor */
-  marca?: React.ReactNode
+  /** ya formateado; sin valor, el paso es sólo rótulo y badges */
+  valor?: string
+  badges?: string[]
+  /** variación del día, para la cotización */
+  delta?: number
+  /** tiñe el ícono. Sólo cuando el color dice algo — el fluido. */
+  color?: string
 }) {
   return (
-    <div className="s-ficha-fila">
-      <span className="s-etq min-w-0 flex-1">{rotulo}</span>
-      {marca}
-      <span className="s-cifra-sm text-right">{valor}</span>
-      <span className="s-micro w-[86px] shrink-0 text-right" style={{ color: 'var(--ink-2)' }}>
-        {apoyo}
+    <div className="s-paso">
+      {/* Ícono de trazo y no un punto de color: un círculo de color sin
+          significado contradice la regla del sistema, y la referencia usa
+          íconos de trazo en todas sus trazas. */}
+      <span className="shrink-0" style={{ color: color ?? 'var(--ink-3)' }}>
+        <Icono d={icono} size={14} grosor={2} />
       </span>
+      {/* El rótulo cede antes que nada: es lo único flexible de la fila. */}
+      <span className="min-w-0 truncate text-[12.5px]" style={{ color: 'var(--ink-2)' }}>
+        {rotulo}
+      </span>
+      {valor && <span className="s-num shrink-0 text-[12.5px] font-medium">{valor}</span>}
+      {delta !== undefined && (
+        <span className={`s-delta shrink-0 ${delta >= 0 ? 's-delta--sube' : 's-delta--baja'}`}>
+          {delta >= 0 ? '+' : '\u2212'}
+          {Math.abs(delta).toFixed(1).replace('.', ',')}%
+        </span>
+      )}
+      {/* No crecen ni se recortan: bajan de renglón, que es lo que hace el paso
+          desde que envuelve. .s-chip es inline-flex y ahí text-overflow no
+          aplica sobre un nodo de texto suelto. */}
+      {badges.map((b) => (
+        <span key={b} className="s-chip s-chip--neutro s-chip--mini shrink-0">
+          {b}
+        </span>
+      ))}
     </div>
   )
 }

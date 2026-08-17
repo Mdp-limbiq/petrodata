@@ -141,8 +141,6 @@ export default function V2Empresas() {
               delta: c.change ?? 0,
             }
           : undefined,
-      website: c.website,
-      logoUrl: c.logoUrl,
     }
   })
 

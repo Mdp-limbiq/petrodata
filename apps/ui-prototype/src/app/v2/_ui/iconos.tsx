@@ -19,6 +19,14 @@ export const PATH = {
   mas: 'M12 5v14M5 12h14',
   buscar: 'M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM21 21l-4.3-4.3',
   cerrar: 'M6 6l12 12M18 6L6 18',
+  /* Los del desglose de empresas. Los cuatro primeros son los mismos que usa
+     el de provincias —producción, barras, intensidad, información—: dos webs
+     que dicen «producción» con dos íconos distintos son dos vocabularios. */
+  tendencia: 'M3 17l5.5-5.5 3.5 3.5L21 6M15 6h6v6',
+  barras: 'M4 20h16M7 16V9M12 16V5M17 16v-4',
+  intensidad: 'M5 12h14M12 6.5h.01M12 17.5h.01',
+  info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11.5v4.5M12 8h.01',
+  moneda: 'M12 2.5v19M17 6.8c0-2-2.2-3.1-5-3.1s-5 1.1-5 3.3S9 10.2 12 10.7s5 1.1 5 3.4-2.2 3.2-5 3.2-5-1-5-3',
 } as const
 
 export function Icono({
