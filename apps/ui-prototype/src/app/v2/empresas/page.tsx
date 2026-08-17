@@ -1,4 +1,4 @@
-import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, Chip, FLUIDO } from '../_ui/kit'
+import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, recorte, FLUIDO } from '../_ui/kit'
 import { LogoEmpresa } from '../_ui/LogoEmpresa'
 import { Pila } from '../_ui/Pila'
 import { ListaEmpresas, type FilaEmpresa, type GrupoFiltro } from '../_ui/ListaEmpresas'
@@ -128,10 +128,14 @@ export default function V2Empresas() {
         titulo="Las tres primeras"
         desc="Entre las tres explican más de la mitad de la producción del país."
       >
-        {/* Context Cards de la §10: barra con la identidad, la reseña en el
-            cuerpo y el bloque de figuras debajo. El logo va a la derecha de la
-            barra, que es donde la referencia pone la metadata de la card y acá
-            quedaba vacío (pedido de Mariano, 2026-08-17). */}
+        {/* La composición es la de la fila de noticias del dashboard (pedido de
+            Mariano, 2026-08-17): placa cuadrada a la izquierda, alineada arriba
+            con el título, y todo el contenido en la columna de la derecha. Allá
+            la placa es la miniatura de la nota; acá, el logo de la empresa.
+
+            El puesto va a la derecha del renglón del nombre, que es donde la
+            fila de noticias pone el tag de categoría. Así las dos piezas de la
+            página que arrancan con una imagen de 56 se leen igual. */}
         <div className="flex flex-col gap-2">
           {orden.slice(0, 3).map((c, i) => {
             const m = mixDe(c)
@@ -143,58 +147,71 @@ export default function V2Empresas() {
             const rinde = pctPozos > 0 ? c.pctNacional / pctPozos : null
             return (
               <Card key={c.slug}>
-                <CardBarra>
-                  <Chip tono="neutro">
-                    <span className="s-num">{i + 1}.ª</span>
-                  </Chip>
-                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{c.name}</span>
-                  <LogoEmpresa nombre={c.name} website={c.website} logoUrl={c.logoUrl} />
-                </CardBarra>
-                {/* Sin reseña en la fuente, la línea DESCRIBE el mix en vez de
-                    repetir las figuras que están justo abajo. Se queda en lo que
-                    dicen los números —cuánto pesa en volumen contra cuánto en
-                    valor— y no afirma nada sobre la empresa que el dato no
-                    sostenga. */}
-                <p className="s-desc m-0 px-3 pt-2 pb-1">
-                  {c.blurb ??
-                    (m.rot === 'Gas'
-                      ? `El grueso de lo que produce es gas: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
-                      : m.rot === 'Petróleo'
-                        ? `Producción volcada al petróleo: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
-                        : `Mezcla pareja de petróleo y gas: pesa casi lo mismo en volumen que en valor.`)}
-                </p>
-                {/* Las tres columnas que el fixture tiene y la página no estaba
-                    mostrando juntas. Producción y Valor lado a lado es lo que
-                    hace legible el mix: se ve que TotalEnergies pesa 11,7% en
-                    una y 0,9% en la otra, sin tener que interpretar un ×0,08. */}
-                <div className="s-figuras">
-                  <span className="s-figura">
-                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                      Producción
-                    </span>
-                    <span className="s-cifra-sm mt-0.5 block">{formatDecimal(c.pctNacional, 1)}%</span>
-                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                      del país
-                    </span>
-                  </span>
-                  <span className="s-figura">
-                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                      Valor
-                    </span>
-                    <span className="s-cifra-sm mt-0.5 block">{formatDecimal(c.pctValor, 1)}%</span>
-                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                      en dólares
-                    </span>
-                  </span>
-                  <span className="s-figura">
-                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                      Pozos
-                    </span>
-                    <span className="s-cifra-sm mt-0.5 block">{formatInteger(c.proyectos)}</span>
-                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                      {formatDecimal(pctPozos, 1)}% del país
-                    </span>
-                  </span>
+                {/* items-start y no items-center: la placa arranca a la altura
+                    del nombre, como en la fila de noticias. Centrada, con tres
+                    cards de alto distinto, quedaría a una altura distinta en
+                    cada una. */}
+                <div className="flex items-start gap-3 p-3">
+                  <LogoEmpresa nombre={c.name} website={c.website} logoUrl={c.logoUrl} caja={56} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{c.name}</span>
+                      <span className="s-chip s-chip--neutro s-chip--mini s-num shrink-0">
+                        {i + 1}.ª
+                      </span>
+                    </div>
+                    {/* Sin reseña en la fuente, la línea DESCRIBE el mix en vez
+                        de repetir las figuras que están justo abajo. Se queda en
+                        lo que dicen los números —cuánto pesa en volumen contra
+                        cuánto en valor— y no afirma nada sobre la empresa que el
+                        dato no sostenga. */}
+                    <p className="s-desc m-0 mt-0.5" style={{ ...recorte(2, 18.75), marginTop: 2 }}>
+                      {c.blurb ??
+                        (m.rot === 'Gas'
+                          ? `El grueso de lo que produce es gas: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
+                          : m.rot === 'Petróleo'
+                            ? `Producción volcada al petróleo: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
+                            : `Mezcla pareja de petróleo y gas: pesa casi lo mismo en volumen que en valor.`)}
+                    </p>
+                    {/* Las tres columnas que el fixture tiene y la página no
+                        estaba mostrando juntas. Producción y Valor lado a lado
+                        es lo que hace legible el mix: se ve que TotalEnergies
+                        pesa 11,7% en una y 0,9% en la otra, sin tener que
+                        interpretar un ×0,08. */}
+                    <div className="s-figuras mt-2">
+                      <span className="s-figura">
+                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                          Producción
+                        </span>
+                        <span className="s-cifra-sm mt-0.5 block">
+                          {formatDecimal(c.pctNacional, 1)}%
+                        </span>
+                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                          del país
+                        </span>
+                      </span>
+                      <span className="s-figura">
+                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                          Valor
+                        </span>
+                        <span className="s-cifra-sm mt-0.5 block">
+                          {formatDecimal(c.pctValor, 1)}%
+                        </span>
+                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                          en dólares
+                        </span>
+                      </span>
+                      <span className="s-figura">
+                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                          Pozos
+                        </span>
+                        <span className="s-cifra-sm mt-0.5 block">{formatInteger(c.proyectos)}</span>
+                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                          {formatDecimal(pctPozos, 1)}% del país
+                        </span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <CardPie>
                   <span className="flex flex-wrap items-center gap-1.5">

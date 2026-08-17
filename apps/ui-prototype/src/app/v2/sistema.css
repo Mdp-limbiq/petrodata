@@ -1042,5 +1042,7 @@
    La cifra va a 13/600 —.s-cifra-sm— y no a 17: son tres figuras por card y
    tres cards, o sea nueve cifras en la sección, y a 17 la página se leería como
    un tablero de titulares. El 17 queda para cuando una cifra es LA cifra. */
-.s-figuras { display: flex; gap: 16px; padding: 8px 12px 12px; }
+/* Sin padding propio: el bloque vive tanto suelto en una card como adentro de
+   una columna que ya tiene el suyo, y quien lo compone decide. */
+.s-figuras { display: flex; gap: 16px; }
 .s-figura { min-width: 0; flex: 1; }

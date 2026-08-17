@@ -350,8 +350,13 @@ const FOTO_POR_CATEGORIA: Record<string, string> = {
 /** Recorte a N líneas con alto fijo de N líneas: el bloque mide siempre lo
     mismo, entre el título en una línea o en cuatro. Va inline y no con la
     utilidad line-clamp de Tailwind, que en estas filas no llegaba a aplicarse
-    —el display computaba flow-root y el recorte necesita -webkit-box—. */
-function recorte(lineas: number, alturaLinea: number): React.CSSProperties {
+    —el display computaba flow-root y el recorte necesita -webkit-box—.
+
+    Exportada porque las cards de empresas la usan por el mismo motivo: las
+    reseñas del fixture miden distinto y sin recorte las tres cards de la
+    sección medían 171, 189 y 171. El ritmo invariante es una regla del
+    sistema, no una casualidad de los datos. */
+export function recorte(lineas: number, alturaLinea: number): React.CSSProperties {
   return {
     display: '-webkit-box',
     WebkitBoxOrient: 'vertical',
