@@ -1,6 +1,6 @@
 import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, Marca, FLUIDO } from '../_ui/kit'
 import { Pila } from '../_ui/Pila'
-import { Registro, type FilaRegistro, type AgregadoRegistro } from '../_ui/Registro'
+import { ListaEmpresas, type FilaEmpresa, type GrupoFiltro } from '../_ui/ListaEmpresas'
 import { COMPANIES, type Company } from '@/fixtures/companies'
 import { formatDecimal, formatInteger } from '@/lib/format'
 
@@ -13,12 +13,15 @@ import { formatDecimal, formatInteger } from '@/lib/format'
 
      01  cómo se reparte   → la pila partida por empresa + los tres tramos
      02  las tres primeras → una card de contexto por cada una
-     03  el registro       → la Records Table (§12) completa
+     03  la lista          → la Filter Table (§13) con el buscador de la §15
 
-   El §12 del catálogo de la referencia es, literalmente, una tabla de
-   empresas: mismas columnas mixtas —identidad, categoría, cifra, nivel,
-   enlace— y el mismo problema de scroll horizontal. Así que la 03 no inventa
-   nada: copia esa receta entera (ver Registro.tsx). */
+   La 03 tuvo antes la Records Table (§12), que es la otra receta del catálogo
+   para una tabla larga y la que más se parece a esto —su demo es, literalmente,
+   una tabla de empresas—. Se cambió por la §13 (pedido de Mariano, 2026-08-17):
+   la §12 trae selección con checkbox, y una casilla que se marca sin que haya
+   ninguna acción que aplicarle es una promesa que la página no cumple. La §13
+   no promete nada de más y encima trae la única animación estructural del
+   sistema, el colapso de fila al filtrar. */
 
 /* ── El mix de fluido ────────────────────────────────────────────────────
    No es un dato de la fuente: es la RELACIÓN entre las dos columnas que la
@@ -50,8 +53,6 @@ const TRAMOS = [
   { rot: 'Bajo el redondeo', nota: '0,0% a un decimal', nivel: 1, test: (c: Company) => c.pctNacional === 0 },
 ]
 
-const CORTE = 'Mayo 2026'
-
 export default function V2Empresas() {
   const orden = COMPANIES.slice().sort(
     (a, b) => b.pctNacional - a.pctNacional || b.proyectos - a.proyectos,
@@ -60,8 +61,7 @@ export default function V2Empresas() {
   const nacionalTotal = COMPANIES.reduce((s, c) => s + c.pctNacional, 0)
   const cotizan = COMPANIES.filter((c) => c.isPublic)
   const top3 = orden.slice(0, 3).reduce((s, c) => s + c.pctNacional, 0)
-  const top10 = orden.slice(0, 10)
-  const top10Pct = top10.reduce((s, c) => s + c.pctNacional, 0)
+  const top10Pct = orden.slice(0, 10).reduce((s, c) => s + c.pctNacional, 0)
 
   /* La pila lleva un segmento por empresa CON producción. Las 21 en 0,0% no
      tienen ancho —a cero no se puede dibujar nada— y van juntas en un resto
@@ -88,38 +88,32 @@ export default function V2Empresas() {
     },
   ]
 
-  const filas: FilaRegistro[] = orden.map((c) => ({
-    slug: c.slug,
-    nombre: c.name,
-    sitio: c.website,
-    cotiza: c.isPublic && c.exchange ? { ticker: c.ticker ?? c.exchange, bolsa: c.exchange } : undefined,
-    nacional: `${formatDecimal(c.pctNacional, 1)}%`,
-    nacional_n: c.pctNacional,
-    mix: mixDe(c),
-    pozos: formatInteger(c.proyectos),
-    pozos_n: c.proyectos,
-  }))
+  const filas: FilaEmpresa[] = orden.map((c) => {
+    const m = mixDe(c)
+    return {
+      slug: c.slug,
+      nombre: c.name,
+      grupo: m.rot,
+      cotiza: c.isPublic,
+      nacional: `${formatDecimal(c.pctNacional, 1)}%`,
+      nacional_n: c.pctNacional,
+      mix: { rot: m.rot, color: m.color },
+      pozos: formatInteger(c.proyectos),
+      pozos_n: c.proyectos,
+    }
+  })
 
-  /* Cada columna trae SU tipo de agregado y no la misma operación repetida:
-     recuento, cuántas cotizan, la suma, el reparto del mix y la suma de pozos.
-     Es lo que hace que el pie diga algo en vez de repetir un total. */
-  const porMix = ['Petróleo', 'Gas', 'Mixto'].map(
-    (r) => COMPANIES.filter((c) => mixDe(c).rot === r).length,
-  )
-  const agregados: AgregadoRegistro[] = [
-    {
-      rotulo: 'Las diez primeras',
-      secundario: true,
-      nacional: `${formatDecimal(top10Pct, 1)}%`,
-      pozos: formatInteger(top10.reduce((s, c) => s + c.proyectos, 0)),
-    },
-    {
-      rotulo: `${COMPANIES.length} registros`,
-      cotiza: `${cotizan.length} cotizan`,
-      nacional: `${formatDecimal(nacionalTotal, 1)}%`,
-      mix: `${porMix.join(' · ')} · ${enCero.length} s/d`,
-      pozos: formatInteger(pozosTotal),
-    },
+  /* Los filtros llevan el recuento al lado, así la barra también es un
+     resumen: se ve cuántas hay de cada fluido sin tocar nada. «Cotizan» cruza
+     a los otros tres —una petrolera puede cotizar— y por eso va último y
+     separado del punto de color, que ahí significa otra cosa. */
+  const grupos: GrupoFiltro[] = [
+    { id: 'todas', rot: 'Todas', n: COMPANIES.length },
+    { id: 'Petróleo', rot: 'Petróleo', color: FLUIDO.petroleo, n: COMPANIES.filter((c) => mixDe(c).rot === 'Petróleo').length },
+    { id: 'Gas', rot: 'Gas', color: FLUIDO.gas, n: COMPANIES.filter((c) => mixDe(c).rot === 'Gas').length },
+    { id: 'Mixto', rot: 'Mixto', color: MIXTO, n: COMPANIES.filter((c) => mixDe(c).rot === 'Mixto').length },
+    { id: 'sin dato', rot: 'Sin dato', n: enCero.length },
+    { id: 'cotizan', rot: 'Cotizan', color: 'var(--green)', n: cotizan.length },
   ]
 
   return (
@@ -278,8 +272,13 @@ export default function V2Empresas() {
         </div>
       </Seccion>
 
-      <Seccion n="03" titulo="El registro" desc="Las 52, ordenables y con su ficha completa.">
-        <Registro filas={filas} agregados={agregados} corte={CORTE} />
+      <Seccion n="03" titulo="La lista" desc="Las 52, filtrables por fluido y buscables por nombre.">
+        <ListaEmpresas
+          filas={filas}
+          grupos={grupos}
+          totalPct={`${formatDecimal(nacionalTotal, 1)}%`}
+          totalPozos={formatInteger(pozosTotal)}
+        />
         <Pie>
           «Mix» no es un dato de la fuente: es la relación entre el % de producción y el % del
           valor en dólares. Por encima de 1,2 pesa el petróleo y por debajo de 0,8 el gas. La

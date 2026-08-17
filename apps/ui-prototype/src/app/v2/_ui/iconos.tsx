@@ -17,7 +17,8 @@ export const PATH = {
   filtro: 'M3 5h18l-7 8v6l-4 2v-8L3 5z',
   ordenar: 'M3 6h12M3 12h8M3 18h4M17 14v6m-3-3h6',
   mas: 'M12 5v14M5 12h14',
-  tilde: 'M4 12.5 9 17.5 20 6.5',
+  buscar: 'M18 11a7 7 0 1 1-14 0 7 7 0 0 1 14 0zM21 21l-4.3-4.3',
+  cerrar: 'M6 6l12 12M18 6L6 18',
 } as const
 
 export function Icono({
