@@ -1,4 +1,5 @@
-import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, Marca, FLUIDO } from '../_ui/kit'
+import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, Chip, FLUIDO } from '../_ui/kit'
+import { LogoEmpresa } from '../_ui/LogoEmpresa'
 import { Pila } from '../_ui/Pila'
 import { ListaEmpresas, type FilaEmpresa, type GrupoFiltro } from '../_ui/ListaEmpresas'
 import { COMPANIES, type Company } from '@/fixtures/companies'
@@ -11,9 +12,13 @@ import { formatDecimal, formatInteger } from '@/lib/format'
    explican el 56,8% y veintiuna el 0,0%. Una tabla de 52 filas iguales es
    justamente lo que esconde eso, así que la tabla llega tercera.
 
-     01  cómo se reparte   → la pila partida por empresa + los tres tramos
-     02  las tres primeras → una card de contexto por cada una
-     03  la lista          → la Filter Table (§13) con el buscador de la §15
+     01  las tres primeras → una card de contexto por cada una
+     02  cómo se reparte    → la pila partida por empresa + los tres tramos
+     03  la lista           → la Filter Table (§13) con el buscador de la §15
+
+   Las tres primeras van ADELANTE (pedido de Mariano, 2026-08-17). El orden es
+   de lo concreto a lo general: quiénes son las que mueven la aguja, después
+   cómo se reparte el resto y al final la lista entera.
 
    La 03 tuvo antes la Records Table (§12), que es la otra receta del catálogo
    para una tabla larga y la que más se parece a esto —su demo es, literalmente,
@@ -120,6 +125,117 @@ export default function V2Empresas() {
     <>
       <Seccion
         n="01"
+        titulo="Las tres primeras"
+        desc="Entre las tres explican más de la mitad de la producción del país."
+      >
+        {/* Context Cards de la §10: barra con la identidad, la reseña en el
+            cuerpo y el bloque de figuras debajo. El logo va a la derecha de la
+            barra, que es donde la referencia pone la metadata de la card y acá
+            quedaba vacío (pedido de Mariano, 2026-08-17). */}
+        <div className="flex flex-col gap-2">
+          {orden.slice(0, 3).map((c, i) => {
+            const m = mixDe(c)
+            /* Cuánto rinde cada pozo comparado con la media del país: su
+               participación en la producción dividida por su participación en
+               los pozos. Es el dato que explica por qué TotalEnergies está
+               segunda con 366 pozos mientras PAE, con 4.471, está tercera. */
+            const pctPozos = (c.proyectos / pozosTotal) * 100
+            const rinde = pctPozos > 0 ? c.pctNacional / pctPozos : null
+            return (
+              <Card key={c.slug}>
+                <CardBarra>
+                  <Chip tono="neutro">
+                    <span className="s-num">{i + 1}.ª</span>
+                  </Chip>
+                  <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{c.name}</span>
+                  <LogoEmpresa nombre={c.name} website={c.website} logoUrl={c.logoUrl} />
+                </CardBarra>
+                {/* Sin reseña en la fuente, la línea DESCRIBE el mix en vez de
+                    repetir las figuras que están justo abajo. Se queda en lo que
+                    dicen los números —cuánto pesa en volumen contra cuánto en
+                    valor— y no afirma nada sobre la empresa que el dato no
+                    sostenga. */}
+                <p className="s-desc m-0 px-3 pt-2 pb-1">
+                  {c.blurb ??
+                    (m.rot === 'Gas'
+                      ? `El grueso de lo que produce es gas: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
+                      : m.rot === 'Petróleo'
+                        ? `Producción volcada al petróleo: pesa ${formatDecimal(c.pctNacional, 1)}% del volumen del país y ${formatDecimal(c.pctValor, 1)}% del valor.`
+                        : `Mezcla pareja de petróleo y gas: pesa casi lo mismo en volumen que en valor.`)}
+                </p>
+                {/* Las tres columnas que el fixture tiene y la página no estaba
+                    mostrando juntas. Producción y Valor lado a lado es lo que
+                    hace legible el mix: se ve que TotalEnergies pesa 11,7% en
+                    una y 0,9% en la otra, sin tener que interpretar un ×0,08. */}
+                <div className="s-figuras">
+                  <span className="s-figura">
+                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                      Producción
+                    </span>
+                    <span className="s-cifra-sm mt-0.5 block">{formatDecimal(c.pctNacional, 1)}%</span>
+                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                      del país
+                    </span>
+                  </span>
+                  <span className="s-figura">
+                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                      Valor
+                    </span>
+                    <span className="s-cifra-sm mt-0.5 block">{formatDecimal(c.pctValor, 1)}%</span>
+                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                      en dólares
+                    </span>
+                  </span>
+                  <span className="s-figura">
+                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                      Pozos
+                    </span>
+                    <span className="s-cifra-sm mt-0.5 block">{formatInteger(c.proyectos)}</span>
+                    <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+                      {formatDecimal(pctPozos, 1)}% del país
+                    </span>
+                  </span>
+                </div>
+                <CardPie>
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <span className="s-adj">
+                      <i style={{ background: m.color ?? 'var(--ink-3)' }} />
+                      {m.rot}
+                    </span>
+                    {rinde && (
+                      <span className="s-adj" title="Participación en la producción dividida por participación en los pozos">
+                        <b className="s-num">×{formatDecimal(rinde, 1)}</b> por pozo
+                      </span>
+                    )}
+                    {c.isPublic && c.exchange && (
+                      <span className="s-adj" title={`${c.ticker} en ${c.exchange}`}>
+                        <i style={{ background: 'var(--green)' }} />
+                        <b>{c.ticker}</b>
+                        <span className="s-num">US$ {formatDecimal(c.price ?? 0, 2)}</span>
+                        {c.change != null && (
+                          <span
+                            className={`s-delta ${c.change >= 0 ? 's-delta--sube' : 's-delta--baja'}`}
+                          >
+                            {c.change >= 0 ? '+' : '\u2212'}
+                            {formatDecimal(Math.abs(c.change), 1)}%
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </span>
+                </CardPie>
+              </Card>
+            )
+          })}
+        </div>
+        <Pie>
+          «Por pozo» compara el rinde de cada una con la media del país: es su
+          participación en la producción dividida por su participación en los pozos.
+        </Pie>
+      </Seccion>
+
+      <Seccion
+        n="02"
         titulo="Cómo se reparte"
         desc="Tres empresas explican más de la mitad de la producción del país."
       >
@@ -203,73 +319,6 @@ export default function V2Empresas() {
             </span>
           </CardPie>
         </Card>
-      </Seccion>
-
-      <Seccion
-        n="02"
-        titulo="Las tres primeras"
-        desc="Quiénes son y de qué está hecha su producción."
-      >
-        {/* Context Cards de la §10: barra con la identidad y la metadata a la
-            derecha, la reseña en el cuerpo, y las píldoras de adjunto abajo
-            —las del cuadradito de color, que allá dice el formato del archivo
-            y acá el fluido, la bolsa o la unidad—. */}
-        <div className="flex flex-col gap-2">
-          {orden.slice(0, 3).map((c) => {
-            const m = mixDe(c)
-            const sigla = m.rot === 'Petróleo' ? 'PET' : m.rot === 'Gas' ? 'GAS' : 'MIX'
-            return (
-              <Card key={c.slug}>
-                <CardBarra>
-                  <span className="flex min-w-0 items-center gap-1.5 text-[13px] font-medium">
-                    <Marca nombre={c.name} />
-                    <span className="truncate">{c.name}</span>
-                  </span>
-                  <span className="s-num ml-auto shrink-0 text-[12px]" style={{ color: 'var(--ink-2)' }}>
-                    {formatDecimal(c.pctNacional, 1)}% del país
-                  </span>
-                </CardBarra>
-                <p className="s-desc m-0 px-3 pt-2 pb-1">
-                  {c.blurb ??
-                    `Sin reseña en la fuente. Aporta el ${formatDecimal(c.pctNacional, 1)}% de la producción del país con ${formatInteger(c.proyectos)} pozos.`}
-                </p>
-                <div className="flex flex-wrap gap-1.5 px-3 pt-1 pb-3">
-                  <span className="s-adj">
-                    <b style={{ background: m.color ?? 'var(--ink-3)' }}>{sigla}</b>
-                    {m.rot}
-                    {m.razon && (
-                      <span className="s-num" style={{ color: 'var(--ink-2)' }}>
-                        {m.razon}
-                      </span>
-                    )}
-                  </span>
-                  {c.isPublic && c.exchange ? (
-                    <span className="s-adj">
-                      <b style={{ background: 'var(--green)' }}>{c.exchange}</b>
-                      {c.ticker}
-                      <span className="s-num">US$ {formatDecimal(c.price ?? 0, 2)}</span>
-                      {c.change != null && (
-                        <span className={`s-delta ${c.change >= 0 ? 's-delta--sube' : 's-delta--baja'}`}>
-                          {c.change >= 0 ? '+' : '−'}
-                          {formatDecimal(Math.abs(c.change), 1)}%
-                        </span>
-                      )}
-                    </span>
-                  ) : (
-                    <span className="s-adj">
-                      <b style={{ background: 'var(--ink-3)' }}>—</b>
-                      Privada
-                    </span>
-                  )}
-                  <span className="s-adj">
-                    <b style={{ background: 'var(--ink-2)' }}>POZ</b>
-                    <span className="s-num">{formatInteger(c.proyectos)}</span> pozos
-                  </span>
-                </div>
-              </Card>
-            )
-          })}
-        </div>
       </Seccion>
 
       <Seccion n="03" titulo="La lista" desc="Las 52, filtrables por fluido y buscables por nombre.">

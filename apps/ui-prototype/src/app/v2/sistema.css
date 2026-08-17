@@ -1005,33 +1005,42 @@
 }
 
 /* ── Píldora de adjunto. MEDIDA §10 —la del PDF—: 24 de alto, radio completo,
-      --inset con anillo de botón, y un cuadradito de 14 con tres letras a 7px
-      en peso 700. Allá el cuadradito dice el formato del archivo; acá, el
-      fluido, la bolsa o la unidad. ─────────────────────────────────────── */
+      --inset con el anillo de botón, 12px en peso 500.
+
+      Lo que NO se copia es el cuadradito de 14 con tres letras a 7px. Allá dice
+      "PDF", que se reconoce por la forma antes que por la letra; acá tenía que
+      decir "POZ", "PET" o "NYQ", y a 7px eso no se lee: Mariano leyó "NYC"
+      donde decía "NYQ". Una sigla que hay que descifrar es peor que la palabra
+      entera.
+
+      En su lugar va el punto de color de 6px, que es la misma pieza con la que
+      el sistema marca categoría en la píldora de filtro y en el nivel de la
+      tabla. El color dice la categoría y la palabra queda completa. ─────── */
 .s-adj {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 24px;
-  padding: 0 8px;
+  padding: 0 9px;
   border-radius: 999px;
   background: var(--inset);
   box-shadow: var(--shadow-btn);
   color: var(--ink-2);
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
   transition: background-color var(--dur-slow) var(--ease-out-strong);
 }
 .s-adj:hover { background: var(--hover); }
-.s-adj > b {
-  display: flex;
-  width: 14px;
-  height: 14px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  color: #fff;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0;
-}
+.s-adj > i { display: block; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; }
+.s-adj > b { color: var(--ink); font-weight: 500; }
+
+/* ── Bloque de figuras dentro de una card ───────────────────────────────
+   MEDIDO: una sola caja, `flex gap-4`, cada figura `flex-1`, con el rótulo de
+   11,5 en ink-2 arriba y el apoyo debajo.
+
+   La cifra va a 13/600 —.s-cifra-sm— y no a 17: son tres figuras por card y
+   tres cards, o sea nueve cifras en la sección, y a 17 la página se leería como
+   un tablero de titulares. El 17 queda para cuando una cifra es LA cifra. */
+.s-figuras { display: flex; gap: 16px; padding: 8px 12px 12px; }
+.s-figura { min-width: 0; flex: 1; }
