@@ -3,14 +3,23 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
   Card,
+  CardPie,
   FilaNoticia,
   Seccion,
   Tag,
   colorCategoria,
 } from '../../_ui/kit'
 import { Icono, PATH } from '../../_ui/iconos'
+import {
+  Cita,
+  Compartir,
+  DatoNota,
+  Figura,
+  Intertitulo,
+  Video,
+} from '../../_ui/BloquesNota'
 import { CATEGORY_LABEL, NEWS } from '@/fixtures/news'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatInteger } from '@/lib/format'
 
 /* LA NOTA — el cuerpo del artículo, rederivado.
 
@@ -73,6 +82,16 @@ function cuerpo(resumen: string, categoria: string, fuente: string): string[] {
   ]
 }
 
+/* La frase de la cita se ESCRIBE acá, no se elige. La ruta vieja la sacaba con
+   un buscador que prefería la oración con un número, y con el cuerpo simulado
+   eso daba relleno: elegía «En los despachos de Shale24 y de las operadoras de
+   la cuenca, la lectura es la misma» —el «número» es el 24 de la marca— o caía
+   al título. Una cita es una decisión editorial, no el resultado de una
+   heurística; el día que el pipeline traiga el cuerpo real, la traerá marcada. */
+function frase(categoria: string): string {
+  return `La geología ya está probada. Lo que decide el ritmo de ${categoria.toLowerCase()} de acá en adelante es el financiamiento, las reglas y la infraestructura terminada.`
+}
+
 /* Los puntos clave NO incluyen el resumen. En la ruta vieja el primero era el
    resumen tal cual, y el resumen es además la entradilla del cuerpo: la misma
    frase aparecía dos veces con doscientos píxeles de distancia. Quedan los dos
@@ -101,6 +120,11 @@ export default async function V2Nota({ params }: { params: Params }) {
     (n) => n.id !== item.id && n.category !== item.category,
   ).sort((a, b) => b.date.localeCompare(a.date))
   const relacionadas = [...mismaCat, ...resto].slice(0, 3)
+
+  const delTema = NEWS.filter((n) => n.category === item.category).length
+  const fechas = NEWS.map((n) => n.date).sort()
+  const desde = fechas[0]
+  const hasta = fechas[fechas.length - 1]
 
   return (
     <>
@@ -165,6 +189,19 @@ export default async function V2Nota({ params }: { params: Params }) {
                 </span>
               </span>
             </div>
+            {/* Compartir va en el pie de card y no sobre la foto como en la
+                ruta vieja: allá el hero era una foto a sangre con velo oscuro y
+                los círculos iban en blanco translúcido. Acá la cabecera es una
+                card clara, así que los botones toman el anillo de botón del
+                sistema y se apoyan junto al resto de los metadatos. */}
+            <CardPie>
+              <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
+                Compartir
+              </span>
+              <span className="ml-auto">
+                <Compartir titulo={item.title} id={item.id} />
+              </span>
+            </CardPie>
           </Card>
 
           {/* PUNTOS CLAVE. En la ruta vieja era una caja con un borde de color
@@ -188,12 +225,46 @@ export default async function V2Nota({ params }: { params: Params }) {
             </div>
           </Card>
 
+          {/* El cuerpo con sus interrupciones. Seis párrafos seguidos son un
+              bloque de texto; las cinco piezas que los cortan —figura,
+              intertítulo, cita, dato y video— están COLOCADAS, no elegidas por
+              una heurística. El pipeline real las trae marcadas desde el CMS y
+              esta composición es el molde de cómo se ven. */}
           <div className="s-prosa mt-4 px-1">
             <p className="entrada">{cuerpos[0]}</p>
             <p>{cuerpos[1]}</p>
+
+            <Figura
+              src={`/images/news/${item.category === 'exportacion' ? 'news-gnl-buque' : 'news-produccion-rig'}.jpg`}
+              pie={`Imagen de archivo. El pipeline asigna una foto por tema cuando la nota no trae la suya — ${rot.toLowerCase()}.`}
+            />
+
             <p>{cuerpos[2]}</p>
+
+            <Intertitulo>Los cuellos de botella</Intertitulo>
             <p>{cuerpos[3]}</p>
+
+            <Cita>{frase(rot)}</Cita>
+
             <p>{cuerpos[4]}</p>
+
+            {/* El dato destacado sale del fixture y no del cuerpo simulado: es
+                cuántas notas del mismo tema hay en la portada. Un bloque de
+                cifra con un número inventado sería peor que no tenerlo. */}
+            <DatoNota
+              valor={formatInteger(delTema)}
+              unidad={delTema === 1 ? 'nota' : 'notas'}
+              rotulo={`de ${rot.toLowerCase()} en esta portada`}
+              nota={`entre el ${desde} y el ${hasta} · ${formatInteger(NEWS.length)} en total`}
+            />
+
+            {item.video && (
+              <Video
+                src={item.image ?? '/images/news/news-produccion-rig.jpg'}
+                fuente={item.source}
+              />
+            )}
+
             <p>{cuerpos[5]}</p>
           </div>
 

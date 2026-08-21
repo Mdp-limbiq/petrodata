@@ -1091,6 +1091,121 @@
    jerarquía del sistema —peso y color, nunca cuerpo— aplicada a un párrafo. */
 .s-prosa > p.entrada { font-weight: 500; }
 
+/* ── Bloques del cuerpo de la nota ─────────────────────────────────────
+   Las interrupciones que hacen que una nota no sea un bloque de texto. La
+   referencia no tiene ninguna —es un catálogo de componentes, su prosa más
+   larga son dos renglones— así que todo esto es extensión, y se construye con
+   lo que el sistema sí tiene: el filete de 1px, las seis superficies y los
+   tres niveles de tinta. Nada de comillas gigantes, itálicas ni degradados.
+
+   El ritmo: los cuatro bloques usan el mismo margen vertical de 20px, así la
+   prosa mantiene un pulso parejo y ninguna interrupción pesa más que otra. */
+
+/* La cita. Un filete VERTICAL a la izquierda y el texto un escalón más de
+   peso — que es el único realce que el sistema tiene, porque agrandar la
+   fuente no es una palanca disponible. Sin color: el filete en acento la
+   convertiría en un aviso, y una cita no es un estado. */
+.s-cita {
+  margin: 20px 0;
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid var(--line-strong);
+  font-size: 13px;
+  line-height: 19.5px;
+  font-weight: 500;
+  text-wrap: pretty;
+}
+
+/* La cifra destacada. Entre dos filetes horizontales y a ancho completo de la
+   prosa: es la única forma que tiene el sistema de decir «esto sale del flujo»
+   sin agrandar nada ni pintar un fondo. La cifra va a 17/600 —.s-cifra— y no
+   a 21: el 21 es del titular de la página y hay uno solo por página. */
+.s-dato-nota {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 20px 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* El intertítulo. 13/600 —.s-titulo— y no más: la jerarquía es peso y tinta.
+   Lo que lo separa del párrafo es el aire de arriba, no el cuerpo. */
+.s-intertitulo { margin: 24px 0 8px; font-size: 13px; font-weight: 600; }
+
+/* Figura del cuerpo: foto a ancho completo de la prosa con su epígrafe. Alto
+   FIJO en px y no aspect-ratio, que el sistema prohíbe, y porque las fotos del
+   bucket tienen proporciones distintas: con alto libre cada figura mediría
+   otra cosa. */
+.s-figura { margin: 20px 0; }
+.s-figura > img {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+}
+.s-figura > figcaption { margin-top: 6px; font-size: 11.5px; line-height: 17.25px; color: var(--ink-2); }
+
+/* El reproductor. Es un mock —igual que en la ruta vieja— así que lo único
+   que hay que resolver es la afordancia: que se lea «esto es un video» sobre
+   una foto cualquiera.
+
+   El botón va en --surface OPACO y no en un vidrio translúcido: el sistema
+   prohíbe backdrop-filter, y sobre una foto en blanco y negro un círculo
+   blanco con el triángulo en tinta plena se ve siempre.
+
+   El rótulo va en un CHIP y no en texto blanco sobre un velo. Primero lo puse
+   así —blanco al 88% sobre un degradado negro al 45%— y medido sobre los
+   píxeles compuestos daba 3,39 en el punto más claro de la foto, reprobado; y
+   ésta es de las oscuras, con una más brillante sería peor. Un chip sólido no
+   depende de lo que haya debajo. Con el chip, el velo no sostiene nada y se
+   va: era un degradado sin función. */
+.s-video { position: relative; display: block; width: 100%; margin: 20px 0; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.s-video > img {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+}
+.s-video > .play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-btn);
+  color: var(--ink);
+  transition: transform var(--dur-base) var(--ease-out-strong);
+}
+.s-video:hover > .play { transform: translate(-50%, -50%) scale(1.06); }
+.s-video > .rot { position: absolute; bottom: 10px; left: 10px; }
+
+/* Compartir. Círculos de 28 con el anillo de botón del sistema, que es la
+   misma caja de .s-icono. En la ruta vieja iban sobre la foto del hero, en
+   blanco translúcido; acá el hero es una card clara, así que van en el pie de
+   card con el resto de los metadatos. */
+.s-share { display: inline-flex; align-items: center; gap: 6px; }
+.s-share > a {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-btn);
+  color: var(--ink-2);
+  transition: color var(--dur-instant), background-color var(--dur-instant);
+}
+.s-share > a:hover { background: var(--hover); color: var(--ink); }
+
 /* ── Foto de la fila de noticia ────────────────────────────────────────
    El lado iguala el alto que la columna de texto tiene POR CONSTRUCCIÓN: el
    título va recortado a dos líneas de 19,5 y el resumen a dos de 18,75, así
