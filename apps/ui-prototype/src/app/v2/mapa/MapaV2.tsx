@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { GeoJSONSource, Map as MLMap } from 'maplibre-gl'
 import { MapShell } from '@/ui/map-shell'
 import { WELLS } from '@/fixtures/wells'
@@ -29,7 +30,12 @@ const BOE_POR_MM3 = 6.1
 export function MapaV2() {
   const [recurso, setRecurso] = useState<Recurso>('todos')
   const [ocultar, setOcultar] = useState(false)
-  const [operadora, setOperadora] = useState('')
+  /* La operadora puede venir en la URL: las cards de empresas enlazan acá con
+     ?operadora=<slug> y el mapa tiene que abrir ya filtrado, o el enlace
+     prometería algo que no cumple. Es el valor INICIAL nada más — después el
+     panel manda, y volver a tocar el filtro no reescribe la URL. */
+  const params = useSearchParams()
+  const [operadora, setOperadora] = useState(() => params.get('operadora') ?? '')
   const mapaRef = useRef<MLMap | null>(null)
   const [listo, setListo] = useState(false)
 

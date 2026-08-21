@@ -1,8 +1,10 @@
 import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, recorte, FLUIDO } from '../_ui/kit'
 import { LogoEmpresa } from '../_ui/LogoEmpresa'
+import { PanelPozos, PanelPeso } from '../_ui/PanelEmpresa'
 import { Pila } from '../_ui/Pila'
 import { ListaEmpresas, type FilaEmpresa, type GrupoFiltro } from '../_ui/ListaEmpresas'
 import { COMPANIES, type Company } from '@/fixtures/companies'
+import { WELLS } from '@/fixtures/wells'
 import { formatDecimal, formatInteger } from '@/lib/format'
 
 /* EMPRESAS — 52 registros.
@@ -89,6 +91,24 @@ export default function V2Empresas() {
      tienen ancho —a cero no se puede dibujar nada— y van juntas en un resto
      gris que sí se puede señalar, igual que el Estado Nacional en la lista de
      provincias. */
+  /* Cuántos pozos de cada empresa hay en la MUESTRA que dibuja el mapa. No
+     son sus 5.725: fixtures/wells.ts tiene 220 puntos sorteados por
+     participación, con la proporción correcta pero no el conteo. El panel
+     muestra el total real en su chip y la muestra queda en el title del
+     enlace, que es donde no promete de más. */
+  const pozosEnMapa = new Map<string, number>()
+  for (const w of WELLS) {
+    const k = w.properties.operator
+    pozosEnMapa.set(k, (pozosEnMapa.get(k) ?? 0) + 1)
+  }
+
+  /* Escala común de las dos barras: el máximo de las seis cifras de las tres
+     cards, no el 100%. Contra 100 las seis quedarían pegadas a cero y no se
+     compararían entre sí, que es justamente lo que la pieza viene a mostrar. */
+  const maxBarra = Math.max(
+    ...orden.slice(0, 3).flatMap((c) => [c.pctNacional, c.pctValor]),
+  )
+
   const conPeso = orden.filter((c) => c.pctNacional > 0)
   const enCero = COMPANIES.filter((c) => c.pctNacional === 0)
   const pozosEnCero = enCero.reduce((s, c) => s + c.proyectos, 0)
@@ -207,16 +227,11 @@ export default function V2Empresas() {
                     nombre={c.name}
                     website={c.website}
                     logoUrl={c.logoUrl}
-                    caja={120}
+                    caja={158}
                     responsiva
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{c.name}</span>
-                      <span className="s-chip s-chip--neutro s-chip--mini s-num shrink-0">
-                        {i + 1}.ª
-                      </span>
-                    </div>
+                    <span className="s-cuerpo block truncate font-medium">{c.name}</span>
                     {/* Sin reseña en la fuente, la línea DESCRIBE el mix en vez
                         de repetir las figuras que están justo abajo. Se queda en
                         lo que dicen los números —cuánto pesa en volumen contra
@@ -225,48 +240,46 @@ export default function V2Empresas() {
                     <p className="s-desc m-0 mt-0.5" style={{ ...recorte(2, 18.75), marginTop: 2 }}>
                       {resenaDe(c, m.rot)}
                     </p>
-                    {/* Las tres columnas que el fixture tiene y la página no
-                        estaba mostrando juntas. Producción y Valor lado a lado
-                        es lo que hace legible el mix: se ve que TotalEnergies
-                        pesa 11,7% en una y 0,9% en la otra, sin tener que
-                        interpretar un ×0,08. */}
-                    <div className="s-figuras mt-2">
-                      <span className="s-figura">
-                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                          Producción
-                        </span>
-                        <span className="s-cifra-sm mt-0.5 block">
-                          {formatDecimal(c.pctNacional, 1)}%
-                        </span>
-                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                          del país
-                        </span>
-                      </span>
-                      <span className="s-figura">
-                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                          Valor
-                        </span>
-                        <span className="s-cifra-sm mt-0.5 block">
-                          {formatDecimal(c.pctValor, 1)}%
-                        </span>
-                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                          en dólares
-                        </span>
-                      </span>
-                      <span className="s-figura">
-                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                          Pozos
-                        </span>
-                        <span className="s-cifra-sm mt-0.5 block">{formatInteger(c.proyectos)}</span>
-                        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-                          {formatDecimal(pctPozos, 1)}% del país
-                        </span>
-                      </span>
+                    {/* Dos paneles en vez de las tres cifras planas: el mapa
+                        de sus pozos —que enlaza al mapa ya filtrado por la
+                        empresa— y las dos participaciones a la misma escala.
+
+                        La receta del panel es la mini card de la Insight Card
+                        (§16), en su variante blanca: sobre la card, que también
+                        es blanca, lo único que la separa es el anillo de 1px.
+
+                        Se probaron tres paneles —el tercero era el reparto de
+                        sus pozos por estado— y se cayó: la barra tricolor no se
+                        podía descifrar sin una leyenda, y la leyenda no entraba
+                        sin envolver a dos líneas. */}
+                    <div className="mt-2.5 flex gap-2">
+                      <PanelPozos
+                        slug={c.slug}
+                        nombre={c.name}
+                        color={m.color ?? 'var(--ink-3)'}
+                        total={formatInteger(c.proyectos)}
+                        muestra={pozosEnMapa.get(c.slug) ?? 0}
+                      />
+                      <PanelPeso
+                        produccion={`${formatDecimal(c.pctNacional, 1)}%`}
+                        valor={`${formatDecimal(c.pctValor, 1)}%`}
+                        produccionPct={(c.pctNacional / maxBarra) * 100}
+                        valorPct={(c.pctValor / maxBarra) * 100}
+                        color={m.color ?? 'var(--ink-3)'}
+                      />
                     </div>
                   </div>
                 </div>
                 <CardPie>
                   <span className="flex flex-wrap items-center gap-1.5">
+                    {/* El puesto va PRIMERO en el pie y no arriba, donde competía
+                        con el nombre por el mismo renglón. Es la anotación menos
+                        urgente de la card —que YPF es la primera ya lo dice
+                        estar primera en la lista— y acá le entra el denominador,
+                        que arriba no: «1.ª de 52» dice algo que «1.ª» sola no. */}
+                    <span className="s-adj">
+                      <b className="s-num">{i + 1}.ª</b> de {COMPANIES.length}
+                    </span>
                     <span className="s-adj">
                       <i style={{ background: m.color ?? 'var(--ink-3)' }} />
                       {m.rot}
@@ -298,8 +311,28 @@ export default function V2Empresas() {
           })}
         </div>
         <Pie>
-          «Por pozo» compara el rinde de cada una con la media del país: es su
-          participación en la producción dividida por su participación en los pozos.
+          «Por pozo» compara el rinde de cada una con la media del país: es su participación en
+          la producción dividida por su participación en los pozos. Los mapas dibujan una muestra
+          de {formatInteger(WELLS.length)} pozos de toda la cuenca, no los {formatInteger(pozosTotal)}{' '}
+          del catálogo: la proporción entre empresas es la real, el conteo no. Cartografía de ©{' '}
+          <a
+            href="https://carto.com/about-carto/"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'inherit' }}
+          >
+            CARTO
+          </a>{' '}
+          sobre datos de ©{' '}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'inherit' }}
+          >
+            OpenStreetMap
+          </a>
+          .
         </Pie>
       </Seccion>
 

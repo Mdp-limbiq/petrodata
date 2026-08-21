@@ -1135,3 +1135,89 @@
 @media (max-width: 639px) {
   .s-placa--grande { --placa: 88px; --placa-aire: 9px; }
 }
+
+/* ── Panel ──────────────────────────────────────────────────────────────
+   La mini card que vive DENTRO de una card, con su barra de cabecera y su
+   contenido. Sale de la Insight Card (§16), que es la única del catálogo que
+   combina cifras y gráfico: allá la card interna va en --surface con
+   shadow-hairline, y adentro lleva un bloque hundido para el gráfico.
+
+   Acá va blanca (pedido de Mariano, 2026-08-17). Sobre la card —que también
+   es blanca— lo único que la separa es el anillo de 1px, que es exactamente
+   la regla del sistema: la profundidad la hace un borde y no una sombra.
+
+   overflow VISIBLE y no hidden: el globo de ayuda nace en la barra y tiene que
+   poder salirse. El redondeo lo respeta el cuerpo con su propio radio. */
+.s-panel {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  box-shadow: var(--shadow-hairline);
+}
+.s-panel-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.s-panel-bar > .rot { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 11px; color: var(--ink-2); }
+/* El chip de la barra: 10,5px sobre --field con radio completo. Es el mismo
+   que la Insight Card pone a la derecha de su bloque hundido. */
+.s-panel-bar > .pin {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--field);
+  color: var(--ink-2);
+  font-size: 10.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.s-panel-cuerpo {
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
+  overflow: hidden;
+}
+
+/* ── Ayuda ──────────────────────────────────────────────────────────────
+   Ícono de 13px —un escalón por debajo del de 14 de los pasos, porque es una
+   anotación del rótulo y no un par suyo— con un globo al pasar por encima o al
+   recibir el foco de teclado.
+
+   El globo reusa .s-globo, que ya está declarado como EXTENSIÓN: la referencia
+   no tiene ningún tooltip —cero role="tooltip", cero popover, sólo 27 `title`
+   nativos— así que su superficie se toma de lo único que el sistema tiene para
+   lo que flota, los paneles del mapa.
+
+   Se ancla por la DERECHA: el panel que lo usa es el de la derecha de la fila,
+   y anclado a la izquierda el globo se salía de la card. */
+.s-ayuda {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: help;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.s-ayuda:hover { color: var(--ink-2); }
+.s-ayuda-caja { position: relative; display: inline-flex; flex-shrink: 0; }
+.s-globo--ayuda {
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  transform: none;
+  width: max-content;
+  max-width: 240px;
+  padding: 6px 9px;
+  white-space: normal;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.s-ayuda-caja:hover .s-globo--ayuda,
+.s-ayuda:focus-visible + .s-globo--ayuda { opacity: 1; }

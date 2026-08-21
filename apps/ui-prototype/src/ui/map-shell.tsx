@@ -21,6 +21,7 @@ export function MapShell({
   controlPosition = 'top-right',
   interactive = true,
   label,
+  atribucion = true,
 }: {
   center?: [number, number]
   zoom?: number
@@ -31,6 +32,8 @@ export function MapShell({
   /** false = mapa decorativo: sin arrastre, zoom ni controles */
   interactive?: boolean
   label: string
+  /** false en miniaturas: la atribución va al pie de la sección */
+  atribucion?: boolean
 }) {
   const container = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MLMap | null>(null)
@@ -48,7 +51,17 @@ export function MapShell({
       center,
       zoom,
       renderWorldCopies: false,
-      attributionControl: { compact: true },
+      /* La atribución se puede apagar por instancia. Hace falta para las
+         miniaturas: en un contenedor de 60px de alto, el control desplegado
+         —«© CARTO, © OpenStreetMap contributors»— ocupa el mapa entero y lo
+         tapa. `compact` no alcanza, porque colapsa por ancho y estas cajas
+         son anchas y bajas.
+
+         Apagarlo es legítimo mientras la atribución esté en la PÁGINA: CARTO y
+         OSM piden que sea visible para el usuario, no que se repita en cada
+         vista. Quien pase `atribucion={false}` se compromete a ponerla al pie
+         de su sección. */
+      attributionControl: atribucion ? { compact: true } : false,
       interactive,
     })
     if (interactive) {

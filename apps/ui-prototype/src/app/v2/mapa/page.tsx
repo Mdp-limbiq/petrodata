@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Seccion, Card, CardHead, FilaDato, Pie } from '../_ui/kit'
 import { MapaV2 } from './MapaV2'
 import { HEADLINE } from '@/fixtures/production'
@@ -25,7 +26,15 @@ export default function V2Mapa() {
   return (
     <>
       <div className="h-dvh w-full">
-        <MapaV2 />
+        {/* Suspense porque MapaV2 lee la query con useSearchParams, y Next
+            exige el límite para no forzar el render dinámico de toda la
+            página. El fallback es el hueco del mapa y no un spinner: el
+            sistema no tiene ninguno, y a esta altura un cuadro vacío del alto
+            correcto evita que el contenido de abajo salte cuando el mapa
+            aparece. */}
+        <Suspense fallback={<div className="h-full w-full" style={{ background: 'var(--canvas)' }} />}>
+          <MapaV2 />
+        </Suspense>
       </div>
 
       <Seccion
