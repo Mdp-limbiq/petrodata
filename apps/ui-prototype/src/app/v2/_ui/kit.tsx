@@ -423,17 +423,17 @@ export function FilaNoticia({
        CSS compilado. La foto tiene que arrancar a la altura del título. */
     <a
       href={href}
-      className="s-fila s-fila-hover no-underline"
+      className="s-fila s-fila-hover s-fila-nota no-underline"
       style={{ color: 'inherit', alignItems: 'flex-start' }}
     >
-      {/* Cuadrado de 56×56 en PÍXELES, sin aspect-ratio: el sistema lo prohíbe
-          —"alturas fijas con min-height en px, para que el contenido no haga
-          saltar el layout"— y acá no hacía falta, porque el lado ya está fijo
-          en los dos ejes. El objectFit sigue recortando.
+      {/* La foto ocupa el ALTO DE LA COLUMNA que acompaña (pedido de Mariano,
+          2026-08-21). Medía 56 fijos contra un bloque de texto de 100 cuando
+          hay resumen, así que flotaba arriba y el texto le pasaba 44px de
+          largo — la misma queja que la placa de logo de la card de empresa.
 
-          La razón del cuadrado se mantiene: las seis fotos tienen proporciones
-          distintas —hay apaisadas y verticales— así que con alto libre las
-          filas medían 115 y 81 alternadas. */}
+          Las medidas viven en .s-foto-nota, en sistema.css: tienen que poder
+          cambiar en una media query y un estilo inline le gana a cualquier
+          regla de hoja. */}
       <img
         src={src}
         alt=""
@@ -441,33 +441,53 @@ export function FilaNoticia({
         height={640}
         loading="lazy"
         decoding="async"
-        className="shrink-0"
+        className={`s-foto-nota shrink-0 ${resumen ? 's-foto-nota--grande' : ''}`}
         style={{
-          width: 56,
-          height: 56,
           objectFit: 'cover',
           borderRadius: 'var(--radius-control)',
           filter: 'grayscale(1) contrast(0.9)',
         }}
       />
-      <span className="min-w-0 flex-1">
+      <span className="flex min-w-0 flex-1 flex-col">
         <span className="s-cuerpo font-medium" style={recorte(2, 19.5)}>
           {titulo}
         </span>
+        {/* El envoltorio existe para poder esconderlo. `recorte()` devuelve un
+            `display: -webkit-box` INLINE, y un estilo inline le gana al
+            `display: none` de la media query que saca el resumen a 640: la
+            regla se aplicaba y no pasaba nada. El de afuera no tiene estilo
+            inline, así que sí se puede apagar. */}
         {resumen && (
-          <span className="s-desc mt-0.5" style={{ ...recorte(2, 18.75), marginTop: 2 }}>
-            {resumen}
+          <span className="resumen">
+            <span className="s-desc" style={{ ...recorte(2, 18.75), marginTop: 2 }}>
+              {resumen}
+            </span>
           </span>
         )}
-        <span className="s-micro mt-1 flex flex-wrap items-center gap-x-1.5" style={{ color: 'var(--ink-2)' }}>
-          {fuente}
-          <span style={{ color: 'var(--ink-3)' }}>·</span>
-          <span className="s-mono text-[10.5px]">{fecha.slice(0, 10)}</span>
+        {/* mt-auto: la fuente se apoya en el pie, así el bloque de texto ocupa
+            el alto entero y la foto cierra a ras.
+
+            Y NO envuelve. Envolviendo, a 375 «Diario Río Negro · 2026-08-05 ·
+            3 min» se partía en dos renglones, el bloque de texto se iba a 79
+            contra los 60 de la foto y volvía el desnivel que esto vino a
+            arreglar. Con nowrap la fuente se recorta —es el dato más
+            prescindible de los tres— y todas las filas miden lo mismo. */}
+        <span
+          className="s-micro mt-auto flex min-w-0 flex-nowrap items-center gap-x-1.5 pt-1"
+          style={{ color: 'var(--ink-2)' }}
+        >
+          <span className="truncate">{fuente}</span>
+          <span className="shrink-0" style={{ color: 'var(--ink-3)' }}>·</span>
+          <span className="s-mono shrink-0 text-[10.5px]">{fecha.slice(0, 10)}</span>
+          {/* El tiempo de lectura se esconde a 640: con los tres datos en un
+              renglón de 180px la fuente se apretaba hasta desaparecer, y de
+              los tres es el más prescindible. La fuente es la firma —el dato
+              que dice si creerle a la nota— y no puede ser la que se va. */}
           {minutos ? (
-            <>
+            <span className="min-lectura flex shrink-0 items-center gap-x-1.5">
               <span style={{ color: 'var(--ink-3)' }}>·</span>
-              <span>{minutos} min</span>
-            </>
+              {minutos} min
+            </span>
           ) : null}
         </span>
       </span>

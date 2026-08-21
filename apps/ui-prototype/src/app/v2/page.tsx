@@ -23,7 +23,7 @@ import { VM } from '@/fixtures/indicadores'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
 import { TOP_OPERATORS } from '@/fixtures/operators'
-import { NEWS } from '@/fixtures/news'
+import { CATEGORY_LABEL, NEWS } from '@/fixtures/news'
 import { formatCompactAR, formatDecimal, formatInteger, formatMonth, formatPercent } from '@/lib/format'
 
 /* PRODUCCIÓN — el inicio, rederivado.
@@ -304,6 +304,7 @@ export default function V2Inicio() {
               fuente={n.source}
               fecha={n.date}
               categoria={n.category}
+              rotulo={CATEGORY_LABEL[n.category]}
               imagen={n.image}
             />
           ))}

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Card, Pie, Seccion, Tag, colorCategoria, recorte } from '../_ui/kit'
+import { Card, FilaNoticia, Pie, Seccion, Tag, colorCategoria, recorte } from '../_ui/kit'
 import { ListaNoticias, type FilaNota } from '../_ui/ListaNoticias'
 import { CATEGORY_LABEL, FILTER_CATEGORIES, NEWS, TOTAL_DOCS } from '@/fixtures/news'
 import { formatInteger } from '@/lib/format'
@@ -137,34 +137,29 @@ export default function V2Noticias() {
           </Link>
         </Card>
 
-        <div className="s-card mt-3">
-          {/* Las cuatro que siguen, sin foto ni resumen: son el contexto de la
-              destacada, no cuatro destacadas más. La miniatura repetida cuatro
-              veces debajo de una foto grande convierte el bloque en una grilla
-              y la jerarquía se pierde. */}
+        <Card className="mt-3">
+          {/* Las cuatro que siguen usan la MISMA fila que la lista de abajo y
+              con su foto (pedido de Mariano, 2026-08-21). Antes iban peladas
+              —tag, título y fecha— con el argumento de que eran el contexto de
+              la destacada; el costo era que la página tenía tres tratamientos
+              distintos para una noticia. Ahora son dos: la destacada y la
+              fila. Sin resumen, así la foto queda en 60 y no compite con los
+              161 de la destacada. */}
           {acompanan.map((n) => (
-            <Link
+            <FilaNoticia
               key={n.id}
+              id={n.id}
               href={`/noticias/${n.id}`}
-              className="s-fila s-fila-hover s-nota-sec no-underline"
-              style={{ color: 'inherit' }}
-            >
-              {/* Columna de ancho fijo para el tag: sueltos, «RIGI» y
-                  «Financiamiento» miden distinto y los cuatro títulos arrancan
-                  en cuatro x distintas. */}
-              <span className="tag flex w-[112px] shrink-0">
-                <Tag color={colorCategoria(n.category)}>{CATEGORY_LABEL[n.category]}</Tag>
-              </span>
-              <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{n.title}</span>
-              <span
-                className="fecha s-mono shrink-0 text-[10.5px]"
-                style={{ color: 'var(--ink-2)' }}
-              >
-                {n.date}
-              </span>
-            </Link>
+              titulo={n.title}
+              fuente={n.source}
+              fecha={n.date}
+              categoria={n.category}
+              rotulo={CATEGORY_LABEL[n.category]}
+              minutos={n.readingMin}
+              imagen={n.image}
+            />
           ))}
-        </div>
+        </Card>
       </Seccion>
 
       <Seccion

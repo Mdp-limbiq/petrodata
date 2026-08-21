@@ -1066,6 +1066,31 @@
   scrollbar-width: none;
 }
 .s-filtros::-webkit-scrollbar { display: none; }
+/* ── Foto de la fila de noticia ────────────────────────────────────────
+   El lado iguala el alto que la columna de texto tiene POR CONSTRUCCIÓN: el
+   título va recortado a dos líneas de 19,5 y el resumen a dos de 18,75, así
+   que con resumen la columna mide 100 y sin él, 60. Es la misma jugada que la
+   placa de 161 de la card de empresa, y con la misma advertencia: si el bloque
+   de la derecha cambia de alto, estos números cambian con él.
+
+   Los dos lados van fijos. Con el alto en auto la foto toma su proporción
+   natural y las del bucket tienen proporciones distintas —hay apaisadas y
+   verticales—, así que una fila de 60 se iba a 100 mientras la de al lado
+   quedaba en 60.
+
+   En CSS y no inline: a 640 y menos la foto grande vuelve a 60 y el resumen se
+   esconde, y un estilo inline le gana a cualquier media query. A 375 la card
+   mide 287 por dentro: con la foto en 100 al texto le quedaban 179 y los
+   títulos salían cortados a la mitad. Sin resumen la columna vuelve a medir 60
+   y la foto la sigue. */
+.s-foto-nota { width: 60px; height: 60px; }
+.s-foto-nota--grande { width: 100px; height: 100px; }
+@media (max-width: 640px) {
+  .s-foto-nota--grande { width: 60px; height: 60px; }
+  .s-fila-nota .resumen { display: none; }
+  .s-fila-nota .min-lectura { display: none; }
+}
+
 /* Fila de nota secundaria: tag, título y fecha. A 375 la columna del tag
    (112) más la fecha (85) le dejaban 95px al título y los cuatro salían en
    «Ley de Tierra…». La fecha se esconde —las cuatro son del mismo período que
