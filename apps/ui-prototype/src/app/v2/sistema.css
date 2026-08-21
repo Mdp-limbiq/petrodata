@@ -745,6 +745,70 @@
 .s-graf-scrub { stroke: var(--line-strong); stroke-width: 1; }
 .s-graf-pt { r: 4; stroke: var(--surface); stroke-width: 2; }
 
+/* ── Curva de puesto ───────────────────────────────────────────────────
+   Ver Mundo.tsx: el eje va invertido —puesto 1 arriba— porque es la única
+   escala de la página donde el número chico es el bueno. Sin suavizado: son
+   puestos enteros y un trazo curvo dibujaría medios puestos que no existen. */
+.s-curva { display: block; width: 100%; height: 92px; }
+.s-curva-linea { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* La proyección punteada, y además más fina: no es una medición y no puede
+   pesar lo mismo que veinticinco años de datos. */
+.s-curva-proy { fill: none; stroke-width: 1.5; stroke-dasharray: 3 3; stroke-linecap: round; }
+
+/* Corte de numeración en un ranking: entre el puesto 12 y el 21 hay ocho
+   países que no se listan, y sin marcarlo la lista miente sobre quién está al
+   lado de quién. Va con el fondo hundido del sistema —el mismo escalón que
+   usan el pie de card y .s-hundido— y no con una punteada: la punteada ya
+   significa «proyectado» dos secciones más arriba. */
+.s-brecha {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  background: var(--inset);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ── Gráfico de columnas ───────────────────────────────────────────────
+   Ver SerieBarras.tsx: columnas y no línea porque los pozos nuevos por mes son
+   un CONTEO. Una línea entre 44 y 49 dibuja una pendiente y sugiere que en el
+   medio hubo 46; no hubo nada en el medio.
+
+   Mismo alto que .s-graf —158px— para que las dos series de la página ocupen
+   la misma caja. Cada mes es un envoltorio con el separador adentro, como en
+   .s-serie: la columna mide poco y con el blanco por fuera el hover sería una
+   lotería; así las zonas sensibles son contiguas. */
+.s-cols {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  height: 158px;
+}
+.s-cols > span {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  min-width: 0;
+  padding-right: 2px;
+}
+.s-cols > span:last-child { padding-right: 0; }
+.s-cols i {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  border-radius: 1.5px;
+  /* Neutro, como el riel de .s-barra y las barras de .s-serie. Pintadas del
+     color del fluido llenaban media card de azul saturado y el sistema no
+     hace superficies de color: el color se gana significando algo, y acá hay
+     una sola serie. */
+  background: var(--line-strong);
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+/* La columna señalada toma el acento, que es el mismo trato que .s-serie le da
+   al mes de corte: el acento marca UN detalle, nunca llena una superficie. */
+.s-cols i.on { background: var(--accent); opacity: 1; }
+
 /* ── Serie compacta ─────────────────────────────────────────────────────
    EXTENSIÓN, no una pieza medida, y conviene que quede escrito: la referencia
    no tiene NINGÚN gráfico. Barrí su DOM buscando SVG de datos, contenedores

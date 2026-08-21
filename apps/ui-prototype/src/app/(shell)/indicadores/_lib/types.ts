@@ -72,7 +72,10 @@ export type InvMundoRanking = {
   argentina: { rank: number; value: number } | null
   projected: { value: number; rank: number; year: number; tier?: string }
   top: { rank: number; iso3: string; country: string; value: number; isArgentina: boolean }[]
-  history?: unknown
+  /* El puesto de Argentina año a año. Estaba como `unknown` y por eso nadie lo
+     usaba: son veintiséis puntos que cuentan que el país cayó del 20.º al 29.º
+     y recuperó ocho desde 2019, que es lo que le da sentido al #21 de hoy. */
+  history?: { year: number; rank: number; value: number; countries: number }[]
 }
 
 export type InvMundoGrowth = {

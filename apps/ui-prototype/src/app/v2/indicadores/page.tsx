@@ -2,6 +2,7 @@ import {
   Seccion,
   Card,
   CardHead,
+  CardPie,
   FilaDato,
   FilaRanking,
   Dato,
@@ -10,26 +11,54 @@ import {
   FLUIDO,
   PALETA_TAGS,
 } from '../_ui/kit'
-import { DAY_VALUE, BRENT, VM, TESIS, RIGI, TRANSPORT, BREAKEVEN, EXPORTS_SUMMARY, CONTRIBUTION } from '@/fixtures/indicadores'
+import { SerieLinea } from '../_ui/SerieLinea'
+import { SerieBarras } from '../_ui/SerieBarras'
+import { MundoRanking, PodioMundial, MundoCrecimiento } from '../_ui/Mundo'
+import {
+  DAY_VALUE,
+  BRENT,
+  TESIS,
+  RIGI,
+  TRANSPORT,
+  EXPORTS_SUMMARY,
+  CONTRIBUTION,
+  CONTRIBUTION_TOTALS,
+} from '@/fixtures/indicadores'
+import { SERIE, ACTIVIDAD, CRUCE, MUNDO } from '@/fixtures/inversiones'
 import { OIL_PRODUCERS } from '@/fixtures/operators'
-import { formatCompactAR, formatDecimal, formatInteger } from '@/lib/format'
+import { formatCompactAR, formatDecimal, formatInteger, formatMonth } from '@/lib/format'
 
-/* INDICADORES — la sección más larga, y la que más se beneficia del sistema.
+/* INDICADORES — la sección más larga de v2.
 
-   Los títulos salen de src/messages/es.json del sitio —thesisLabel,
-   dayValue.label, breakevenTitle, vmCard.label, operatorsTitle,
-   contribution.title, transportTitle— y no de las reglas de escritura del
-   sistema, que pedían dos palabras. Son más largos que eso a propósito: es
-   la nomenclatura del producto y no se toca.
+   REESCRITA (2026-08-21). Lo que había eran once listas seguidas, y comparada
+   con la fuente —vacamuerta.io/indicadores— la lista de secciones estaba mal
+   de tres formas distintas:
 
-   Once secciones numeradas, todas con la misma plantilla y el mismo ritmo:
-   mismo ancho, mismo padding, misma línea punteada al cierre. Es la apuesta
-   del sistema —que la regularidad absoluta sea el efecto— y acá se nota:
-   once bloques de datos distintos se leen como un documento continuo en vez
-   de como once tarjetas peleando por atención.
+   · FALTABAN CUATRO, y son las mejores. Las tres series de tiempo —producción
+     mensual, pozos nuevos por mes, agro contra energía desde 1992— y sobre
+     todo «Argentina en el mundo», que es el único lugar donde la cifra deja de
+     ser cuánto produce Vaca Muerta y pasa a ser qué puesto ocupa el país.
+     Ninguna estaba, y por eso la página no tenía UN SOLO gráfico.
 
-   Las secciones 06 a 08 venían de una página "Operadoras" que yo había
-   inventado y que el sitio no tiene: acá es donde vive ese dato. */
+   · DOS ERAN INVENTADAS. «Breakeven por año» eran diez números fabricados en
+     el fixture con `70 - i * 2.8` y el propio pie lo declaraba —«serie
+     ilustrativa»—; ocupaba el lugar de una serie real. «Part. US$ menos part.
+     BOE» era una sección entera para una resta entre dos columnas que la
+     fuente ya trae juntas: ahora son dos columnas de la tabla de contribución,
+     que es donde viven.
+
+   · UNA ERA UNA COPIA. «Formación» repetía las cuatro primeras filas de «La
+     tesis en seis datos», con el mismo tratamiento. En el sitio original una
+     es un bloque hero y la otra una lista de detalle; acá las dos eran una
+     lista y se leía como un bug.
+
+   Los datos de las series NO son nuevos: ya estaban en fixtures/inversiones.ts
+   —el scrape del RSC del sitio, 3.552 líneas— alimentando la ruta v1. También
+   estaban ahí MUNDO y los YoY de la tesis, sin que nadie los usara.
+
+   Los títulos salen de src/messages/es.json y no de las reglas de escritura
+   del sistema, que pedían dos palabras. Son más largos a propósito: es la
+   nomenclatura del producto y no se toca. */
 
 /* Dos de los tres sectores exportadores son nuestros fluidos y llevan su color
    de siempre; minería toma otro de la paleta categórica. Con los tres pintados,
@@ -65,33 +94,76 @@ function CardPieSuelto({ gasKm, oilKm, totalKm }: { gasKm: number; oilKm: number
 export default function V2Indicadores() {
   const maxKm = Math.max(...TRANSPORT.gasByOperator.map((o) => o.km))
   const maxRigi = Math.max(...RIGI.projects.map((p) => p.busd))
-  const minBe = Math.min(...BREAKEVEN.map((b) => b.usdBbl))
-  const maxBe = Math.max(...BREAKEVEN.map((b) => b.usdBbl))
-  const maxExp = Math.max(...EXPORTS_SUMMARY.sectors.map((s) => s.busd))
-  const maxBbl = Math.max(...OIL_PRODUCERS.map((o) => o.bbld))
-  const brecha = CONTRIBUTION.slice().sort(
-    (a, b) => b.partUsdPct - b.partBoePct - (a.partUsdPct - a.partBoePct),
-  )
+
+  /* Las tres listas de ranking se ORDENAN acá y no se toman en el orden del
+     fixture. Venían con el badge 01–08 sobre listas que no estaban ordenadas
+     por la cifra que muestran: VISTA aparecía 5.ª con 79.922 bbl/d, arriba de
+     una 2.ª con 52.967, y en exportaciones minería iba 03 con 5,4 B sobre un
+     02 de 3,2 B. El badge promete un orden; si el orden no está, el badge
+     miente. */
+  const productores = OIL_PRODUCERS.slice().sort((a, b) => b.bbld - a.bbld)
+  const maxBbl = productores[0].bbld
+  const sectores = EXPORTS_SUMMARY.sectors.slice().sort((a, b) => b.busd - a.busd)
+  const maxExp = sectores[0].busd
+
+  /* Las dos series se cortan en el último mes COMPLETO. El fixture trae un mes
+     parcial al final —el scrape corrió a mitad de mayo— y dibujarlo hacía que
+     la producción cerrara en 482.106 bbl/d contra los 620.249 que la sección
+     01 declara como dato del mes de corte: la misma página se contradecía a sí
+     misma, y encima con una caída del 22% que nunca existió. Un mes al que le
+     faltan días no es un dato bajo, es un dato incompleto. */
+  const prod = SERIE.points.filter((p) => !p.preliminary)
+  const mesesProd = prod.map((p) => formatMonth(`${p.period}-01`))
+  const act = ACTIVIDAD.points.filter((p) => !p.preliminary)
+  const mesesAct = act.map((p) => formatMonth(`${p.period}-01`))
+
+  const cruce = CRUCE.points
+  const anios = cruce.map((p) => p.period)
+  const ultimo = cruce[cruce.length - 1]
+  /* Cuánto de la brecha se cerró: en 1992 el agro exportaba 7,7 veces lo que
+     la energía y hoy exporta 4,7. Es la lectura de la serie y no un dato de la
+     fuente, así que se calcula y se declara. */
+  const brechaHoy = ultimo.agroUsd / ultimo.energiaUsd
+  const brechaIni = cruce[0].agroUsd / cruce[0].energiaUsd
+
+  const rankOil = MUNDO.rankings.find((r) => r.product === 'oil')!
+  const rankGas = MUNDO.rankings.find((r) => r.product === 'gas')!
+  const crecOil = MUNDO.fastestGrowing.find((g) => g.product === 'oil')!
+  const crecGas = MUNDO.fastestGrowing.find((g) => g.product === 'gas')!
+  const COLOR_RANK: Record<string, string> = { oil: FLUIDO.petroleo, gas: FLUIDO.gas }
 
   return (
     <>
       <Seccion
         n="01"
         titulo="La tesis en seis datos"
-        desc="Seis cifras con su mes de corte, que no en todas coincide."
+        desc="Seis cifras con su variación interanual y su mes de corte."
       >
         <Card>
           {TESIS.map((t) => (
             <div key={t.label} className="s-fila s-fila-hover">
               <span className="s-etq min-w-0 flex-1">{t.label}</span>
               <span className="s-num shrink-0 text-[13px] font-medium">{t.value}</span>
+              {/* El interanual estaba en el fixture desde el principio y la
+                  página lo tiraba. Es la mitad del contenido: «620.249 bbl/d»
+                  dice el tamaño, «+38,7%» dice que es una tesis. Ancho fijo
+                  aunque falte —dos de los seis no lo tienen— para que la
+                  columna del corte no se mueva. */}
+              <span
+                className={`s-num w-12 shrink-0 text-right text-[11.5px] ${t.yoy ? 's-delta s-delta--sube' : ''}`}
+              >
+                {t.yoy ?? ''}
+              </span>
               <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
                 {t.asOf}
               </span>
             </div>
           ))}
         </Card>
-        <Pie>La columna de la derecha es el mes de corte de cada dato, no todos coinciden.</Pie>
+        <Pie>
+          La columna de la derecha es el mes de corte de cada dato, no todos coinciden. El
+          interanual compara contra el mismo mes del año anterior.
+        </Pie>
       </Seccion>
 
       <Seccion
@@ -122,109 +194,176 @@ export default function V2Indicadores() {
         </div>
       </Seccion>
 
+      {/* ── Las tres series ────────────────────────────────────────────────
+          Van juntas y en este orden porque cuentan una sola cosa en tres
+          escalas: cuánto sale hoy, a qué ritmo se sigue perforando, y qué
+          lugar ocupa eso en las exportaciones del país desde 1992. */}
       <Seccion
         n="03"
-        titulo="Margen sobre el breakeven"
-        desc="Brent contra el costo de equilibrio del barril."
+        titulo="Producción de petróleo en Vaca Muerta"
+        desc="Cuarenta meses de petróleo y gas."
       >
         <Card>
-          <CardHead titulo="Precio y equilibrio" nota="US$/bbl" />
-          <FilaDato etiqueta="Brent" valor={formatDecimal(BRENT.value, 1)} unidad="US$" />
-          <FilaDato etiqueta="Promedio 12 meses" valor={formatDecimal(BRENT.avg12m, 1)} unidad="US$" />
-          <FilaDato etiqueta="Costo de equilibrio" valor={formatInteger(BRENT.breakeven)} unidad="US$" />
-          <FilaDato
-            etiqueta="Margen sobre el equilibrio"
-            valor={formatDecimal(BRENT.marginOverBreakeven, 1)}
-            unidad="US$"
-          />
+          <div className="p-3">
+            <SerieLinea
+              rango={`${mesesProd[0]} – ${mesesProd[mesesProd.length - 1]}`}
+              meses={mesesProd}
+              series={[
+                {
+                  nombre: 'Petróleo',
+                  color: FLUIDO.petroleo,
+                  unidad: 'bbl/d',
+                  valores: prod.map((p) => p.oilBblD),
+                  textos: prod.map((p) => formatInteger(Math.round(p.oilBblD))),
+                },
+                {
+                  nombre: 'Gas natural',
+                  color: FLUIDO.gas,
+                  unidad: 'MMm³/d',
+                  valores: prod.map((p) => p.gasMm3D),
+                  textos: prod.map((p) => formatDecimal(p.gasMm3D, 1)),
+                },
+              ]}
+            />
+          </div>
         </Card>
         <Pie>
-          El margen es la diferencia entre Brent y el equilibrio: lo que queda por barril
-          antes de transporte e impuestos.
+          Datos oficiales, no una serie ilustrativa. Cada línea usa su propia escala: bbl/d y
+          MMm³/d no son comparables entre sí. La serie corta en el último mes completo.
         </Pie>
       </Seccion>
 
       <Seccion
         n="04"
-        titulo="Breakeven por año"
-        desc="Diez años, comparados dentro de su rango."
+        titulo="Actividad: pozos nuevos por mes"
+        desc="El ritmo de perforación que sostiene la curva anterior."
       >
         <Card>
-          <CardHead titulo="Costo de equilibrio por año" nota={`US$ ${maxBe} → ${minBe}`} />
-          <div className="px-3 py-3">
-            <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
-              {BREAKEVEN.map((b, i) => {
-                const ultimo = i === BREAKEVEN.length - 1
-                /* invertido a propósito: acá bajar es mejorar, así que la barra
-                   larga es el costo alto y la corta el logro */
-                const pct = (b.usdBbl - minBe) / (maxBe - minBe || 1)
-                return (
-                  <li key={b.year} className="flex items-center gap-2.5">
-                    <span className="s-mono w-10 shrink-0 text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
-                      {b.year}
-                    </span>
-                    <span className={`s-barra flex-1 ${ultimo ? 's-barra--lider' : ''}`}>
-                      <i style={{ width: `${6 + pct * 94}%` }} />
-                    </span>
-                    <span
-                      className="s-num w-12 shrink-0 text-right text-[11.5px]"
-                      style={{ color: ultimo ? 'var(--ink)' : 'var(--ink-2)', fontWeight: ultimo ? 500 : 400 }}
-                    >
-                      {b.usdBbl}
-                    </span>
-                  </li>
-                )
-              })}
-            </ul>
+          <div className="p-3">
+            <SerieBarras
+              valores={act.map((p) => p.nuevosPozos)}
+              rotulos={mesesAct}
+              textos={act.map((p) => formatInteger(p.nuevosPozos))}
+              rango={`${mesesAct[0]} – ${mesesAct[mesesAct.length - 1]}`}
+              unidad="pozos"
+            />
           </div>
         </Card>
         <Pie>
-          Acá una barra corta es mejor: bajar el costo de equilibrio es el logro. Las barras
-          comparan dentro del rango (US$ {minBe}–{maxBe}), no desde cero. Serie ilustrativa
-          que termina en el valor real.
+          Columnas y no línea: son pozos contados, y entre un mes y el siguiente no hay nada
+          en el medio. Se comparan desde cero y la serie corta en el último mes completo.{' '}
+          {ACTIVIDAD.source.label}.
         </Pie>
       </Seccion>
 
       <Seccion
         n="05"
-        titulo="Formación"
-        desc="Peso de Vaca Muerta en la producción nacional de cada fluido."
+        titulo="Margen sobre el breakeven"
+        desc="Brent contra el costo de equilibrio del barril."
       >
         <Card>
-          <CardHead titulo={`Corte ${VM.dataDate}`} />
-          {/* Los dos fluidos con su color, el mismo de toda la web. Es la
-              sección que más lo pide: su descripción dice "de cada fluido", o
-              sea que la comparación entre los dos ES el contenido. */}
+          <CardHead titulo="Precio y equilibrio" nota="US$/bbl" />
+          {/* Sin la unidad en cada fila: la cabecera ya dice US$/bbl y las
+              cuatro filas son la misma unidad. Repetirla cuatro veces era
+              ruido, y en la fila del margen además mentía un poco —el margen
+              es una diferencia, no un precio—. */}
+          <FilaDato etiqueta={`Brent (${BRENT.asOf})`} valor={formatDecimal(BRENT.value, 1)} />
+          <FilaDato etiqueta="Promedio 12 meses" valor={formatDecimal(BRENT.avg12m, 1)} />
+          <FilaDato etiqueta="Costo de equilibrio" valor={formatInteger(BRENT.breakeven)} />
           <FilaDato
-            etiqueta="Participación en petróleo nacional"
-            valor={`${formatDecimal(VM.oilSharePct, 1)}%`}
-            color={FLUIDO.petroleo}
+            etiqueta="Margen sobre el equilibrio"
+            valor={formatDecimal(BRENT.marginOverBreakeven, 1)}
           />
-          <FilaDato
-            etiqueta="Participación en gas nacional"
-            valor={`${formatDecimal(VM.gasSharePct, 1)}%`}
-            color={FLUIDO.gas}
-          />
-          <FilaDato
-            etiqueta="Petróleo"
-            valor={formatInteger(VM.oilBbld)}
-            unidad="bbl/d"
-            color={FLUIDO.petroleo}
-          />
-          {/* Sin punto: los pozos no son un fluido. El color se gana
-              significando algo. */}
-          <FilaDato etiqueta="Pozos activos" valor={formatInteger(VM.wells)} />
         </Card>
+        <Pie>
+          El margen es la diferencia entre Brent y el equilibrio: lo que queda por barril antes
+          de transporte e impuestos. Brent es un precio del día y no del mes, por eso lleva su
+          fecha propia.
+        </Pie>
       </Seccion>
 
       <Seccion
         n="06"
+        titulo="Exportaciones: agro vs energía"
+        desc="Treinta y cuatro años de dólares, en la misma escala."
+      >
+        <Card>
+          <div className="p-3">
+            <SerieLinea
+              rango={`${anios[0]} – ${anios[anios.length - 1]}`}
+              meses={anios}
+              escala="comun"
+              series={[
+                /* En BUSD y no en dólares crudos: formateado como
+                   «52.616 US$» se leía como cincuenta y dos mil dólares, y son
+                   cincuenta y dos mil millones. BUSD además es la unidad que ya
+                   usan las secciones 02, 07 y 09 de esta misma página. */
+                {
+                  nombre: 'Agro',
+                  color: PALETA_TAGS[1],
+                  unidad: 'BUSD',
+                  valores: cruce.map((p) => p.agroUsd),
+                  textos: cruce.map((p) => formatDecimal(p.agroUsd / 1e9, 1)),
+                },
+                {
+                  nombre: 'Energía',
+                  color: FLUIDO.petroleo,
+                  unidad: 'BUSD',
+                  valores: cruce.map((p) => p.energiaUsd),
+                  textos: cruce.map((p) => formatDecimal(p.energiaUsd / 1e9, 1)),
+                },
+              ]}
+            />
+          </div>
+          <CardPie>
+            <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
+              En {anios[0]} el agro exportaba{' '}
+              <b className="font-semibold">{formatDecimal(brechaIni, 1)}×</b> lo que la energía;
+              en {anios[anios.length - 1]},{' '}
+              <b className="font-semibold">{formatDecimal(brechaHoy, 1)}×</b>.
+            </span>
+          </CardPie>
+        </Card>
+        <Pie>
+          Las dos líneas comparten escala y arrancan en cero: son los mismos dólares y lo que se
+          mira es la distancia entre ellas. {CRUCE.source.label}.
+        </Pie>
+      </Seccion>
+
+      <Seccion
+        n="07"
+        titulo="Exportaciones de energía"
+        desc="Miles de millones de dólares por sector, y su reparto."
+      >
+        <Card>
+          <CardHead titulo="Por sector" nota={`${formatDecimal(EXPORTS_SUMMARY.totalBUSD, 1)} BUSD`} />
+          {sectores.map((s, i) => (
+            <FilaRanking
+              key={s.name}
+              n={i + 1}
+              nombre={s.name}
+              valor={`${formatDecimal(s.busd, 1)} B`}
+              pct={s.busd / maxExp}
+              lider={i === 0}
+              nota={`${formatDecimal(s.sharePct, 1)}% del total`}
+              color={COLOR_SECTOR[s.name] ?? undefined}
+            />
+          ))}
+        </Card>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Chip tono="info">Corte 2026-05</Chip>
+          <Chip tono="neutro">Secretaría de Energía</Chip>
+        </div>
+      </Seccion>
+
+      <Seccion
+        n="08"
         titulo="Operadores principales"
         desc="Barriles por día de los mayores productores del país."
       >
         <Card>
           <CardHead titulo="Productores de petróleo" nota="bbl/d" />
-          {OIL_PRODUCERS.map((p, i) => (
+          {productores.map((p, i) => (
             <FilaRanking
               key={p.name}
               n={i + 1}
@@ -232,41 +371,102 @@ export default function V2Indicadores() {
               valor={formatInteger(p.bbld)}
               pct={p.bbld / maxBbl}
               lider={i === 0}
-              nota={`${formatDecimal(p.sharePct, 1)}% del total nacional`}
+              /* La nota decía «X% del total nacional» y ese rótulo lo puse yo.
+                 La fuente muestra ese porcentaje SIN rótulo, y no es el share
+                 de bbl/d —VISTA con 79.922 sobre el total implícito da 9,6% y
+                 no 7,4— ni la participación en BOE de la tabla de contribución,
+                 que para VISTA es 4,4%. Es un tercer número que la fuente no
+                 explica, así que se muestra sin afirmar qué mide. */
+              nota={`${formatDecimal(p.sharePct, 1)}%`}
             />
           ))}
         </Card>
         <Pie>
-          El orden no coincide con el del BOE: quien más petróleo produce no es
-          necesariamente quien más energía total aporta.
+          Ordenado por barriles por día, que es la cifra que muestra. El porcentaje viene de la
+          fuente sin rótulo y no coincide con el share de bbl/d ni con la participación en BOE:
+          se publica como está, sin atribuirle un significado.
         </Pie>
       </Seccion>
 
       <Seccion
-        n="07"
+        n="09"
         titulo="Contribución económica"
-        desc="Valor bruto, regalías y exportaciones por operadora."
+        desc="Participación, valor bruto, regalías y exportaciones por operadora."
       >
+        <div className="mb-3 grid gap-3 sm:grid-cols-3">
+          <Card>
+            <div className="px-3 py-3">
+              <Dato
+                rotulo="Valor bruto"
+                valor={formatDecimal(CONTRIBUTION_TOTALS.valorBrutoBUSD, 1)}
+                unidad="BUSD"
+                nota="anualizado"
+              />
+            </div>
+          </Card>
+          <Card>
+            <div className="px-3 py-3">
+              <Dato
+                rotulo="Regalías"
+                valor={formatDecimal(CONTRIBUTION_TOTALS.regaliasBUSD, 2)}
+                unidad="BUSD"
+                nota="12% legal"
+              />
+            </div>
+          </Card>
+          <Card>
+            <div className="px-3 py-3">
+              <Dato
+                rotulo="Exportaciones"
+                valor={formatInteger(CONTRIBUTION_TOTALS.exportacionesBUSD)}
+                unidad="BUSD"
+                nota="últimos 12 meses"
+              />
+            </div>
+          </Card>
+        </div>
         <Card>
           <CardHead titulo="Por operadora" nota="MUSD" />
           <div className="overflow-x-auto">
             <table className="s-tabla">
               <thead>
+                {/* Sin columna de puesto. Con la participación adentro la
+                    tabla llegaba a 586px en un contenedor de 584 y seguía
+                    perdiendo la última columna por dos píxeles. De las seis
+                    columnas, la del puesto es la única que no trae un dato:
+                    la tabla ya está ordenada por Valor y ese orden ES el
+                    ranking. */}
                 <tr>
-                  <th className="w-10">#</th>
                   <th>Operadora</th>
+                  {/* La participación vuelve a la tabla, y en UNA columna con
+                      la flecha en el medio. Eran una sección entera —«Part. US$
+                      menos part. BOE»— para mostrar la resta entre estos dos
+                      números; con la flecha, el movimiento se ve sin calcularlo
+                      y sin una sección extra.
+
+                      Una columna y no dos: a dos, la tabla medía 639px en un
+                      contenedor de 584 y la columna «Exportado» quedaba fuera
+                      de la card. Como el contenedor tiene scroll horizontal no
+                      desbordaba nada, y por eso simplemente desaparecía una
+                      columna entera sin que se notara. */}
+                  <th className="w-24 text-right">BOE → US$</th>
                   <th className="w-20 text-right">Valor</th>
                   <th className="w-20 text-right">Regalías</th>
                   <th className="w-20 text-right">Exportado</th>
                 </tr>
               </thead>
               <tbody>
-                {CONTRIBUTION.map((c, i) => (
+                {CONTRIBUTION.map((c) => (
                   <tr key={c.operator}>
-                    <td className="s-mono text-[11px]" style={{ color: 'var(--ink-3)', fontWeight: 400 }}>
-                      {String(i + 1).padStart(2, '0')}
-                    </td>
                     <td className="truncate">{c.operator}</td>
+                    {/* En ink-2 y no en la tinta plena: son el contexto de la
+                        fila, y las tres cifras de dinero son el contenido. */}
+                    <td
+                      className="s-num text-right whitespace-nowrap"
+                      style={{ color: 'var(--ink-2)', fontWeight: 400 }}
+                    >
+                      {formatDecimal(c.partBoePct, 1)} → {formatDecimal(c.partUsdPct, 1)}
+                    </td>
                     <td className="text-right">{formatCompactAR(c.valorMUSD)}</td>
                     <td className="text-right">{formatCompactAR(c.regaliasMUSD)}</td>
                     <td className="text-right">{formatCompactAR(c.expoMUSD)}</td>
@@ -276,72 +476,104 @@ export default function V2Indicadores() {
             </table>
           </div>
         </Card>
-      </Seccion>
-
-      <Seccion
-        n="08"
-        titulo="Part. US$ menos part. BOE"
-        desc="La brecha entre peso en valor y peso en producción, en puntos."
-      >
-        <Card>
-          <CardHead titulo="Valor menos producción" nota="puntos porcentuales" />
-          {brecha.map((c, i) => {
-            const d = c.partUsdPct - c.partBoePct
-            return (
-              <div key={c.operator} className="s-fila s-fila-hover">
-                <span className="s-mono w-5 shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{c.operator}</span>
-                <span className="s-micro s-num shrink-0" style={{ color: 'var(--ink-2)' }}>
-                  {formatDecimal(c.partBoePct, 1)}% → {formatDecimal(c.partUsdPct, 1)}%
-                </span>
-                {/* Sin verde/rojo. Esto NO es una variación: es la diferencia
-                    entre dos participaciones, en puntos porcentuales, y no
-                    tiene período. Pintada como delta se leía igual que un
-                    "creció 2,8%" y no lo es. La cifra se queda porque es el
-                    contenido de la sección; lo que se va es el disfraz. */}
-                <span
-                  className="s-num w-14 shrink-0 text-right text-[13px] font-medium"
-                  style={{ color: 'var(--ink-2)' }}
-                >
-                  {d >= 0 ? '+' : '\u2212'}
-                  {formatDecimal(Math.abs(d), 1)}
-                </span>
-              </div>
-            )
-          })}
-        </Card>
         <Pie>
-          Un valor positivo significa que la operadora captura más valor del que le
-          correspondería por volumen. Compara dos participaciones, no dos magnitudes.
+          La columna «BOE → US$» son dos participaciones en porcentaje: cuánto pesa la
+          operadora en producción y cuánto en valor. Cuando la segunda supera a la primera
+          captura más valor del que le correspondería por volumen — YPF va del{' '}
+          {formatDecimal(CONTRIBUTION[0].partBoePct, 1)}% al{' '}
+          {formatDecimal(CONTRIBUTION[0].partUsdPct, 1)}%. Las exportaciones se atribuyen pro
+          rata por participación en BOE: son estimaciones, no cifras contables de cada empresa.
         </Pie>
       </Seccion>
 
-
+      {/* ── Argentina en el mundo ──────────────────────────────────────────
+          La sección que faltaba entera. Es la única de la página que cambia la
+          unidad de medida de la pregunta: de «cuánto» a «qué puesto». */}
       <Seccion
-        n="09"
-        titulo="Proyectos RIGI"
-        desc="Aprobados bajo el régimen, por monto comprometido."
+        n="10"
+        titulo="Argentina en el mundo"
+        desc="Qué puesto ocupa el país, y a dónde lo lleva la proyección."
       >
-        <Card>
-          <CardHead titulo="Proyectos RIGI" nota={`${formatDecimal(RIGI.totalBUSD, 1)} BUSD`} />
-          {RIGI.projects.map((p, i) => (
-            <FilaRanking
-              key={p.name}
-              n={i + 1}
-              nombre={p.name}
-              valor={`${formatDecimal(p.busd, 1)} B`}
-              pct={p.busd / maxRigi}
-              lider={i === 0}
-              nota={p.sponsor}
+        <div className="flex flex-col gap-3">
+          {[rankOil, rankGas].map((r) => (
+            <MundoRanking
+              key={r.product}
+              rot={r.label}
+              unidad={r.unit === 'TBPD' ? 'mil bbl/d' : 'BCF/año'}
+              anio={r.year}
+              paises={r.countries}
+              historia={r.history ?? []}
+              arg={{ puesto: r.argentina!.rank, valor: r.argentina!.value }}
+              proyectado={{
+                anio: r.projected.year,
+                puesto: r.projected.rank,
+                valor: r.projected.value,
+              }}
+              color={COLOR_RANK[r.product]}
             />
           ))}
-        </Card>
+        </div>
+        <Pie>
+          {MUNDO.source.label}. El puesto proyectado no es una medición: sale de extender la
+          producción de Vaca Muerta a {rankOil.projected.year} sobre el ranking de hoy.
+        </Pie>
       </Seccion>
 
       <Seccion
-        n="10"
+        n="11"
+        titulo="El podio del mundo"
+        desc="Los primeros doce de cada fluido, y dónde cae Argentina."
+      >
+        {/* Una columna y no dos. A dos, cada card medía 330px y entre el
+            puesto, la barra y la cifra al nombre le quedaban 130: «Emiratos
+            Árabes Unidos» salía «Emi…» y hasta «United States» se cortaba. Un
+            ranking cuyos nombres no se leen no es un ranking. */}
+        <div className="flex flex-col gap-3">
+          {[rankOil, rankGas].map((r) => (
+            <Card key={r.product}>
+              <CardHead
+                titulo={r.label}
+                nota={r.unit === 'TBPD' ? 'mil bbl/d' : 'BCF/año'}
+              />
+              <PodioMundial top={r.top} color={COLOR_RANK[r.product]} />
+            </Card>
+          ))}
+        </div>
+        <Pie>
+          La lista salta del puesto doce al de Argentina: el corte marca cuántos países quedan
+          en el medio, porque sin marcarlo la lista mentiría sobre quién está al lado de quién.
+        </Pie>
+      </Seccion>
+
+      <Seccion
+        n="12"
+        titulo="Los que más crecen"
+        desc="Otro ranking, y dice lo contrario que el de volumen."
+      >
+        {/* Apiladas, por lo mismo que el podio: a dos columnas «Emiratos
+            Árabes Unidos» no entra. */}
+        <div className="flex flex-col gap-3">
+          {[crecOil, crecGas].map((g) => (
+            <Card key={g.product}>
+              <CardHead titulo={g.label} nota={`${g.sinceYear}–${g.toYear}`} />
+              <MundoCrecimiento
+                lideres={g.leaders}
+                puestoArg={g.argentinaRank ?? 0}
+                color={COLOR_RANK[g.product]}
+              />
+            </Card>
+          ))}
+        </div>
+        <Pie>
+          En petróleo Argentina es {crecOil.argentinaRank}.ª del mundo creciendo y{' '}
+          {rankOil.argentina!.rank}.ª produciendo; en gas crece al{' '}
+          {Math.round(crecGas.leaders.find((l) => l.isArgentina)?.growthPct ?? 0)}% y queda{' '}
+          {crecGas.argentinaRank}.ª. El contraste entre los dos fluidos es el contenido.
+        </Pie>
+      </Seccion>
+
+      <Seccion
+        n="13"
         titulo="Infraestructura de transporte"
         desc="Gasoductos por operador, sobre la red troncal."
       >
@@ -370,29 +602,36 @@ export default function V2Indicadores() {
       </Seccion>
 
       <Seccion
-        n="11"
-        titulo="Exportaciones de energía"
-        desc="Miles de millones de dólares por sector, y su reparto."
+        n="14"
+        titulo="Proyectos RIGI"
+        desc="Aprobados bajo el régimen, por monto comprometido."
       >
         <Card>
-          <CardHead titulo="Por sector" nota={`${formatDecimal(EXPORTS_SUMMARY.totalBUSD, 1)} BUSD`} />
-          {EXPORTS_SUMMARY.sectors.map((s, i) => (
+          <CardHead titulo="Proyectos RIGI" nota={`${formatDecimal(RIGI.totalBUSD, 1)} BUSD`} />
+          {RIGI.projects.map((p, i) => (
             <FilaRanking
-              key={s.name}
+              key={p.name}
               n={i + 1}
-              nombre={s.name}
-              valor={`${formatDecimal(s.busd, 1)} B`}
-              pct={s.busd / maxExp}
+              /* El nombre corto. Los cuatro se cortaban a la mitad —«GNL
+                 Argentina …», «Gasoducto San Matías (Sout…»— porque el
+                 paréntesis repetía el sponsor, que ya va en el badge de al
+                 lado. Sin el paréntesis entran enteros. */
+              nombre={p.name.replace(/\s*\(.*$/, '')}
+              valor={`${formatDecimal(p.busd, 1)} B`}
+              pct={p.busd / maxRigi}
               lider={i === 0}
-              nota={`${formatDecimal(s.sharePct, 1)}% del total`}
-              color={COLOR_SECTOR[s.name] ?? undefined}
+              /* Sólo el operador en el badge. Con la provincia pegada —«Pan
+                 American Energy / Golar LNG · Río Negro»— el badge no se
+                 encogía y empujaba al nombre a cortarse, hasta a 1440. Las
+                 provincias bajan al pie: son dos y se dicen en una línea. */
+              nota={p.sponsor.split(' · ')[0]}
             />
           ))}
         </Card>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Chip tono="info">Corte 2026-05</Chip>
-          <Chip tono="neutro">Secretaría de Energía</Chip>
-        </div>
+        <Pie>
+          Tres de los cuatro están en Río Negro; la ampliación del Perito Moreno, en Neuquén.
+          El monto es inversión comprometida al aprobarse, no ejecutada.
+        </Pie>
       </Seccion>
     </>
   )

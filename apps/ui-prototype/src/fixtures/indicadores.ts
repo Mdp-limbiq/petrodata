@@ -8,13 +8,22 @@ export const DAY_VALUE = {
   pbiYear: 2024,
 }
 
+/* Brent es un precio VIVO y el resto de este archivo no: los volúmenes tienen
+   mes de corte y el precio tiene día. Estaba en 79,5 —el valor del 2026-08-05,
+   sin fecha propia— mientras el sitio marcaba 94,1, y con el breakeven fijo en
+   45 eso arrastraba el margen a 34,5 cuando el real era 49,1. Ahora lleva su
+   fecha y la sección la muestra, que es la única forma honesta de publicar un
+   precio en un prototipo estático. */
 export const BRENT = {
-  value: 79.5,
+  value: 94.1,
+  asOf: '2026-08-21',
   avg12m: 78.7,
   breakeven: 45, // US$/bbl (YPF, Vaca Muerta)
-  marginOverBreakeven: 34.5,
-  oilOnlyYearBUSD: 22.7,
-  oilOnlyDayMUSD: 62.2,
+  marginOverBreakeven: 49.1,
+  /* Sólo el petróleo, valuado a Brent menos US$ 5/bbl por calidad sobre el
+     volumen del período. Se mueve con Brent: a 79,5 daban 22,7 y 62,2. */
+  oilOnlyYearBUSD: 27.2,
+  oilOnlyDayMUSD: 74.4,
 }
 
 /** La formación Vaca Muerta dentro del total nacional (datos 2026-04) */

@@ -40,9 +40,16 @@ const W = 628
 const H = 158
 const PAD = 16
 
-function coords(v: number[]) {
-  const mn = Math.min(...v)
-  const mx = Math.max(...v)
+/* Con `dom` las series se dibujan contra un dominio impuesto y no contra el
+   suyo. Sin él cada línea se normaliza sola, que es lo correcto cuando las
+   magnitudes no son comparables —petróleo en bbl/d contra gas en MMm³/d— y lo
+   contrario de lo correcto cuando sí lo son: agro y energía son los dos
+   dólares de exportación, y el contenido de esa serie es precisamente que una
+   se acerca a la otra. Normalizadas por separado, las dos curvas terminan
+   arriba y la comparación desaparece. */
+function coords(v: number[], dom?: readonly [number, number]) {
+  const mn = dom ? dom[0] : Math.min(...v)
+  const mx = dom ? dom[1] : Math.max(...v)
   const r = mx - mn || 1
   return v.map((x, i) => [
     PAD + ((W - 2 * PAD) * i) / (v.length - 1),
@@ -70,18 +77,28 @@ export function SerieLinea({
   series,
   meses,
   rango,
+  escala = 'propia',
 }: {
   series: SerieDef[]
   /** rótulo de cada mes, ya formateado */
   meses: string[]
   /** rótulo del período completo, para el chip en reposo */
   rango: string
+  /** 'propia': cada línea contra su propio rango, para magnitudes que no se
+      comparan. 'comun': todas contra el mismo, para magnitudes que sí. */
+  escala?: 'propia' | 'comun'
 }) {
   const [mes, setMes] = useState<number | null>(null)
   const [ocultas, setOcultas] = useState<string[]>([])
   const n = meses.length
   const i = mes ?? n - 1
-  const geo = series.map((s) => coords(s.valores))
+  /* El dominio común arranca en CERO y no en el mínimo del conjunto: con dos
+     magnitudes comparadas entre sí, la distancia entre las curvas tiene que ser
+     la razón entre los valores. Recortado al mínimo, un 11 contra 52 se dibuja
+     como si fuera un 1 contra 5. */
+  const todos = series.flatMap((s) => s.valores)
+  const dom = escala === 'comun' ? ([0, Math.max(...todos)] as const) : undefined
+  const geo = series.map((s) => coords(s.valores, dom))
 
   return (
     <>

@@ -209,7 +209,11 @@ export function FilaRanking({
         </span>
       )}
       <span className="flex shrink-0 items-baseline justify-end gap-1 sm:w-24">
-        <span className="s-num w-10 text-right text-[13px] font-medium sm:w-auto">{valor}</span>
+        {/* min-w y no w: a 375 la caja fija de 40px cortaba «329.176» en
+            «329.1…». El nombre de al lado ya es flex-1 truncate, así que
+            dejar que la cifra tome su ancho natural no desborda nada — y una
+            cifra cortada no es una cifra. */}
+        <span className="s-num min-w-10 text-right text-[13px] font-medium">{valor}</span>
         {unidad && (
           <span className="hidden text-[11px] sm:inline" style={{ color: 'var(--ink-3)' }}>
             {unidad}
