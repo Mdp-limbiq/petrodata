@@ -309,26 +309,31 @@
   font-weight: 500;
   white-space: nowrap;
 }
-.s-chip--ok { background: var(--green-tint); color: var(--green); }
-.s-chip--warn { background: var(--orange-tint); color: var(--orange); }
-.s-chip--bad { background: var(--red-tint); color: var(--red); }
+/* Los tres tonos de estado llevan el texto MEZCLADO con la tinta al 55%, la
+   misma receta que ya usaba --info y por la misma razón. El token pleno sobre
+   su propio tinte mide 3,24 / 2,67 / 3,48 en claro y 4,98 / 5,16 / 3,93 en
+   oscuro: cinco de los seis reprobados, y a 10,5px el mínimo es 4,5. Mezclado
+   al 55% pasa a 6,42 / 5,72 / 6,84 y 7,10 / 7,20 / 6,36, conservando el tono.
+
+   Estaban declarados y sin usar —el primer uso es el badge de variación de la
+   sección 01 de indicadores—, así que el arreglo no toca nada existente. */
+.s-chip--ok {
+  background: var(--green-tint);
+  color: color-mix(in srgb, var(--green) 55%, var(--ink));
+}
+.s-chip--warn {
+  background: var(--orange-tint);
+  color: color-mix(in srgb, var(--orange) 55%, var(--ink));
+}
+.s-chip--bad {
+  background: var(--red-tint);
+  color: color-mix(in srgb, var(--red) 55%, var(--ink));
+}
 /* --accent-ink sobre --accent-tint daba 4,29:1, apenas debajo de AA. El texto
    baja a la tinta plena mezclada con el acento: conserva el tono azul del chip
    y pasa a 8,4. El fondo no se toca, que es lo que le da identidad. */
 .s-chip--info { background: var(--accent-tint); color: color-mix(in srgb, var(--accent-ink) 55%, var(--ink)); }
 .s-chip--neutro { background: var(--field); color: var(--ink-2); }
-/* Variación en badge. Superficie neutra —no un chip verde de estado: el delta
-   medido en la referencia es texto pelado, y un tinte de estado le inventaría
-   una categoría—, con el color sólo en la cifra, que es donde significa algo.
-
-   El verde y el rojo van MEZCLADOS con la tinta, con la misma receta que usa
-   .s-chip--info: --green pleno sobre --field mide 3,25 en claro y a 10,5px eso
-   está reprobado. Mezclado al 62% conserva el tono y pasa de largo. El «YoY»
-   hereda --ink-2 del chip; en --ink-3 medía 2,43. */
-.s-chip--var { background: var(--field); color: var(--ink-2); }
-.s-chip--var > b { font-weight: 500; font-variant-numeric: tabular-nums; }
-.s-chip--var > b.sube { color: color-mix(in srgb, var(--green) 62%, var(--ink)); }
-.s-chip--var > b.baja { color: color-mix(in srgb, var(--red) 62%, var(--ink)); }
 /* Mini: la misma escala a la que bajó el tag —19px de alto, 10,5 de texto y
    radio 5—. Es para cuando el chip va adentro de una fila de 28: a 22px se
    come el renglón y pesa como el contenido, cuando es una anotación. */

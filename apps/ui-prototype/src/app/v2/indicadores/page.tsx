@@ -141,13 +141,25 @@ export default function V2Indicadores() {
       >
         <Card>
           {TESIS.map((t) => {
-            /* El signo sale del dato y no está clavado. Estaba pintando
+            /* El tono sale del dato y no está clavado. Estaba pintando
                s-delta--sube siempre que hubiera yoy, sin mirar el signo: hoy
                los cuatro son positivos y no se veía, pero un negativo salía
-               verde. El fixture guarda el yoy como texto ya formateado
-               —«+38,7%»—, así que el signo se lee del primer carácter, y se
-               contemplan los dos menos: el guion y el U+2212 del sistema. */
-            const baja = !!t.yoy && /^[-\u2212]/.test(t.yoy.trim())
+               verde.
+
+               El fixture guarda el yoy como texto ya formateado —«+38,7%»— así
+               que hay que leerlo: coma decimal, y los dos menos posibles, el
+               guion y el U+2212 que usa el sistema.
+
+               La banda plana existe porque en una tesis de crecimiento el cero
+               NO es neutro. «+0,4%» pintado de verde dice «esto sube» cuando lo
+               que dice el dato es «esto se detuvo», y el verde y el rojo sin
+               nada en el medio obligan a que un +0,1% y un +38,7% se lean
+               igual. Cinco puntos es el corte: abajo de eso la variación entra
+               en el ruido de un dato mensual. */
+            const num = t.yoy
+              ? parseFloat(t.yoy.replace('\u2212', '-').replace(',', '.').replace('%', ''))
+              : null
+            const tono = num === null ? null : num >= 5 ? 'ok' : num <= -5 ? 'bad' : 'warn'
             /* En móvil el rótulo se lleva su propio renglón y el badge, la
                cifra y el corte bajan al siguiente. Con las cuatro columnas en
                una sola línea, a 375 al rótulo le quedaban 51px y «Producción de
@@ -167,17 +179,19 @@ export default function V2Indicadores() {
                     explicarlo para las seis filas de golpe —mal, además: no
                     todas comparan lo mismo—.
 
-                    Superficie neutra y no un chip verde: el delta medido en la
-                    referencia es texto pelado, sin fondo. El badge es el pedido;
-                    el tinte de estado sería inventarle una categoría. El color
-                    lo lleva sólo la cifra, que es donde significa algo.
+                    El badge entero toma el tono —verde, rojo o ámbar— y no
+                    sólo la cifra (pedido de Mariano). Vale dejar anotado que
+                    esto se aparta de la referencia, donde el delta es texto
+                    pelado sin fondo: acá el badge ES el pedido, y con el tinte
+                    puesto el «YoY» tiene que ir del mismo tono, porque un chip
+                    de dos colores se lee como dos cosas.
 
                     Ancho reservado aunque la fila no tenga delta —dos de las
                     seis no lo traen— para que la columna del corte no se mueva. */}
                 <span className="flex shrink-0 justify-end sm:w-[78px]">
                   {t.yoy && (
-                    <span className="s-chip s-chip--var s-chip--mini">
-                      <b className={baja ? 'baja' : 'sube'}>{t.yoy}</b>
+                    <span className={`s-chip s-chip--${tono} s-chip--mini`}>
+                      <b className="s-num font-medium">{t.yoy}</b>
                       YoY
                     </span>
                   )}
