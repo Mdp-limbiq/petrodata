@@ -10,31 +10,27 @@ import { useState } from 'react'
       .com.ar chicos: tener sitio no alcanza, Google además tiene que haberlo
       indexado.
    2. favicon de Google derivado de `website`, que sí funciona para las marcas
-      grandes —YPF, Shell, Chevron, TotalEnergies—.
+      grandes —Shell, Chevron— aunque devuelva 16x16.
    3. Monograma. No es un "logo faltante": es la marca por defecto, con el mismo
       peso visual que un logo real para que la fila no se vea rota.
-
-   El fondo blanco de la placa es funcional y no decorativo: los favicons se
-   dibujan asumiendo fondo claro, y un PNG con transparencia desaparecería en
-   tema oscuro. Es la única superficie del sistema que no cambia entre temas, y
-   por eso va con el color literal y no con --surface.
 
    El logo es lo ÚNICO de esta página que lleva color de marca, y a diferencia
    de las miniaturas de noticias no va lavado a blanco y negro. No contradice la
    regla de que sólo el dato lleva color: un logo no es un dato coloreado, es
    identidad, y lavarlo lo volvería irreconocible, que es lo único que tiene que
-   hacer. */
+   hacer.
+
+   La caja vive en .s-placa (sistema.css) y no acá: el lado cambia entre
+   escritorio y mobile, y una media query no se escribe en un style inline. */
 
 function faviconDe(website?: string): string | null {
   if (!website) return null
   try {
     const host = new URL(website.startsWith('http') ? website : `https://${website}`).hostname
     /* sz=128 pide lo mejor que Google tenga, aunque para varias no haya nada
-       mejor: YPF y TotalEnergies devuelven 16x16 con cualquier tamaño pedido, y
-       sus propios sitios tampoco sirven otra cosa —verificado contra
-       ypf.com/favicon.ico y el favicon.png de totalenergies.com, los dos de
-       16—. Pedir 128 sigue valiendo la pena para las que sí tienen un ícono
-       grande, como PAE. */
+       mejor: devuelve 16x16 con cualquier tamaño pedido. Por eso las seis
+       primeras del fixture traen `logoUrl` propio, sacado del header o del app
+       icon de su sitio. */
     return `https://www.google.com/s2/favicons?domain=${host}&sz=128`
   } catch {
     return null
@@ -55,48 +51,63 @@ export function LogoEmpresa({
   nombre,
   website,
   logoUrl,
-  caja = 20,
+  caja = 56,
+  /** true en la placa que acompaña un bloque de datos: se achica a 88 en
+      mobile, donde 120 se comería un tercio del ancho útil. */
+  responsiva = false,
 }: {
   nombre: string
   website?: string
   logoUrl?: string
-  /** lado de la placa en px. 20 es la caja de .s-marca; 56, la de la miniatura
-      de noticias. Va en píxeles y no en aspect-ratio, que el sistema prohíbe. */
+  /** lado en px. Va en píxeles y no en aspect-ratio, que el sistema prohíbe. */
   caja?: number
+  responsiva?: boolean
 }) {
   const [falló, setFalló] = useState(false)
-  /* El ancho natural del archivo, para no estirarlo. Casi todos los favicons
-     son de 16px y una placa de 56 los ampliaría 3,5 veces: quedan como un
-     borrón. Dibujados hasta el DOBLE de su tamaño natural se ven chicos dentro
-     de la placa, pero nítidos, que es lo único que hace falta para reconocer
-     una marca. Los que sí traen un ícono grande —PAE, 128px— la llenan. */
+  /* El ancho natural del archivo, para no estirarlo. Un favicon de 16px en una
+     placa de 120 se ampliaría siete veces y quedaría como un borrón; dibujado
+     hasta el DOBLE de su tamaño se ve chico pero nítido, que es lo único que
+     hace falta para reconocer una marca. Los que traen un lockup de verdad
+     —YPF, 300px— llenan la placa. */
   const [natural, setNatural] = useState<number | null>(null)
   const src = logoUrl ?? faviconDe(website)
-  const útil = caja - 8 // el aire de la placa: 4px por lado
 
-  const placa = {
-    display: 'inline-flex' as const,
-    width: caja,
-    height: caja,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    /* El radio sube con la caja, como manda la regla: 6 es el del chip y 8 el
-       del control, que es el que usan las miniaturas de noticias. */
-    borderRadius: caja >= 40 ? 'var(--radius-control)' : 6,
-  }
+  /* La variante responsiva NO manda su caja por inline: un custom property
+     inline gana sobre la hoja, media query incluida, y la placa se quedaba en
+     120 también en mobile. Ahí el lado lo define .s-placa--grande. */
+  const vars = responsiva
+    ? {}
+    : {
+        ['--placa' as string]: `${caja}px`,
+        /* El aire escala con el lado: 4px a 56 se leen como margen, pero en una
+           placa grande el logo quedaría pegado al borde. Un décimo mantiene la
+           proporción, con piso de 4. */
+        ['--placa-aire' as string]: `${Math.max(4, Math.round(caja * 0.1))}px`,
+        /* El radio sube con la caja, como manda la regla. Los tres escalones
+           del sistema: 6 el del chip, 8 el del control —el de las miniaturas de
+           noticias— y 10 el de la card, para una placa que ya es un plano. */
+        ['--placa-radio' as string]:
+          caja >= 96 ? 'var(--radius-card)' : caja >= 40 ? 'var(--radius-control)' : '6px',
+      }
+  const clase = `s-placa${responsiva ? ' s-placa--grande' : ''}`
+  /* El monograma sí necesita saber el lado en JS. En la variante responsiva se
+     calcula sobre el chico: un monograma que entra en 88 entra en 120, y al
+     revés no. */
+  const lado = responsiva ? 88 : caja
 
   if (!src || falló) {
     return (
       <span
         aria-hidden
-        className="shrink-0"
+        className={clase}
         style={{
-          ...placa,
+          ...vars,
           background: 'var(--field)',
           color: 'var(--ink-2)',
-          /* 650 es la compensación óptica medida del sistema: a este tamaño un
-             600 se ve más liviano de lo que corresponde. */
-          fontSize: Math.round(caja / 2),
+          /* Un tercio del lado: a 120 un medio daría 60px, muy por encima del
+             techo tipográfico del sistema. 650 es la compensación óptica
+             medida — a este tamaño un 600 se ve más liviano de lo que toca. */
+          fontSize: Math.round(lado / 3),
           fontWeight: 650,
         }}
       >
@@ -106,8 +117,16 @@ export function LogoEmpresa({
   }
   return (
     <span
-      className="shrink-0"
-      style={{ ...placa, background: '#fff', boxShadow: 'var(--shadow-hairline)', overflow: 'hidden' }}
+      className={clase}
+      style={{
+        ...vars,
+        /* Blanco en los dos temas, y es funcional: los logos se dibujan
+           asumiendo fondo claro y varios traen transparencia. Es la única
+           superficie del sistema que no cambia entre temas. */
+        background: '#fff',
+        boxShadow: 'var(--shadow-hairline)',
+        ...(natural ? { ['--placa-tope' as string]: `${natural * 2}px` } : null),
+      }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -117,11 +136,6 @@ export function LogoEmpresa({
         decoding="async"
         onLoad={(e) => setNatural(e.currentTarget.naturalWidth || null)}
         onError={() => setFalló(true)}
-        style={{
-          width: natural ? Math.min(útil, natural * 2) : útil,
-          height: 'auto',
-          objectFit: 'contain',
-        }}
       />
     </span>
   )

@@ -188,7 +188,28 @@ export default function V2Empresas() {
                     cards de alto distinto, quedaría a una altura distinta en
                     cada una. */}
                 <div className="flex items-start gap-3 p-3">
-                  <LogoEmpresa nombre={c.name} website={c.website} logoUrl={c.logoUrl} caja={56} />
+                  {/* 120 y no 56: es el alto EXACTO de la columna de la
+                      derecha —19,5 del nombre + 37,5 de la reseña recortada a
+                      dos líneas + 8 de separación + 55 del bloque de figuras,
+                      medido en las tres cards—. Con 56 quedaba un hueco de 64px
+                      debajo de la placa y la card se leía desbalanceada.
+
+                      La referencia de esto es la fila de noticias del
+                      dashboard, donde la miniatura y el texto miden 56 y 60: la
+                      imagen ocupa el alto de lo que acompaña. Acá lo que
+                      acompaña mide el doble, así que la placa lo sigue.
+
+                      Va clavado en px y no con align-self:stretch porque la
+                      placa tiene que quedar CUADRADA: estirada al alto de la
+                      columna con 56 de ancho, un lockup apaisado quedaría en una
+                      ranura vertical, que es la peor caja posible para él. */}
+                  <LogoEmpresa
+                    nombre={c.name}
+                    website={c.website}
+                    logoUrl={c.logoUrl}
+                    caja={120}
+                    responsiva
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{c.name}</span>

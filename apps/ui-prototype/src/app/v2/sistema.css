@@ -1084,3 +1084,54 @@
    una columna que ya tiene el suyo, y quien lo compone decide. */
 .s-figuras { display: flex; gap: 16px; }
 .s-figura { min-width: 0; flex: 1; }
+
+/* ── Placa de logo ──────────────────────────────────────────────────────
+   La caja cuadrada donde vive el logo de una empresa. Misma idea que la
+   miniatura de la fila de noticias: una imagen que ocupa el alto de lo que
+   acompaña.
+
+   El lado entra por `--placa` en vez de estar clavado en el componente,
+   porque tiene que cambiar en mobile: 120 es el alto de la columna de datos
+   en escritorio, pero a 375 se come un tercio del ancho útil y encima la
+   columna crece a 155 al envolver la reseña, con lo cual el balance se pierde
+   igual. A 88 la placa sigue siendo grande y le deja aire al texto.
+
+   El fondo blanco es funcional y no decorativo: los logos se dibujan asumiendo
+   fondo claro y varios traen transparencia. Es la única superficie del sistema
+   que no cambia entre temas.
+
+   El aire y el radio salen del lado, con los escalones del sistema. */
+.s-placa {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: var(--placa);
+  height: var(--placa);
+  padding: var(--placa-aire);
+  border-radius: var(--placa-radio);
+  overflow: hidden;
+}
+/* El logo NUNCA se estira más allá de su tamaño natural por dos: casi todos
+   los favicons son de 16px y ampliarlos los deja como un borrón. El tope entra
+   por `--placa-tope` cuando la imagen ya cargó y se sabe cuánto mide. */
+.s-placa > img {
+  width: auto;
+  height: auto;
+  max-width: min(100%, var(--placa-tope, 100%));
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+/* La variante grande define su caja ACÁ y no por style inline, y es la única
+   forma de que funcione: un custom property inline gana sobre cualquier regla
+   de hoja, media query incluida, así que con `--placa` inline la consulta de
+   abajo no se aplicaba nunca. */
+.s-placa--grande {
+  --placa: 120px;
+  --placa-aire: 12px;
+  --placa-radio: var(--radius-card);
+}
+@media (max-width: 639px) {
+  .s-placa--grande { --placa: 88px; --placa-aire: 9px; }
+}
