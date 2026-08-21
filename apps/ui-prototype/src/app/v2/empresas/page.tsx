@@ -222,12 +222,18 @@ export default function V2Empresas() {
                       Va clavado en px y no con align-self:stretch porque la
                       placa tiene que quedar CUADRADA: estirada al alto de la
                       columna con 56 de ancho, un lockup apaisado quedaría en una
-                      ranura vertical, que es la peor caja posible para él. */}
+                      ranura vertical, que es la peor caja posible para él.
+
+                      El lado NO se pasa por prop: con `responsiva` lo define
+                      .s-placa--grande en sistema.css, porque tiene que cambiar
+                      en mobile y una media query no se escribe en un style
+                      inline. Pasar `caja` acá no haría nada — un custom
+                      property inline gana sobre la hoja, media query incluida,
+                      y ese es justamente el bug que lo llevó a CSS. */}
                   <LogoEmpresa
                     nombre={c.name}
                     website={c.website}
                     logoUrl={c.logoUrl}
-                    caja={158}
                     responsiva
                   />
                   <div className="min-w-0 flex-1">

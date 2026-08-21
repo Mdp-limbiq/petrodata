@@ -1128,10 +1128,23 @@
    de hoja, media query incluida, así que con `--placa` inline la consulta de
    abajo no se aplicaba nunca. */
 .s-placa--grande {
-  --placa: 120px;
-  --placa-aire: 12px;
+  /* 161 es el alto MEDIDO de la columna que acompaña: 19,5 del nombre + 37,5
+     de la reseña recortada a dos líneas + 10 de separación + 94 de los dos
+     paneles. La placa lo iguala para que el logo y los datos terminen a ras,
+     que es la composición de la fila de noticias del dashboard.
+
+     Si el bloque de la derecha cambia de alto, ESTE número cambia con él. No
+     hay forma de atarlo en CSS sin estirar la placa, y estirada dejaría de ser
+     cuadrada: un lockup apaisado en una ranura vertical es la peor caja
+     posible para él. */
+  --placa: 161px;
+  --placa-aire: 14px;
   --placa-radio: var(--radius-card);
 }
+/* A 375 la columna sube a 182 —la reseña y los paneles envuelven— y una placa
+   de ese lado se comería el 54% del ancho útil. Acá el balance se pierde a
+   propósito: la placa se queda en 88 y el hueco queda debajo, igual que en la
+   fila de noticias cuando el título ocupa más que su miniatura. */
 @media (max-width: 639px) {
   .s-placa--grande { --placa: 88px; --placa-aire: 9px; }
 }
