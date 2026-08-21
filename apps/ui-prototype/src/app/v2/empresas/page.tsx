@@ -1,4 +1,4 @@
-import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, recorte, FLUIDO } from '../_ui/kit'
+import { Seccion, Card, CardBarra, CardPie, Pie, recorte, FLUIDO } from '../_ui/kit'
 import { LogoEmpresa } from '../_ui/LogoEmpresa'
 import { PanelPozos, PanelPeso, PanelCeo } from '../_ui/PanelEmpresa'
 import { Pila } from '../_ui/Pila'
@@ -15,8 +15,12 @@ import { formatDecimal, formatInteger } from '@/lib/format'
    justamente lo que esconde eso, así que la tabla llega tercera.
 
      01  las tres primeras → una card de contexto por cada una
-     02  cómo se reparte    → la pila partida por empresa + los tres tramos
-     03  la lista           → la Filter Table (§13) con el buscador de la §15
+     02  la lista           → la Filter Table (§13) con el buscador de la §15
+     03  cómo se reparte    → la pila partida por empresa + los tres tramos
+
+   El reparto va ÚLTIMO (pedido de Mariano, 2026-08-17). Es el cierre y no la
+   introducción: después de ver las tres primeras y recorrer las 52, la pila
+   dice qué forma tiene el conjunto que acabás de mirar.
 
    Las tres primeras van ADELANTE (pedido de Mariano, 2026-08-17). El orden es
    de lo concreto a lo general: quiénes son las que mueven la aguja, después
@@ -71,10 +75,27 @@ function resenaDe(c: Company, mix: string): string {
   return `Opera ${formatInteger(c.proyectos)} pozos y no llega al 0,1% de la producción del país.`
 }
 
+/* Los tres tramos se nombran por su RANGO y no con un apodo. Antes decían «Con
+   peso propio», «Con producción» y «Bajo el redondeo», y ninguno de los tres se
+   entendía sin leer la nota de al lado: eran etiquetas inventadas para algo que
+   ya tiene un nombre exacto —el corte de participación—. El rótulo ES el
+   criterio, y la nota pasa a decir lo que el rango no dice. */
 const TRAMOS = [
-  { rot: 'Con peso propio', nota: '1% o más del país', nivel: 3, test: (c: Company) => c.pctNacional >= 1 },
-  { rot: 'Con producción', nota: 'entre 0,1% y 0,9%', nivel: 2, test: (c: Company) => c.pctNacional > 0 && c.pctNacional < 1 },
-  { rot: 'Bajo el redondeo', nota: '0,0% a un decimal', nivel: 1, test: (c: Company) => c.pctNacional === 0 },
+  {
+    rot: '1% o más del país',
+    nota: 'las que mueven la aguja',
+    test: (c: Company) => c.pctNacional >= 1,
+  },
+  {
+    rot: 'Entre 0,1% y 0,9%',
+    nota: 'presencia real, peso chico',
+    test: (c: Company) => c.pctNacional > 0 && c.pctNacional < 1,
+  },
+  {
+    rot: 'Menos de 0,1%',
+    nota: 'aparecen en 0,0% al redondear',
+    test: (c: Company) => c.pctNacional === 0,
+  },
 ]
 
 export default function V2Empresas() {
@@ -362,8 +383,22 @@ export default function V2Empresas() {
         </Pie>
       </Seccion>
 
+      <Seccion n="02" titulo="La lista" desc="Las 52: filtrá, buscá y abrí cualquiera para ver su ficha.">
+        <ListaEmpresas
+          filas={filas}
+          grupos={grupos}
+          totalPct={`${formatDecimal(nacionalTotal, 1)}%`}
+          totalPozos={formatInteger(pozosTotal)}
+        />
+        <Pie>
+          «Mix» no es un dato de la fuente: es la relación entre el % de producción y el % del
+          valor en dólares. Por encima de 1,2 pesa el petróleo y por debajo de 0,8 el gas. La
+          suma de «Nacional» da {formatDecimal(nacionalTotal, 1)}% y no 100 porque los 52
+          valores vienen redondeados a un decimal.
+        </Pie>
+      </Seccion>
       <Seccion
-        n="02"
+        n="03"
         titulo="Cómo se reparte"
         desc="Tres empresas explican más de la mitad de la producción del país."
       >
@@ -395,39 +430,74 @@ export default function V2Empresas() {
             const g = COMPANIES.filter(t.test)
             const pct = g.reduce((s, c) => s + c.pctNacional, 0)
             const pozos = g.reduce((s, c) => s + c.proyectos, 0)
+            /* La tinta baja tramo a tramo: ink-2, ink-3 y --line-strong. Es la
+               escala de tinta del sistema usada como escala de peso, y dice el
+               orden sin necesitar una leyenda. */
+            const tinta = ['var(--ink-2)', 'var(--ink-3)', 'var(--line-strong)'][i]
             return (
-              /* La fila envuelve, y las tres cifras viajan juntas en un bloque
-                 que no se parte. Con anchos fijos sueltos cada pieza envolvía
-                 por su cuenta y las tres filas medían distinto —44/43/64 en
-                 escritorio, 192/148/212 a 375—, que es justo lo contrario del
-                 ritmo invariante que pide el sistema. */
               <div
                 key={t.rot}
-                className="s-fila s-fila-hover flex-wrap gap-y-0.5"
+                className="s-fila s-fila-hover flex-wrap gap-y-1.5"
                 style={i === 0 ? { borderTop: '1px solid var(--line)' } : undefined}
               >
-                <Medidor nivel={t.nivel} />
-                <span className="min-w-[120px] flex-[1_1_180px]">
-                  <span className="s-cuerpo font-medium">{t.rot}</span>
-                  <span className="s-micro ml-1.5" style={{ color: 'var(--ink-2)' }}>
+                <span className="min-w-[140px] flex-[1_1_150px]">
+                  <span className="s-cuerpo block font-medium">{t.rot}</span>
+                  <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
                     {t.nota}
                   </span>
                 </span>
-                <span className="flex shrink-0 items-baseline gap-3">
-                  <span className="flex w-[82px] items-baseline justify-end gap-1">
+
+                {/* UNA MARCA POR EMPRESA, pegada a su número. Reemplaza al
+                    medidor de tres barras, que decía «este tramo es el nivel 3
+                    de 3» —una escala inventada que nadie podía leer— por algo
+                    que se cuenta de un vistazo.
+
+                    Las marcas van JUNTO a la cifra y no en una columna aparte:
+                    sueltas quedaban flotando lejos del «11 empresas» que
+                    describen, y de paso la fila no entraba en un renglón. */}
+                <span className="flex shrink-0 items-center gap-2">
+                  <span
+                    className="flex flex-wrap items-center gap-[3px]"
+                    style={{ width: 68 }}
+                    aria-hidden
+                  >
+                    {g.map((c) => (
+                      <i
+                        key={c.slug}
+                        className="block"
+                        style={{ width: 5, height: 5, borderRadius: 1.5, background: tinta }}
+                      />
+                    ))}
+                  </span>
+                  <span className="flex w-[74px] shrink-0 items-baseline gap-1">
                     <b className="s-num text-[13px] font-medium">{g.length}</b>
                     <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
                       empresas
                     </span>
                   </span>
-                  <span className="s-num w-12 text-right text-[13px] font-medium">
+                </span>
+
+                {/* La barra hace visible lo que la cifra sola no: que el primer
+                    tramo es casi todo el país y el tercero, nada. Va contra 100
+                    y no contra el máximo de los tres, porque el número que la
+                    acompaña dice «del país». */}
+                <span className="flex w-[104px] shrink-0 items-center gap-2">
+                  {/* El relleno va neutro en los tres y NO en la tinta del
+                      tramo: la del tercero es la misma que la del riel, así que
+                      su barra se volvía invisible justo donde hay que ver que
+                      no llega a nada. El color lo llevan los cuadraditos. */}
+                  <span className="s-barra flex-1" aria-hidden>
+                    <i style={{ width: `${Math.max(1.5, pct)}%` }} />
+                  </span>
+                  <span className="s-num w-11 text-right text-[13px] font-medium">
                     {formatDecimal(pct, 1)}%
                   </span>
-                  <span className="flex w-[86px] items-baseline justify-end gap-1">
-                    <b className="s-num text-[13px] font-medium">{formatInteger(pozos)}</b>
-                    <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                      pozos
-                    </span>
+                </span>
+
+                <span className="flex w-[84px] shrink-0 items-baseline justify-end gap-1">
+                  <b className="s-num text-[13px] font-medium">{formatInteger(pozos)}</b>
+                  <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
+                    pozos
                   </span>
                 </span>
               </div>
@@ -449,20 +519,6 @@ export default function V2Empresas() {
         </Card>
       </Seccion>
 
-      <Seccion n="03" titulo="La lista" desc="Las 52: filtrá, buscá y abrí cualquiera para ver su ficha.">
-        <ListaEmpresas
-          filas={filas}
-          grupos={grupos}
-          totalPct={`${formatDecimal(nacionalTotal, 1)}%`}
-          totalPozos={formatInteger(pozosTotal)}
-        />
-        <Pie>
-          «Mix» no es un dato de la fuente: es la relación entre el % de producción y el % del
-          valor en dólares. Por encima de 1,2 pesa el petróleo y por debajo de 0,8 el gas. La
-          suma de «Nacional» da {formatDecimal(nacionalTotal, 1)}% y no 100 porque los 52
-          valores vienen redondeados a un decimal.
-        </Pie>
-      </Seccion>
     </>
   )
 }
