@@ -61,7 +61,7 @@ export default function V2Noticias() {
       <Seccion n="01" titulo="Destacadas">
         <Card>
           <Link
-            href={`/noticias/${destacada.id}`}
+            href={`/v2/noticias/${destacada.id}`}
             className="flex items-stretch gap-3 p-3 no-underline"
             style={{ color: 'inherit' }}
           >
@@ -148,7 +148,7 @@ export default function V2Noticias() {
             <FilaNoticia
               key={n.id}
               id={n.id}
-              href={`/noticias/${n.id}`}
+              href={`/v2/noticias/${n.id}`}
               titulo={n.title}
               fuente={n.source}
               fecha={n.date}

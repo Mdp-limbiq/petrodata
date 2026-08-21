@@ -299,7 +299,7 @@ export default function V2Inicio() {
             <FilaNoticia
               key={n.id}
               id={n.id}
-              href={`/noticias/${n.id}`}
+              href={`/v2/noticias/${n.id}`}
               titulo={n.title}
               fuente={n.source}
               fecha={n.date}

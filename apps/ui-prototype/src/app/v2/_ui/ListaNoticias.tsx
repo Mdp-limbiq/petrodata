@@ -143,7 +143,7 @@ export function ListaNoticias({
             <div>
               <FilaNoticia
                 id={n.id}
-                href={`/noticias/${n.id}`}
+                href={`/v2/noticias/${n.id}`}
                 titulo={n.titulo}
                 resumen={n.resumen}
                 fuente={n.fuente}

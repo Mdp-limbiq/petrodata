@@ -1066,6 +1066,31 @@
   scrollbar-width: none;
 }
 .s-filtros::-webkit-scrollbar { display: none; }
+/* ── Nota larga ────────────────────────────────────────────────────────
+   El sistema no tiene precedente de texto corrido: la referencia es un
+   catálogo de componentes y su prosa más larga es una descripción de sección
+   de dos renglones. Así que esto es extensión, y conviene que quede escrito
+   qué se toma prestado y qué se decide.
+
+   Se toma: el cuerpo en 13/19,5 —.s-cuerpo, el tamaño de celda del sistema—,
+   la tinta plena para el texto y ink-2 para lo que califica, y el marco de
+   sección como contenedor.
+
+   Se decide el ANCHO. La columna de contenido mide 672 y a 13px eso son unos
+   110 caracteres por renglón, casi el doble de lo que se lee cómodo. La prosa
+   se topa en 62ch —unos 470px— y el resto de la nota sigue usando el ancho
+   entero. No es un cambio de tamaño de fuente, que el sistema sí prohíbe: es
+   dónde corta el renglón.
+
+   El párrafo separa con 12px y sin sangría, que es lo que hace la referencia
+   entre bloques de texto. */
+.s-prosa { max-width: 62ch; }
+.s-prosa > p { margin: 0 0 12px; font-size: 13px; line-height: 19.5px; text-wrap: pretty; }
+.s-prosa > p:last-child { margin-bottom: 0; }
+/* La entradilla sube UN escalón de peso y de tinta, no de tamaño: es la
+   jerarquía del sistema —peso y color, nunca cuerpo— aplicada a un párrafo. */
+.s-prosa > p.entrada { font-weight: 500; }
+
 /* ── Foto de la fila de noticia ────────────────────────────────────────
    El lado iguala el alto que la columna de texto tiene POR CONSTRUCCIÓN: el
    título va recortado a dos líneas de 19,5 y el resumen a dos de 18,75, así
