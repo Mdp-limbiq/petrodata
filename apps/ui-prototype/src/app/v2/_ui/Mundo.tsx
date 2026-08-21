@@ -46,63 +46,6 @@ const ES: Record<string, string> = {
     peor que en castellano y mucho mejor que en blanco. */
 const nombrePais = (iso3: string, ingles: string) => ES[iso3] ?? ingles
 
-const W = 300
-const H = 92
-const PX = 6
-const PY = 10
-
-/** Curva del puesto en el tiempo, con el eje invertido y la proyección
-    punteada. Sin ejes ni grilla, como el resto de los gráficos del sistema. */
-function CurvaPuesto({
-  historia,
-  proyectado,
-  color,
-}: {
-  historia: Punto[]
-  proyectado: { anio: number; puesto: number }
-  color: string
-}) {
-  const pts = [...historia, { year: proyectado.anio, rank: proyectado.puesto }]
-  const x0 = pts[0].year
-  const x1 = pts[pts.length - 1].year
-  /* El dominio se toma de TODOS los puntos incluida la proyección, así el
-     tramo punteado no se sale de la caja. */
-  const mejor = Math.min(...pts.map((p) => p.rank))
-  const peor = Math.max(...pts.map((p) => p.rank))
-  const r = peor - mejor || 1
-  const xy = (p: Punto) =>
-    [
-      PX + ((W - 2 * PX) * (p.year - x0)) / (x1 - x0),
-      /* invertido: el puesto más chico —el mejor— arriba */
-      PY + ((H - 2 * PY) * (p.rank - mejor)) / r,
-    ] as const
-
-  const medido = historia.map(xy)
-  const fin = medido[medido.length - 1]
-  const proy = xy({ year: proyectado.anio, rank: proyectado.puesto })
-  const d = medido.map((p, i) => `${i ? 'L' : 'M'} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ')
-
-  return (
-    <svg
-      className="s-curva"
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      role="img"
-      aria-label={`Puesto mundial de Argentina entre ${x0} y ${x1}`}
-    >
-      <path className="s-curva-linea" d={d} stroke={color} />
-      <path
-        className="s-curva-proy"
-        d={`M ${fin[0].toFixed(1)} ${fin[1].toFixed(1)} L ${proy[0].toFixed(1)} ${proy[1].toFixed(1)}`}
-        stroke={color}
-      />
-      <circle cx={fin[0]} cy={fin[1]} r={3} fill={color} />
-      {/* Hueco: el relleno es de los datos medidos. */}
-      <circle cx={proy[0]} cy={proy[1]} r={3} fill="var(--surface)" stroke={color} strokeWidth={1.5} />
-    </svg>
-  )
-}
-
 export function MundoRanking({
   rot,
   unidad,
@@ -122,64 +65,83 @@ export function MundoRanking({
   proyectado: { anio: number; puesto: number; valor: number }
   color: string
 }) {
-  const salto = arg.puesto - proyectado.puesto
   const peor = Math.max(...historia.map((h) => h.rank))
   const anioPeor = historia.find((h) => h.rank === peor)!.year
+  /* La regla va del puesto proyectado —el mejor— al peor histórico. Todo lo
+     que la card muestra cae adentro de ese rango por construcción. */
+  const lo = proyectado.puesto
+  const hi = peor
+  const pos = (r: number) => ((r - lo) / (hi - lo || 1)) * 100
+  const hoy = pos(arg.puesto)
 
   return (
     <Card>
-      <CardHead titulo={rot} nota={`${paises} países · ${anio}`} />
+      {/* «puesto mundial» en la cabecera: los tres números de la banda son
+          rankings y nada lo decía. El «#» solo no alcanza —podría ser un número
+          de proyecto, de pozo o de cualquier cosa— y el título del card habla
+          del fluido, no de la unidad. */}
+      <CardHead titulo={rot} nota={`puesto mundial · ${paises} países · ${anio}`} />
+      <div className="px-4 pt-3 pb-3.5">
+        <div className="s-banda">
+          <span className="s-banda-riel" aria-hidden />
+          {/* Lo recuperado: del peor puesto hasta el de hoy. */}
+          <span
+            className="s-banda-hecho"
+            aria-hidden
+            style={{ left: `${hoy}%`, right: 0, background: color }}
+          />
+          {/* Lo que falta, punteado: es una proyección y no puede pesar lo
+              mismo que ocho años de datos de la EIA. */}
+          <span
+            className="s-banda-falta"
+            aria-hidden
+            style={{ left: 0, right: `${100 - hoy}%`, color }}
+          />
 
-      {/* El salto y la curva, en la misma fila: la cifra dice cuánto y la
-          curva dice desde dónde. Separados, el «+6 puestos» se lee como una
-          promesa sin historia. */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 px-3 py-3">
-        <span className="flex shrink-0 items-center gap-3">
-          <span>
-            <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-              Hoy
+          {/* El número va en ink-2 y NO en el color del fluido: medido daba
+              2,87 en claro y 3,95 en oscuro, o sea reprobado en los dos. Y
+              tampoco hace falta —la raya de abajo ya lleva el color y el pie
+              dice «proyectado»—. Queda la jerarquía de tinta del sistema: el
+              puesto de hoy en tinta plena, los dos de contexto en ink-2. */}
+          <span className="s-banda-marca s-banda-marca--ini s-banda-marca--act">
+            <span className="p" style={{ color: 'var(--ink-2)' }}>
+              #{proyectado.puesto}
             </span>
-            <span className="flex items-baseline gap-1">
-              <b className="s-titulo s-num">#{arg.puesto}</b>
-              <span className="s-micro s-num" style={{ color: 'var(--ink-2)' }}>
-                {formatInteger(Math.round(arg.valor))} {unidad}
-              </span>
-            </span>
+            <i style={{ background: color }} aria-hidden />
+            <span className="cap">{proyectado.anio} · proyectado</span>
           </span>
-          <span aria-hidden className="s-num text-[15px]" style={{ color: 'var(--ink-3)' }}>
-            →
+          <span
+            className="s-banda-marca s-banda-marca--mid s-banda-marca--act"
+            style={{ left: `${hoy}%` }}
+          >
+            <span className="p">
+              #{arg.puesto}
+              <span className="cap-en-linea">hoy</span>
+            </span>
+            <i style={{ background: 'var(--ink)' }} aria-hidden />
           </span>
-          <span>
-            <span className="s-micro flex items-center gap-1.5" style={{ color: 'var(--ink-2)' }}>
-              {proyectado.anio}
-              <Chip tono="info">proyectado</Chip>
+          <span className="s-banda-marca s-banda-marca--fin">
+            <span className="p" style={{ color: 'var(--ink-2)' }}>
+              #{peor}
             </span>
-            <span className="flex items-baseline gap-1">
-              <b className="s-titulo s-num">#{proyectado.puesto}</b>
-              <span className="s-micro s-num" style={{ color: 'var(--ink-2)' }}>
-                {formatInteger(proyectado.valor)} {unidad}
-              </span>
-            </span>
+            <i aria-hidden />
+            <span className="cap">{anioPeor} · el peor</span>
           </span>
-        </span>
-        <span className="min-w-[180px] flex-1">
-          <CurvaPuesto historia={historia} proyectado={proyectado} color={color} />
-          <span className="mt-0.5 flex justify-between">
-            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
-              {historia[0].year} · #{historia[0].rank}
-            </span>
-            <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
-              {proyectado.anio} · #{proyectado.puesto}
-            </span>
-          </span>
-        </span>
+        </div>
       </div>
 
       <CardPie>
+        {/* Los volúmenes viven acá y no sobre la banda: la banda es una escala
+            de PUESTOS y meterle una magnitud en otra unidad encima la
+            ensuciaría. Pero tienen que estar: el puesto sin el volumen no dice
+            de qué tamaño es el salto. */}
         <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-          Tocó fondo en {anioPeor} en el puesto {peor} y desde entonces recuperó{' '}
-          <b className="font-semibold">{peor - arg.puesto} puestos</b>. La proyección suma{' '}
-          <b className="font-semibold">{salto}</b> más.
+          Hoy produce <b className="font-semibold">{formatInteger(Math.round(arg.valor))}</b>{' '}
+          {unidad} y la proyección lo lleva a{' '}
+          <b className="font-semibold">{formatInteger(proyectado.valor)}</b>. Tocó fondo en{' '}
+          {anioPeor} en el puesto {peor} y desde entonces recuperó{' '}
+          <b className="font-semibold">{peor - arg.puesto} puestos</b>; faltan{' '}
+          <b className="font-semibold">{arg.puesto - proyectado.puesto}</b>.
         </span>
       </CardPie>
     </Card>

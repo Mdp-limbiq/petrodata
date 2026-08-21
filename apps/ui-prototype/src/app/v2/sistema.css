@@ -791,15 +791,81 @@
 .s-riel > i { display: block; height: 100%; background: var(--accent); }
 .s-riel-ejes { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; }
 
-/* ── Curva de puesto ───────────────────────────────────────────────────
-   Ver Mundo.tsx: el eje va invertido —puesto 1 arriba— porque es la única
-   escala de la página donde el número chico es el bueno. Sin suavizado: son
-   puestos enteros y un trazo curvo dibujaría medios puestos que no existen. */
-.s-curva { display: block; width: 100%; height: 92px; }
-.s-curva-linea { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-/* La proyección punteada, y además más fina: no es una medición y no puede
-   pesar lo mismo que veinticinco años de datos. */
-.s-curva-proy { fill: none; stroke-width: 1.5; stroke-dasharray: 3 3; stroke-linecap: round; }
+/* ── Banda de puestos ──────────────────────────────────────────────────
+   Ver Mundo.tsx. Reemplaza a la curva del puesto en el tiempo, que tenía dos
+   problemas de raíz: no llevaba eje —la altura no decía qué puesto era, y el
+   fondo del valle sólo aparecía escrito en el pie— y ese eje además iba
+   INVERTIDO, porque acá el número chico es el bueno; sin marcarlo, la caída
+   del 20.º al 29.º entre 2000 y 2019 se dibujaba como una subida.
+
+   La banda tira el eje del tiempo y se queda con el del ranking, que es lo que
+   la sección promete. El mejor puesto va a la izquierda, donde todo el mundo
+   espera el principio, así que no hay nada que aclarar.
+
+   Dos tramos y no uno: el sólido es lo YA recuperado —del peor puesto al de
+   hoy— y el punteado es lo que falta. Pintados iguales, la card afirmaba que
+   el salto proyectado ya ocurrió. */
+.s-banda { position: relative; height: 56px; }
+.s-banda-riel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+.s-banda-hecho { position: absolute; top: 24px; height: 4px; border-radius: 999px; }
+.s-banda-falta {
+  position: absolute;
+  top: 25px;
+  height: 2px;
+  background: repeating-linear-gradient(to right, currentColor 0 4px, transparent 4px 8px);
+}
+.s-banda-marca { position: absolute; top: 0; text-align: center; white-space: nowrap; }
+.s-banda-marca > .p {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.s-banda-marca > i {
+  display: block;
+  width: 2px;
+  height: 9px;
+  margin: 1px auto 0;
+  background: var(--line-strong);
+}
+.s-banda-marca--act > i { width: 3px; }
+.s-banda-marca > .cap { display: block; margin-top: 12px; font-size: 10.5px; color: var(--ink-2); }
+/* La marca del medio lleva su rótulo EN LÍNEA con el número y no debajo. En
+   gas, Argentina cae al 18% de la banda y el «hoy» centrado abajo terminaba
+   pegado al «2030 · proyectado» del extremo izquierdo: los dos se leían como
+   una sola frase. Arriba no hay con qué chocar, porque a esa altura los
+   extremos sólo tienen un «#14» de treinta píxeles. */
+.s-banda-marca > .p { position: relative; }
+/* Absoluto y no en el flujo: en el flujo, el rótulo ensancha la marca y la
+   marca se centra sobre la raya, así que la raya terminaba cayendo entre el
+   número y el «hoy» en vez de debajo del número. Sacado del flujo, la marca
+   mide lo que mide el número y la raya vuelve a marcar el puesto. */
+.s-banda-marca > .p > .cap-en-linea {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 4px;
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: inherit;
+  color: var(--ink-2);
+}
+/* Los extremos se anclan al borde en vez de centrarse: centrados, la mitad del
+   rótulo queda fuera de la card y «2017 · el peor» sale cortado. */
+.s-banda-marca--ini { left: 0; text-align: left; }
+.s-banda-marca--ini > i { margin-left: 1px; }
+.s-banda-marca--fin { right: 0; text-align: right; }
+.s-banda-marca--fin > i { margin-right: 1px; }
+.s-banda-marca--mid { transform: translateX(-50%); }
 
 /* Corte de numeración en un ranking: entre el puesto 12 y el 21 hay ocho
    países que no se listan, y sin marcarlo la lista miente sobre quién está al
