@@ -26,7 +26,10 @@ export function Seccion({
 }: {
   n: string
   titulo: string
-  desc: string
+  /** Opcional: hay secciones cuyo título ya dice todo y una bajada sería
+      repetirlo con otras palabras. Sin `desc`, el <p> no se dibuja —vacío
+      dejaría un renglón de aire en la cabecera. */
+  desc?: string
   children: ReactNode
 }) {
   return (
@@ -37,7 +40,7 @@ export function Seccion({
             {n}
           </span>
           <h2 className="s-titulo m-0 whitespace-nowrap">{titulo}</h2>
-          <p className="s-desc s-desc-trunca m-0 min-w-0 flex-1">{desc}</p>
+          {desc && <p className="s-desc s-desc-trunca m-0 min-w-0 flex-1">{desc}</p>}
         </header>
         {children}
       </div>

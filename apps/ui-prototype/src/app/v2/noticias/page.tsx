@@ -55,11 +55,10 @@ export default function V2Noticias() {
 
   return (
     <>
-      <Seccion
-        n="01"
-        titulo="La que abre"
-        desc="La nota destacada del período, y las cuatro que le siguen."
-      >
+      {/* Sin bajada: «Destacadas» ya dice qué son estas cinco, y la que
+          había —«La nota destacada del período, y las cuatro que le
+          siguen»— era el título contado de nuevo. */}
+      <Seccion n="01" titulo="Destacadas">
         <Card>
           <Link
             href={`/noticias/${destacada.id}`}
