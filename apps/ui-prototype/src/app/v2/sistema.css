@@ -798,11 +798,15 @@
   width: 100%;
   min-height: 2px;
   border-radius: 1.5px;
-  /* Neutro, como el riel de .s-barra y las barras de .s-serie. Pintadas del
-     color del fluido llenaban media card de azul saturado y el sistema no
-     hace superficies de color: el color se gana significando algo, y acá hay
-     una sola serie. */
-  background: var(--line-strong);
+  /* --ink-3, que es el relleno por defecto de .s-barra: el nivel que el sistema
+     ya eligió para «una barra que muestra una magnitud».
+
+     Las dos alternativas están probadas y las dos fallan. Con el color del
+     fluido, cuarenta columnas de 158px llenaban media card de azul saturado y
+     el sistema no hace superficies de color. Con --line-strong —que es el
+     RIEL de .s-barra, no el relleno— las columnas casi no se veían: sobre
+     --inset queda a un suspiro de distancia. */
+  background: var(--ink-3);
   transition: background-color var(--dur-base) var(--ease-out);
 }
 /* La columna señalada toma el acento, que es el mismo trato que .s-serie le da
