@@ -228,66 +228,47 @@ export default function V2Indicadores() {
       {/* Los tres números NO son tres datos: son uno dicho tres veces. 61,0 ×
           365 = 22,3, y 22,3 sobre el PBI de 2024 da 3,5%. Tres cards iguales
           decían «tres hechos independientes», y encima el «3,5% del PBI»
-          flotaba sin el PBI en ningún lado.
+          flotaba sin el PBI en ningún lado de la página.
 
-          Ahora es una cuenta, con el operador escrito entre cifra y cifra, y el
-          PBI aparece con su valor —que es lo único que le da sentido al 3,5%—.
-          Ocupa menos alto que las tres cards y dice más. */}
+          Ahora el PBI ES el riel y la producción es la astilla adentro. Un
+          porcentaje sin su denominador a la vista no se puede dimensionar: el
+          «3,5%» pedía saber 3,5% de cuánto, y ese número estaba en el fixture
+          sin usar. */}
       <Seccion
         n="02"
         titulo="Valor de un día de Vaca Muerta"
-        desc="La misma cifra tres veces: por día, por año y contra el PBI."
+        desc="Lo que produce un día, contra el PBI del país."
       >
         <Card>
           <CardHead titulo="Valor bruto de producción" nota="últimos 12 meses" />
-          <div className="s-cadena">
-            <span className="paso">
+          <div className="p-3">
+            <div className="mb-3 flex items-baseline gap-2.5">
+              <b className="s-cifra">{formatDecimal(DAY_VALUE.perDayMUSD, 1)}</b>
+              <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
+                MUSD por día
+              </span>
+              <span className="s-chip s-chip--neutro s-chip--mini ml-auto">
+                {formatDecimal(DAY_VALUE.perYearBUSD, 1)} BUSD al año
+              </span>
+            </div>
+            {/* La astilla mide 3,49% de verdad y no lleva el piso de 3px que
+                llevan las demás barras del sistema: acá el tamaño ES el dato. */}
+            <span className="s-riel" aria-hidden>
+              <i style={{ width: `${(DAY_VALUE_INPUTS.grossValueUsd / DAY_VALUE_INPUTS.gdpUsd) * 100}%` }} />
+            </span>
+            <div className="s-riel-ejes">
               <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                Por día
+                {formatDecimal(DAY_VALUE.perYearBUSD, 1)} B de producción
               </span>
-              <span className="flex items-baseline gap-1.5">
-                <b className="s-cifra">{formatDecimal(DAY_VALUE.perDayMUSD, 1)}</b>
-                <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
-                  MUSD
-                </span>
-              </span>
-            </span>
-            <span className="op" aria-hidden>
-              <span className="signo">× 365</span>
-              <span className="flecha">→</span>
-            </span>
-            <span className="paso">
               <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                Por año
+                {formatDecimal(pbiBusd, 1)} B · PBI {DAY_VALUE.pbiYear}
               </span>
-              <span className="flex items-baseline gap-1.5">
-                <b className="s-cifra">{formatDecimal(DAY_VALUE.perYearBUSD, 1)}</b>
-                <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
-                  BUSD
-                </span>
-              </span>
-            </span>
-            <span className="op" aria-hidden>
-              <span className="signo">÷ {formatDecimal(pbiBusd, 1)}</span>
-              <span className="flecha">→</span>
-            </span>
-            <span className="paso">
-              <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                Del PBI {DAY_VALUE.pbiYear}
-              </span>
-              <span className="flex items-baseline gap-1.5">
-                <b className="s-cifra">{formatDecimal(DAY_VALUE.pbiPct, 1)}</b>
-                <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
-                  %
-                </span>
-              </span>
-            </span>
+            </div>
           </div>
           <CardPie>
             <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-              El PBI de {DAY_VALUE.pbiYear} fue de{' '}
-              <b className="font-semibold">{formatDecimal(pbiBusd, 1)} BUSD</b>: uno de cada{' '}
-              <b className="font-semibold">{Math.round(pbiVeces)} pesos</b> de la economía
+              <b className="font-semibold">{formatDecimal(DAY_VALUE.pbiPct, 1)}% del PBI</b>: uno de
+              cada <b className="font-semibold">{Math.round(pbiVeces)} pesos</b> de la economía
               argentina.
             </span>
           </CardPie>
