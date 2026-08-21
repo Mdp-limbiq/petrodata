@@ -5,6 +5,7 @@ import type { Map as MLMap } from 'maplibre-gl'
 import { MapShell } from '@/ui/map-shell'
 import { WELLS } from '@/fixtures/wells'
 import { Icono, PATH } from './iconos'
+import { CEOS } from '@/fixtures/ceos'
 
 /* Los dos paneles de la card de empresa: dónde perfora y cuánto pesa.
 
@@ -140,6 +141,96 @@ export function PanelPozos({
   )
 }
 
+/** El ícono de ayuda con su globo. Es la MISMA pieza en los dos paneles que la
+    usan: dos formas distintas de ofrecer lo mismo en la misma fila serían dos
+    vocabularios. El globo reusa .s-globo —extensión ya documentada, porque la
+    referencia no tiene ningún tooltip— y se ancla por la derecha, que es donde
+    hay lugar dentro de la card. */
+function Ayuda({ resumen, children }: { resumen: string; children: React.ReactNode }) {
+  return (
+    <span className="s-ayuda-caja">
+      {/* button y no span: tiene que poder recibir el foco de teclado, que es
+          la otra forma de abrir el globo. */}
+      <button type="button" className="s-ayuda" aria-label={resumen}>
+        <Icono d={PATH.info} size={13} grosor={2} />
+      </button>
+      <span className="s-globo s-globo--ayuda" role="tooltip">
+        {children}
+      </span>
+    </span>
+  )
+}
+
+/** Quién dirige la empresa: la foto a sangre y el resto en el globo. */
+export function PanelCeo({ slug }: { slug: string }) {
+  const c = CEOS[slug]
+  if (!c) return null
+  const resumen = `${c.nombre}. ${c.cargo}${c.desde ? `, desde ${c.desde}` : ''}.${c.credito ? ` Foto: ${c.credito}.` : ''}`
+  return (
+    <div className="s-panel" style={{ flex: `0 0 ${ANCHO_MAPA}px` }}>
+      <div className="s-panel-bar">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <span className="rot">CEO</span>
+          <Ayuda resumen={resumen}>
+            <b className="block font-medium" style={{ color: 'var(--ink)' }}>
+              {c.nombre}
+            </b>
+            {c.cargo}
+            {c.desde && ` · desde ${c.desde}`}
+            {c.credito && (
+              /* El crédito va SIEMPRE y en ink-2, no en ink-3: para la foto con
+                 licencia CC es una obligación, y un crédito que no se lee no
+                 cumple. */
+              <span className="mt-0.5 block text-[10.5px]">Foto: {c.credito}</span>
+            )}
+          </Ayuda>
+        </span>
+      </div>
+      <div className="s-panel-cuerpo">
+        {c.foto ? (
+          /* A sangre, como el mapa del otro panel. `cover` recorta —las tres
+             fotos tienen proporciones distintas contra esta caja— y el encuadre
+             de cada una vive en el fixture, elegido a mano. */
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={c.foto}
+            alt={c.nombre}
+            loading="lazy"
+            decoding="async"
+            style={{
+              display: 'block',
+              width: '100%',
+              height: ALTO,
+              objectFit: 'cover',
+              objectPosition: c.pos ?? 'center',
+            }}
+          />
+        ) : (
+          /* Sin foto, las iniciales llenan la misma caja. No es un hueco: es la
+             marca por defecto, el mismo criterio que el logo de la empresa. */
+          <span
+            className="flex items-center justify-center"
+            style={{
+              height: ALTO,
+              background: 'var(--field)',
+              color: 'var(--ink-2)',
+              fontSize: 20,
+              fontWeight: 650,
+            }}
+          >
+            {c.nombre
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((x) => x[0])
+              .join('')
+              .toUpperCase()}
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 /** Las dos participaciones, a la misma escala, con su ayuda. */
 export function PanelPeso({
   produccion,
@@ -160,22 +251,15 @@ export function PanelPeso({
     <div className="s-panel">
       <div className="s-panel-bar">
         <span className="flex min-w-0 items-center gap-1.5">
-          <span className="rot">Volumen y valor</span>
-          <span className="s-ayuda-caja">
-            {/* button y no span: tiene que poder recibir el foco de teclado,
-                que es la otra forma de abrir el globo. */}
-            <button
-              type="button"
-              className="s-ayuda"
-              aria-label="La primera barra es cuánto pesa en la producción del país; la segunda, cuánto pesa en el valor en dólares. Las dos a la misma escala."
-            >
-              <Icono d={PATH.info} size={13} grosor={2} />
-            </button>
-            <span className="s-globo s-globo--ayuda" role="tooltip">
-              La primera barra es cuánto pesa en la producción del país; la segunda, cuánto pesa
-              en el valor en dólares. Las dos a la misma escala, para que la diferencia se vea.
-            </span>
-          </span>
+          {/* «Share» y no «Volumen y valor» (pedido de Mariano, 2026-08-17): es
+              como se nombra la participación en el sector, y en 116px de barra
+              entra sin recortarse. Lo que significa cada barra lo dice el globo
+              del ícono de al lado. */}
+          <span className="rot">Share</span>
+          <Ayuda resumen="La primera barra es cuánto pesa en la producción del país; la segunda, cuánto pesa en el valor en dólares. Las dos a la misma escala.">
+            La primera barra es cuánto pesa en la producción del país; la segunda, cuánto pesa en
+            el valor en dólares. Las dos a la misma escala, para que la diferencia se vea.
+          </Ayuda>
         </span>
       </div>
       <div

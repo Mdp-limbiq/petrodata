@@ -69,7 +69,11 @@ a { color:inherit; text-decoration:none; }
 .pila-cards { display:flex; flex-direction:column; gap:8px; }
 
 /* ═══════════════ PIEZAS DEL SISTEMA ═══════════════ */
-.card { overflow:hidden; border-radius:var(--radius-card); background:var(--surface); box-shadow:var(--shadow-card); }
+/* overflow VISIBLE, igual que el panel y por el mismo motivo: el globo del CEO
+   nace adentro y tiene que poder salirse. El radio de las esquinas de abajo lo
+   respeta el pie, que es quien las toca. */
+.card { border-radius:var(--radius-card); background:var(--surface); box-shadow:var(--shadow-card); }
+.card > .card-pie:last-child { border-radius:0 0 var(--radius-card) var(--radius-card); }
 .card-pie { display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:10px 12px;
   border-top:1px solid var(--line); background:var(--inset); }
 .chip { display:inline-flex; align-items:center; height:19px; padding:0 6px; border-radius:5px;
@@ -126,7 +130,9 @@ a { color:inherit; text-decoration:none; }
   color:var(--ink-2); font-size:11.5px; line-height:17px; font-weight:400;
   transition:opacity var(--dur-fast, 120ms) ease-out; }
 .ayuda-caja { position:relative; display:inline-flex; }
-.ayuda-caja:hover .globo, .ayuda:focus-visible + .globo { opacity:1; }
+.ayuda-caja:hover .globo, .ayuda:focus-visible + .globo,
+.ayuda-caja:focus-visible .globo { opacity:1; }
+
 /* Alto FIJO y no dictado por el contenido. Con el alto libre, la barra que
    lleva chip medía 31 y las que sólo tienen rótulo 27: los cuerpos arrancaban a
    distinta altura y como el panel se estira al más alto de la fila, abajo
@@ -197,46 +203,47 @@ a.mapa-link:hover .mapa circle { r:2.6; }
 </head>
 <body>
 <div class="hoja">
-<h1>Dos paneles · tooltip y puesto al pie</h1>
+<h1>Panel de CEO</h1>
 <p class="lede">
-  «Volumen y valor» estrena un ícono de ayuda que explica qué es cada barra al pasar por encima,
-  y el badge de puesto baja al pie con las otras píldoras — donde además le entra el denominador,
-  «1.ª de 52», que arriba no cabía. Los tres juegos de rótulos, sobre los dos paneles.
+  Los tres con foto, y el mismo ícono de ayuda que «Volumen y valor» para abrir el globo: dos
+  paneles de la misma fila con dos formas distintas de ofrecer lo mismo serían dos vocabularios.
+  El globo dice el nombre —la cara sola no lo dice—, el cargo, desde cuándo lo ocupa cuando la
+  fecha está verificada (Marín desde diciembre de 2023 por Wikipedia ES, Pouyanné desde octubre
+  de 2014 por Wikidata; de Bulgheroni no hay registro y esa línea no aparece) y el crédito de la
+  foto, que va siempre.
+  <br><br>
+  <b>Sólo la de Pouyanné tiene licencia para reutilizar</b> (CC BY-SA 2.0, Wikimedia Commons).
+  Las de Marín y Bulgheroni son de notas de Perfil y de Mundo Internacional: sirven para ver la
+  pieza, pero para publicarlas hay que pedírselas a comunicación de YPF y de PAE.
 </p>
 <section class="op">
-  <h2><span class="letra">1</span> <span class="nom">Directo</span>
-      <span class="sub">Pozos · Share</span></h2>
+  <h2><span class="letra">1</span> <span class="nom">Angosta</span>
+      <span class="sub">84px</span></h2>
   <p class="tesis">
-    Cada panel nombra <b>la cosa</b>, que es como habla el resto de la web: los rótulos de la
-    ficha dicen «Producción», «Pozos», «Fluido». El total de pozos sube al panel del mapa —que
-    ahora se llama Pozos— y el tercero pasa a «Estado», con el porcentaje activo en su chip.
+    La foto sola, a sangre, con «CEO» en la cabecera. A 84 de ancho contra 60 de alto el recorte
+    es fuerte: de un retrato vertical queda poco más que la cara.
   </p>
   <div class="marco"><div class="pila-cards" id="R1"></div></div>
 </section>
 
 <section class="op">
-  <h2><span class="letra">2</span> <span class="nom">Corto</span>
-      <span class="sub">Pozos · Peso</span></h2>
+  <h2><span class="letra">2</span> <span class="nom">Ancha</span>
+      <span class="sub">116px, como el mapa</span></h2>
   <p class="tesis">
-    Una palabra por panel. Entra sin recortarse en la escala más chica y en mobile, que es donde
-    «Volumen y valor» empieza a pelear con el chip. A cambio <b>«Peso» pide que el lector sepa
-    de qué</b>: lo resuelven las barras, pero es una apuesta.
+    El mismo panel al ancho del mapa. Entra más contexto de la foto —hombros, fondo— y la fila
+    queda con dos paneles de imagen del mismo tamaño, que se leen como pares.
   </p>
   <div class="marco"><div class="pila-cards" id="R2"></div></div>
 </section>
 
-<section class="op">
-  <h2><span class="letra">3</span> <span class="nom">Pregunta</span>
-      <span class="sub">Dónde · Cuánto pesa</span></h2>
-  <p class="tesis">
-    El rótulo dice qué pregunta contesta el panel en vez de nombrar el dato. Es el registro que
-    la referencia usa en las descripciones de sección —explicar el mecanismo— y hace que los tres
-    se lean como una secuencia. <b>Es el más largo de los tres</b> y el que más se aparta de cómo
-    habla el resto de la página.
-  </p>
-  <div class="marco"><div class="pila-cards" id="R3"></div></div>
-</section>
-
+<p class="micro i2" style="margin:24px 0 0;max-width:70ch">
+  Retrato de Patrick Pouyanné por
+  <a href="https://commons.wikimedia.org/wiki/User:Jbarande" target="_blank" rel="noreferrer" style="color:inherit">Jérémy Barande</a>,
+  vía Wikimedia Commons, bajo
+  <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noreferrer" style="color:inherit">CC BY-SA 2.0</a>.
+  La licencia exige atribución y que lo derivado se comparta igual: si la foto va al producto,
+  este crédito va con ella.
+</p>
 </div>
 
 <script>
@@ -262,6 +269,105 @@ const EMP = [
     bolsa:null,
     logo:'https://www.pan-energy.com/Style%20Library/PAE/images/apple-touch-icon-114x114.png' },
 ];
+
+/* Conducción. Cada nombre con su fuente, porque no salen del fixture: son
+   dato externo y envejecen aparte del resto de la card.
+   · TotalEnergies — Wikidata (P169), en el cargo desde el 2014-10-01.
+   · YPF y PAE — infobox de Wikipedia en español.
+   `foto` sólo existe donde hay un archivo en Commons con licencia declarada. */
+const CEO = {
+  /* DE DÓNDE SALE CADA FOTO, que es lo que decide si se puede usar:
+     · Pouyanné — Wikimedia Commons, CC BY-SA 2.0 de Jérémy Barande. Se puede
+       usar citando autor y licencia.
+     · Marín — nota de Perfil. Material de un medio.
+     · Bulgheroni — nota de Mundo Internacional. Ídem.
+     Las dos últimas están acá para ver la pieza, que es lo que se pidió. Antes
+     de publicar hay que conseguirlas por la vía que corresponde: pedírselas al
+     área de comunicación de YPF y de PAE, que son quienes reparten retratos a
+     prensa y pueden dar el permiso por escrito. */
+  ypf: {
+    nombre: 'Horacio Marín', cargo: 'Presidente y CEO',
+    /* Wikipedia ES, tabla de presidentes de YPF: «15 de diciembre de 2023-presente». */
+    desde: 'diciembre de 2023',
+    foto: 'https://fotos.perfil.com/2024/08/13/trim/1140/641/horacio-marin-ceo-ypf-1853098.jpg',
+    /* 1140×641 (1,78) contra una caja de 1,93: escala por ancho y recorta poco
+       en vertical. La cara está arriba, así que el encuadre sube al 25%. */
+    pos: 'center 25%',
+    credito: 'Perfil',
+  },
+  totalenergies: {
+    nombre: 'Patrick Pouyanné', cargo: 'Chairman & CEO',
+    /* Wikidata: P169 con calificador P580 = 2014-10-01. */
+    desde: 'octubre de 2014',
+    /* La versión SIN recortar del mismo retrato. La otra —«(cropped)», 679×1010—
+       es un recorte cerrado a la cara: en una caja apaisada obliga a mostrar una
+       franja de 60 sobre 172 escalados y la cabeza queda tocando el borde de
+       arriba. Ésta trae aire alrededor y a 1,29 de proporción casi no recorta.
+       Es el mismo archivo original, mismo autor y misma licencia. */
+    foto: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Patrick_Pouyann%C3%A9%2C_PDG_du_groupe_Total.jpg/960px-Patrick_Pouyann%C3%A9%2C_PDG_du_groupe_Total.jpg',
+    pos: 'center 30%',
+    credito: 'Jérémy Barande · CC BY-SA 2.0',
+  },
+  pae: {
+    nombre: 'Marcos Bulgheroni', cargo: 'Group CEO',
+    /* Sin fecha de inicio: su ítem de Wikidata (Q33127008) no tiene P39 y el
+       infobox de Wikipedia tampoco la trae. El globo omite la línea en vez de
+       inventarla. */
+    foto: 'https://www.mundointernacional.com.mx/wp-content/uploads/2021/06/Foto-Marcos-Bulgheroni-1200x580.jpg',
+    /* 1200×580 (2,07) contra 1,93: acá escala por ALTO y recorta a los lados.
+       Él está a la izquierda del cuadro, así que el encuadre se corre al 32%. */
+    pos: '32% center',
+    credito: 'Mundo Internacional',
+  },
+};
+
+/* Iniciales, con la misma receta que el monograma del logo. */
+const iniciales = n => n.split(/\s+/).slice(0, 2).map(x => x[0]).join('').toUpperCase();
+
+const panelCEO = (slug, ancho) => {
+  const c = CEO[slug];
+  /* La foto va a SANGRE: llena el cuerpo del panel de borde a borde, igual que
+     el mapa del panel de al lado. `cover` recorta y `object-position` decide qué
+     franja — es un ajuste POR FOTO, porque las tres tienen proporciones
+     distintas contra la misma caja. */
+  const cuerpo = c.foto
+    ? `<img src="${c.foto}" alt="${c.nombre}" loading="lazy"
+           style="display:block;width:100%;height:${ALTO_CUERPO}px;object-fit:cover;object-position:${c.pos}">`
+    : `<span style="display:flex;align-items:center;justify-content:center;height:${ALTO_CUERPO}px;
+                 background:var(--field);color:var(--ink-2);font-size:20px;font-weight:650"
+             >${iniciales(c.nombre)}</span>`;
+  /* El globo dice quién es —la foto sola no lo dice—, desde cuándo está en el
+     cargo y de dónde salió la foto. Se abre desde el MISMO ícono de ayuda que
+     el panel de al lado: dos paneles de la misma fila con dos formas distintas
+     de ofrecer lo mismo serían dos vocabularios. */
+  const texto = `${c.nombre}. ${c.cargo}${c.desde ? `, desde ${c.desde}` : ''}. Foto: ${c.credito}`;
+  const globo = `
+    <span class="globo" role="tooltip" style="left:auto;right:0;top:auto;bottom:calc(100% + 6px)">
+      <b style="display:block;color:var(--ink);font-weight:500">${c.nombre}</b>
+      ${c.cargo}${c.desde ? ` · desde ${c.desde}` : ''}
+      <!-- ink-2 y no ink-3: el crédito de una foto con licencia hay que poder
+             leerlo, y en ink-3 daba 2,72:1. Es la trampa 10.1 del sistema. -->
+        <span style="display:block;margin-top:3px;font-size:10.5px">Foto: ${c.credito}</span>
+    </span>`;
+  return `
+    <div class="panel panel--blanco" style="flex:0 0 ${ancho}px">
+      <div class="panel-bar">
+        <span style="display:flex;align-items:center;gap:5px;min-width:0">
+          <span class="rot trunca">CEO</span>
+          <span class="ayuda-caja">
+            <button type="button" class="ayuda" aria-label="${texto}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden>
+                <circle cx="12" cy="12" r="9"/><path d="M12 11.5v4.5"/><path d="M12 8h.01"/>
+              </svg>
+            </button>
+            ${globo}
+          </span>
+        </span>
+      </div>
+      <div class="panel-cuerpo">${cuerpo}</div>
+    </div>`;
+};
 
 const dec = (n,d=1) => n.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const num = n => n.toLocaleString('es-AR');
@@ -376,8 +482,8 @@ const JUEGOS = {
   R3: { mapa:'Dónde', barras:'Cuánto pesa',     estado:'En qué andan' },
 };
 
-function fila(clave) {
-  const J = JUEGOS[clave];
+function fila(clave, ancho) {
+  const J = JUEGOS.R1;
   return EMP.map(c => {
     return card(c, `
       <div style="display:flex;gap:${ESC.gap}px;margin-top:9px">
@@ -396,13 +502,13 @@ function fila(clave) {
             </div>
           </div>`,
           'La primera barra es cuánto pesa en la producción del país; la segunda, cuánto pesa en el valor en dólares. Las dos a la misma escala, para que la diferencia se vea.')}
+        ${panelCEO(c.slug, ancho)}
       </div>`, pie(c), ESC.placa);
   }).join('');
 }
 
-document.getElementById('R1').innerHTML = fila('R1');
-document.getElementById('R2').innerHTML = fila('R2');
-document.getElementById('R3').innerHTML = fila('R3');
+document.getElementById('R1').innerHTML = fila('R1', 84);
+document.getElementById('R2').innerHTML = fila('R1', 116);
 </script>
 </body>
 </html>

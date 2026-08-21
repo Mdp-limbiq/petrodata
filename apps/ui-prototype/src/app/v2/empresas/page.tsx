@@ -1,6 +1,6 @@
 import { Seccion, Card, CardBarra, CardPie, Medidor, Pie, recorte, FLUIDO } from '../_ui/kit'
 import { LogoEmpresa } from '../_ui/LogoEmpresa'
-import { PanelPozos, PanelPeso } from '../_ui/PanelEmpresa'
+import { PanelPozos, PanelPeso, PanelCeo } from '../_ui/PanelEmpresa'
 import { Pila } from '../_ui/Pila'
 import { ListaEmpresas, type FilaEmpresa, type GrupoFiltro } from '../_ui/ListaEmpresas'
 import { COMPANIES, type Company } from '@/fixtures/companies'
@@ -202,7 +202,7 @@ export default function V2Empresas() {
             const pctPozos = (c.proyectos / pozosTotal) * 100
             const rinde = pctPozos > 0 ? c.pctNacional / pctPozos : null
             return (
-              <Card key={c.slug}>
+              <Card key={c.slug} className="s-card--globo">
                 {/* items-start y no items-center: la placa arranca a la altura
                     del nombre, como en la fila de noticias. Centrada, con tres
                     cards de alto distinto, quedaría a una altura distinta en
@@ -273,6 +273,7 @@ export default function V2Empresas() {
                         valorPct={(c.pctValor / maxBarra) * 100}
                         color={m.color ?? 'var(--ink-3)'}
                       />
+                      <PanelCeo slug={c.slug} />
                     </div>
                   </div>
                 </div>
@@ -338,7 +339,26 @@ export default function V2Empresas() {
           >
             OpenStreetMap
           </a>
-          .
+          . Retrato de Patrick Pouyanné por{' '}
+          <a
+            href="https://commons.wikimedia.org/wiki/User:Jbarande"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'inherit' }}
+          >
+            Jérémy Barande
+          </a>{' '}
+          bajo{' '}
+          <a
+            href="https://creativecommons.org/licenses/by-sa/2.0/"
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: 'inherit' }}
+          >
+            CC BY-SA 2.0
+          </a>
+          ; los otros dos son de notas de prensa y están puestos para la maqueta, no para
+          publicar.
         </Pie>
       </Seccion>
 

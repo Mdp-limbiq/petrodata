@@ -1169,16 +1169,28 @@
   background: var(--surface);
   box-shadow: var(--shadow-hairline);
 }
+/* Alto FIJO y no dictado por el contenido. Con el alto libre, la barra que
+   lleva chip mide 31 y la que sólo tiene rótulo 27: los cuerpos arrancan a
+   distinta altura y, como el panel se estira al más alto de la fila, abajo
+   queda una franja en blanco. 30 es el alto de la barra con chip, que es la más
+   alta de las dos. */
 .s-panel-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 5px 10px;
+  height: 30px;
+  padding: 0 10px;
   border-bottom: 1px solid var(--line);
 }
-.s-panel-bar > .rot { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  font-size: 11px; color: var(--ink-2); }
+/* DESCENDIENTE y no hijo directo: con `>` la regla no llegaba al rótulo que va
+   envuelto junto al ícono de ayuda, y ése heredaba los 14px del body. Quedaban
+   dos tamaños de rótulo en la misma fila y una barra 4px más alta que las
+   otras.
+   10,5 en peso 500 es el escalón de anotación del sistema —el mismo que el chip
+   de al lado— así que los dos elementos de la barra son la misma tipografía. */
+.s-panel-bar .rot { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 10.5px; font-weight: 500; color: var(--ink-2); }
 /* El chip de la barra: 10,5px sobre --field con radio completo. Es el mismo
    que la Insight Card pone a la derecha de su bloque hundido. */
 .s-panel-bar > .pin {
@@ -1208,6 +1220,9 @@
 
    Se ancla por la DERECHA: el panel que lo usa es el de la derecha de la fila,
    y anclado a la izquierda el globo se salía de la card. */
+/* El reset va en la CLASE y no por instancia: los disparadores son <button> y
+   sin esto traen el borde y el fondo nativos del navegador, así que dos íconos
+   idénticos se veían distintos según cómo estuviera escrito cada uno. */
 .s-ayuda {
   display: inline-flex;
   align-items: center;
@@ -1217,6 +1232,16 @@
   color: var(--ink-3);
   cursor: help;
   transition: color var(--dur-fast) var(--ease-out);
+}
+
+/* Card que deja salir un globo. .s-card recorta —lo necesita para el radio— y
+   el globo de un panel interno nace adentro, así que quedaba cortado. Acá el
+   radio de abajo lo respeta el pie, que es quien toca esas esquinas.
+   Es una variante y no un cambio a .s-card: el resto de las cards del sistema
+   siguen recortando, que es lo correcto para las que llevan imagen a sangre. */
+.s-card--globo { overflow: visible; }
+.s-card--globo > .s-pie-card:last-child {
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
 }
 .s-ayuda:hover { color: var(--ink-2); }
 .s-ayuda-caja { position: relative; display: inline-flex; flex-shrink: 0; }
