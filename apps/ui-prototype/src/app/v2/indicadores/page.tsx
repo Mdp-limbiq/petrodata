@@ -140,29 +140,69 @@ export default function V2Indicadores() {
         desc="Seis cifras con su variación interanual y su mes de corte."
       >
         <Card>
-          {TESIS.map((t) => (
-            <div key={t.label} className="s-fila s-fila-hover">
-              <span className="s-etq min-w-0 flex-1">{t.label}</span>
-              <span className="s-num shrink-0 text-[13px] font-medium">{t.value}</span>
-              {/* El interanual estaba en el fixture desde el principio y la
-                  página lo tiraba. Es la mitad del contenido: «620.249 bbl/d»
-                  dice el tamaño, «+38,7%» dice que es una tesis. Ancho fijo
-                  aunque falte —dos de los seis no lo tienen— para que la
-                  columna del corte no se mueva. */}
-              <span
-                className={`s-num w-12 shrink-0 text-right text-[11.5px] ${t.yoy ? 's-delta s-delta--sube' : ''}`}
-              >
-                {t.yoy ?? ''}
-              </span>
-              <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
-                {t.asOf}
-              </span>
-            </div>
-          ))}
+          {TESIS.map((t) => {
+            /* El signo sale del dato y no está clavado. Estaba pintando
+               s-delta--sube siempre que hubiera yoy, sin mirar el signo: hoy
+               los cuatro son positivos y no se veía, pero un negativo salía
+               verde. El fixture guarda el yoy como texto ya formateado
+               —«+38,7%»—, así que el signo se lee del primer carácter, y se
+               contemplan los dos menos: el guion y el U+2212 del sistema. */
+            const baja = !!t.yoy && /^[-\u2212]/.test(t.yoy.trim())
+            /* En móvil el rótulo se lleva su propio renglón y el badge, la
+               cifra y el corte bajan al siguiente. Con las cuatro columnas en
+               una sola línea, a 375 al rótulo le quedaban 51px y «Producción de
+               petróleo VM» se partía en cuatro renglones: filas de 185px de
+               alto contra las 42 del resto de v2. Los tres de abajo suman 228px
+               y entran holgados en los 287 de la card. */
+            return (
+              <div key={t.label} className="s-fila s-fila-hover flex-wrap gap-y-1">
+                <span className="s-etq min-w-0 flex-1 basis-full sm:basis-auto">{t.label}</span>
+                {/* El interanual estaba en el fixture desde el principio y la
+                    página lo tiraba. Es la mitad del contenido: «620.249 bbl/d»
+                    dice el tamaño, «+38,7%» dice que es una tesis.
+
+                    Va en badge y a la IZQUIERDA de la cifra (pedido de Mariano,
+                    2026-08-21). El badge lleva el «YoY» adentro: suelto, el
+                    porcentaje no decía contra qué compara y el pie tenía que
+                    explicarlo para las seis filas de golpe —mal, además: no
+                    todas comparan lo mismo—.
+
+                    Superficie neutra y no un chip verde: el delta medido en la
+                    referencia es texto pelado, sin fondo. El badge es el pedido;
+                    el tinte de estado sería inventarle una categoría. El color
+                    lo lleva sólo la cifra, que es donde significa algo.
+
+                    Ancho reservado aunque la fila no tenga delta —dos de las
+                    seis no lo traen— para que la columna del corte no se mueva. */}
+                <span className="flex shrink-0 justify-end sm:w-[78px]">
+                  {t.yoy && (
+                    <span className="s-chip s-chip--var s-chip--mini">
+                      <b className={baja ? 'baja' : 'sube'}>{t.yoy}</b>
+                      YoY
+                    </span>
+                  )}
+                </span>
+                {/* Ancho fijo al más largo —«620.249 bbl/d», medido en 88px— y
+                    alineado a la derecha. Sin fijarlo, la cifra tomaba su ancho
+                    natural, el badge quedaba pegado a ella y la columna de
+                    badges salía con 47px de dentera entre la fila más corta y
+                    la más larga. Los valores no se mueven: ya estaban alineados
+                    por el borde derecho. */}
+                <span className="s-num min-w-0 flex-1 shrink-0 text-right text-[13px] font-medium sm:w-[92px] sm:flex-none">
+                  {t.value}
+                </span>
+                <span className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
+                  {t.asOf}
+                </span>
+              </div>
+            )
+          })}
         </Card>
         <Pie>
-          La columna de la derecha es el mes de corte de cada dato, no todos coinciden. El
-          interanual compara contra el mismo mes del año anterior.
+          La columna de la derecha es el mes de corte de cada dato, no todos coinciden. El YoY no
+          compara lo mismo en todas: en producción es abril contra abril —620.249 contra 447.187
+          bbl/d— y en las dos anuales es el año calendario contra el anterior. Las dos
+          participaciones no traen variación en la fuente.
         </Pie>
       </Seccion>
 
