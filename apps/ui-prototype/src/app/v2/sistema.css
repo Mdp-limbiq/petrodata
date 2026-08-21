@@ -1066,6 +1066,22 @@
   scrollbar-width: none;
 }
 .s-filtros::-webkit-scrollbar { display: none; }
+/* Fila de nota secundaria: tag, título y fecha. A 375 la columna del tag
+   (112) más la fecha (85) le dejaban 95px al título y los cuatro salían en
+   «Ley de Tierra…». La fecha se esconde —las cuatro son del mismo período que
+   la destacada, que ya la muestra— y el tag toma su ancho natural. */
+@media (max-width: 640px) {
+  .s-nota-sec > .tag { width: auto; }
+  .s-nota-sec > .fecha { display: none; }
+}
+
+/* Variante que ENVUELVE en vez de scrollear. El scroll horizontal es lo medido
+   en la §13 y funciona con cinco o seis píldoras cortas, pero las siete de
+   noticias suman 730px contra los 664 de la card: la barra scrolleaba sin
+   ninguna afordancia que lo dijera, y al clickear una píldora el navegador la
+   traía a la vista y se llevaba puesta a «Todas», que es justo la que hay que
+   poder ver para volver atrás. */
+.s-filtros--envuelve { flex-wrap: wrap; overflow-x: visible; row-gap: 4px; }
 .s-fpill {
   display: flex;
   flex-shrink: 0;

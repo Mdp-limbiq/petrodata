@@ -1,69 +1,184 @@
 import Link from 'next/link'
-import { Seccion, Card, CardHead, Pie, FilaNoticia } from '../_ui/kit'
-import { NEWS } from '@/fixtures/news'
+import { Card, Pie, Seccion, Tag, colorCategoria, recorte } from '../_ui/kit'
+import { ListaNoticias, type FilaNota } from '../_ui/ListaNoticias'
+import { CATEGORY_LABEL, FILTER_CATEGORIES, NEWS, TOTAL_DOCS } from '@/fixtures/news'
+import { formatInteger } from '@/lib/format'
 
 /* NOTICIAS — el caso donde más se aparta de lo que teníamos.
 
-   Estrato usa cards con foto en grilla. Este sistema no tiene ese componente:
-   trata las imágenes como accesorio (nueve en todo el sitio de referencia, y
-   siete son data-URI de 12px) y resuelve las listas con filas densas. Así que
-   las noticias pasan de cards con foto a filas de fecha, título y fuente.
+   Estrato usa cards con foto en grilla; este sistema resuelve las listas con
+   filas densas y trata la imagen como accesorio. Acá la foto se queda pero
+   como miniatura de 56 —el ancla visual de la fila— y sólo la destacada la
+   muestra grande.
 
-   No es una pérdida: en una lista de veinte notas, la foto no ayuda a elegir
-   —todas son fotos de pozos— y la fecha sí. */
+   REESCRITA (2026-08-21). Lo que había era una lista plana de veinte filas
+   más una sección de conteos que no hacía nada. Cuatro cosas:
+
+   · Las categorías salían EN CRUDO: «financiamiento», «exportacion», «rigi»,
+     en minúscula y sin acentos. CATEGORY_LABEL vive en este mismo fixture, lo
+     usa toda la ruta v1, y en v2 no se usaba en ningún lado. Es el mismo
+     patrón que los YoY de la tesis y el ranking mundial.
+
+   · «20 notas» mentía por omisión. TOTAL_DOCS = 790 también estaba en el
+     fixture: el corpus real son 790 documentos y acá hay una portada de veinte.
+     Ahora lo dice.
+
+   · No había forma de filtrar ni de buscar, con la Filter Table ya construida
+     dos secciones más allá, en empresas. Y FILTER_CATEGORIES —la declaración
+     del fixture de cuáles son filtrables— tampoco se usaba.
+
+   · No había destacada, con `featured: true` marcado en el fixture. */
 
 export default function V2Noticias() {
   const orden = NEWS.slice().sort((a, b) => b.date.localeCompare(a.date))
-  const porCategoria = orden.reduce<Record<string, number>>((acc, n) => {
-    acc[n.category] = (acc[n.category] || 0) + 1
-    return acc
-  }, {})
-  const categorias = Object.entries(porCategoria).sort((a, b) => b[1] - a[1])
+  const destacada = orden.find((n) => n.featured) ?? orden[0]
+  /* Las cuatro que acompañan a la destacada, y después TODAS en la lista de
+     abajo, incluida la destacada: la lista es el índice completo del período,
+     no «lo que sobró». */
+  const acompanan = orden.filter((n) => n.id !== destacada.id).slice(0, 4)
+
+  const filas: FilaNota[] = orden.map((n) => ({
+    id: n.id,
+    titulo: n.title,
+    resumen: n.summary,
+    fuente: n.source,
+    fecha: n.date,
+    cat: n.category,
+    rot: CATEGORY_LABEL[n.category],
+    minutos: n.readingMin,
+    imagen: n.image,
+  }))
+  const pills = FILTER_CATEGORIES.map((c) => ({ id: c, rot: CATEGORY_LABEL[c] }))
+
+  const desde = orden[orden.length - 1].date
+  const hasta = orden[0].date
 
   return (
     <>
       <Seccion
         n="01"
-        titulo="Cobertura de la cuenca"
-        desc="Cuántas notas hay por tema en el período cargado."
+        titulo="La que abre"
+        desc="La nota destacada del período, y las cuatro que le siguen."
       >
-        <div className="flex flex-wrap gap-2">
-          {categorias.map(([cat, n]) => (
-            <span key={cat} className="s-chip s-chip--neutro">
-              {cat}
-              <span className="s-num" style={{ color: 'var(--ink-3)' }}>
-                {n}
+        <Card>
+          <Link
+            href={`/noticias/${destacada.id}`}
+            className="flex items-stretch gap-3 p-3 no-underline"
+            style={{ color: 'inherit' }}
+          >
+            {/* 161 de lado, la misma placa que la card de empresa. La foto de
+                la destacada es lo único grande de la página: en las filas es
+                una miniatura de 56 porque ahí sólo ancla, y acá tiene que
+                sostener el peso de ser la primera. En 375 baja a 88, como la
+                placa. */}
+            <span
+              className="s-placa s-placa--grande shrink-0 overflow-hidden"
+              /* padding inline y no p-0: la clase de Tailwind y .s-placa tienen
+                 la misma especificidad y quién gana depende del orden del CSS
+                 compilado. La placa lleva 12px para respirar alrededor de un
+                 logo; una foto tiene que llegar al borde. */
+              style={{ padding: 0 }}
+              aria-hidden
+            >
+              <img
+                src={destacada.image ?? `/images/news/news-produccion-rig.jpg`}
+                alt=""
+                width={640}
+                height={640}
+                /* Ancho y alto INLINE: `.s-placa > img` fija width:auto,
+                   height:auto y object-fit:contain —está pensada para un logo,
+                   que no se estira— y esa regla le gana a las clases w-full /
+                   h-full por especificidad. Con las clases, la foto salía
+                   apaisada de 325×220 en una placa cuadrada de 161. */
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'cover',
+                  filter: 'grayscale(1) contrast(0.9)',
+                }}
+              />
+            </span>
+            <span className="flex min-w-0 flex-1 flex-col">
+              <span className="mb-1.5 flex items-center gap-2">
+                <Tag color={colorCategoria(destacada.category)}>
+                  {CATEGORY_LABEL[destacada.category]}
+                </Tag>
+                <span className="s-mono text-[10.5px]" style={{ color: 'var(--ink-2)' }}>
+                  {destacada.date}
+                </span>
+              </span>
+              <span className="s-titulo" style={recorte(2, 19.5)}>
+                {destacada.title}
+              </span>
+              <span className="s-desc mt-1" style={recorte(3, 18.75)}>
+                {destacada.summary}
+              </span>
+              {/* mt-auto: la fuente se apoya en el pie de la placa, así el
+                  bloque de texto ocupa el alto de la imagen. Es lo mismo que
+                  hace la card de empresa. */}
+              <span
+                className="s-micro mt-auto flex items-center gap-1.5 pt-2"
+                style={{ color: 'var(--ink-2)' }}
+              >
+                {destacada.source}
+                {destacada.readingMin ? (
+                  <>
+                    <span style={{ color: 'var(--ink-3)' }}>·</span>
+                    {destacada.readingMin} min
+                  </>
+                ) : null}
+                <span className="ml-auto" style={{ color: 'var(--accent-ink)' }}>
+                  Leer <span aria-hidden>→</span>
+                </span>
               </span>
             </span>
+          </Link>
+        </Card>
+
+        <div className="s-card mt-3">
+          {/* Las cuatro que siguen, sin foto ni resumen: son el contexto de la
+              destacada, no cuatro destacadas más. La miniatura repetida cuatro
+              veces debajo de una foto grande convierte el bloque en una grilla
+              y la jerarquía se pierde. */}
+          {acompanan.map((n) => (
+            <Link
+              key={n.id}
+              href={`/noticias/${n.id}`}
+              className="s-fila s-fila-hover s-nota-sec no-underline"
+              style={{ color: 'inherit' }}
+            >
+              {/* Columna de ancho fijo para el tag: sueltos, «RIGI» y
+                  «Financiamiento» miden distinto y los cuatro títulos arrancan
+                  en cuatro x distintas. */}
+              <span className="tag flex w-[112px] shrink-0">
+                <Tag color={colorCategoria(n.category)}>{CATEGORY_LABEL[n.category]}</Tag>
+              </span>
+              <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{n.title}</span>
+              <span
+                className="fecha s-mono shrink-0 text-[10.5px]"
+                style={{ color: 'var(--ink-2)' }}
+              >
+                {n.date}
+              </span>
+            </Link>
           ))}
         </div>
       </Seccion>
 
       <Seccion
         n="02"
-        titulo="Principales noticias"
-        desc="Todas, por fecha, con su fuente y su tema."
+        titulo="Últimas noticias"
+        desc="Todas las del período, filtrables por tema."
       >
-        <Card>
-          <CardHead titulo="Últimas primero" nota={`${orden.length} notas`} />
-          {orden.map((n) => (
-            <FilaNoticia
-              key={n.id}
-              id={n.id}
-              href={`/noticias/${n.id}`}
-              titulo={n.title}
-              resumen={n.summary}
-              fuente={n.source}
-              fecha={n.date}
-              categoria={n.category}
-              minutos={n.readingMin}
-              imagen={n.image}
-            />
-          ))}
-        </Card>
+        <ListaNoticias notas={filas} pills={pills} />
         <Pie>
-          La fuente va en la tinta media y no en la más tenue: es dato que hay que poder
-          leer. En la tinta tenue quedan sólo la fecha y los conteos.
+          Esta portada son {orden.length} notas entre el {desde} y el {hasta}; el corpus completo
+          del sitio son {formatInteger(TOTAL_DOCS)} documentos. Las píldoras salen de las seis
+          categorías que el fixture declara filtrables — actualidad, laboral y ambiente se
+          alcanzan por el buscador. Sin orden por relevancia: no hay ninguna señal de relevancia
+          en el dato y un puntaje inventado no es un orden.
         </Pie>
       </Seccion>
     </>

@@ -394,6 +394,7 @@ export function FilaNoticia({
   fuente,
   fecha,
   categoria,
+  rotulo,
   minutos,
   imagen,
 }: {
@@ -404,7 +405,13 @@ export function FilaNoticia({
   fuente: string
   /** ISO; se muestra recortada a la fecha */
   fecha: string
+  /** la CLAVE de la categoría: manda el color y la foto, no se muestra */
   categoria: string
+  /** lo que se muestra en el tag. Va aparte de `categoria` porque el color y
+      la foto se indexan por la clave cruda —«exportacion»— y lo que hay que
+      leer es la etiqueta —«Exportación»—. Sin este par, la lista mostraba las
+      claves del fixture en minúscula y sin acentos. */
+  rotulo?: string
   minutos?: number
   /** imagen propia de la nota; si falta, cae a la de su categoría */
   imagen?: string
@@ -464,7 +471,7 @@ export function FilaNoticia({
           ) : null}
         </span>
       </span>
-      <Tag color={colorCategoria(categoria)}>{categoria}</Tag>
+      <Tag color={colorCategoria(categoria)}>{rotulo ?? categoria}</Tag>
     </a>
   )
 }
