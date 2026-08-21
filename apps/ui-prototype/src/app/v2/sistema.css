@@ -1172,6 +1172,20 @@
   font-weight: 500;
 }
 
+/* Fila de gasoducto: nombre con su badge, tramos, km y el chevron. La de la
+   §13 reparte cuatro campos en fr y acá hay tres, así que lleva sus propias
+   columnas.
+
+   A 375 la cuenta de tramos se esconde y el nombre se queda con el ancho: con
+   las cuatro columnas, «Gasoducto General San Martín» salía «Gasoducto G…» y
+   GNEA quedaba en una sola letra. El dato no es crítico —es de cuántos tramos
+   administrativos se compone— y en el ancho chico el nombre gana. */
+.s-gfila--gaso { grid-template-columns: 1fr auto 72px 16px; }
+@media (max-width: 640px) {
+  .s-gfila--gaso { grid-template-columns: 1fr 72px 16px; }
+  .s-gfila--gaso > .tramos { display: none; }
+}
+
 /* ── Ficha ──────────────────────────────────────────────────────────────
    El desglose que se abre al clickear una fila de la lista: etiqueta a la
    izquierda, valor a la derecha, un renglón por dato.

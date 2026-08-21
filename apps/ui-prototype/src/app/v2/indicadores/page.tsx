@@ -14,6 +14,7 @@ import {
 import { SerieLinea } from '../_ui/SerieLinea'
 import { SerieBarras } from '../_ui/SerieBarras'
 import { MundoRanking, PodioMundial, MundoCrecimiento } from '../_ui/Mundo'
+import { Gasoductos } from '../_ui/Gasoductos'
 import {
   DAY_VALUE,
   BRENT,
@@ -653,23 +654,19 @@ export default function V2Indicadores() {
         </Pie>
       </Seccion>
 
+      {/* Las filas pasan a ser GASODUCTOS y no operadores, y cada una abre el
+          mapa con su traza. La geometría estaba desde el principio y se tiraba:
+          frontend/scripts/build-pipelines.py bajaba este mismo shapefile de
+          ENARGAS —de ahí salen los km de acá— y lo declaraba en su encabezado,
+          «geometry is read for measurement and then discarded». */}
       <Seccion
         n="13"
         titulo="Infraestructura de transporte"
-        desc="Gasoductos por operador, sobre la red troncal."
+        desc="La red troncal de gas, gasoducto por gasoducto."
       >
         <Card>
           <CardHead titulo="Red de gas" nota={`${formatInteger(TRANSPORT.gasKm)} km`} />
-          {TRANSPORT.gasByOperator.map((o, i) => (
-            <FilaRanking
-              key={o.name}
-              n={i + 1}
-              nombre={o.name}
-              valor={formatInteger(o.km)}
-              pct={o.km / maxKm}
-              lider={i === 0}
-            />
-          ))}
+          <Gasoductos />
         </Card>
         {/* El reparto de la red pasa de frase a pila: son dos magnitudes que se
             comparan, y compararlas es más rápido mirando que leyendo. Va en el
@@ -680,6 +677,13 @@ export default function V2Indicadores() {
           oilKm={TRANSPORT.oilKm}
           totalKm={TRANSPORT.totalKm}
         />
+        <Pie>
+          Trazas oficiales de ENARGAS, simplificadas a 110 m para el mapa; los kilómetros se
+          miden sobre la traza sin simplificar. La lista corta en los doce sistemas más largos
+          —el 93% de la red— y los otros catorce van juntos en la última fila. Los oleoductos
+          entran en el total pero no en el mapa: la fuente de ductos de petróleo es otra.
+          Mapa © CARTO, © OpenStreetMap.
+        </Pie>
       </Seccion>
 
       <Seccion
