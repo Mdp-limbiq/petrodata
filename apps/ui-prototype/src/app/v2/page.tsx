@@ -22,6 +22,7 @@ import { WELLS } from '@/fixtures/wells'
 import { VM } from '@/fixtures/indicadores'
 import { Pulso } from './_ui/Pulso'
 import { HEADLINE, PREV, NATIONAL_SERIES } from '@/fixtures/production'
+import { SERIE } from '@/fixtures/inversiones'
 import { TOP_OPERATORS } from '@/fixtures/operators'
 import { CATEGORY_LABEL, NEWS } from '@/fixtures/news'
 import { formatCompactAR, formatDecimal, formatInteger, formatMonth, formatPercent } from '@/lib/format'
@@ -44,18 +45,32 @@ export default function V2Inicio() {
   const ultimas = NEWS.slice()
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 5)
+  /* La serie de la sección 02 pasa a ser la REAL de Vaca Muerta. NATIONAL_SERIES
+     está generada con `HEADLINE.oil * (0.72 + 0.28 * t) + wiggle` —una rampa
+     con ruido escalada para terminar en el valor del mes— y el pie lo declaraba
+     como «serie ilustrativa». SERIE.points, en fixtures/inversiones.ts, son los
+     valores mensuales que el sitio le pasa a su propio gráfico.
+     No es un reemplazo uno a uno y conviene decirlo: la inventada decía ser
+     NACIONAL —650.190 bbl/d, con VM en el 77,9%— y la real es de Vaca Muerta
+     sola. No hay serie nacional en ningún lado, así que el título de la sección
+     cambia con el dato en vez de dejar un rótulo que ya no aplica.
+     Se corta en el último mes COMPLETO, como en indicadores: el fixture trae un
+     mes parcial al final y dibujarlo mostraba una caída del 22% que no
+     existió. */
+  const vmMeses = SERIE.points.filter((x) => !x.preliminary).slice(-12)
   const doceMeses = NATIONAL_SERIES.slice(-12)
   /* La contracara de la card: Vaca Muerta pone el 27,7% de los pozos del país
      y saca el 69,3% del petróleo. En crudo, con el corte de abril: 155 bbl/d
      por pozo contra 26 del resto. Todo sale de cifras del sitio; lo único que
      hago es dividir. */
-  const mesesCortos = doceMeses.map((p) => formatMonth(`${p.period}-01`))
+  const mesesCortos = vmMeses.map((p) => formatMonth(`${p.period}-01`))
   const pctPozosVM = (VM.wells / HEADLINE.activeWells) * 100
   const paisOil = VM.oilBbld / (VM.oilSharePct / 100)
   const rinde =
     VM.oilBbld / VM.wells / ((paisOil - VM.oilBbld) / (HEADLINE.activeWells - VM.wells))
   const minOil = Math.min(...doceMeses.map((p) => p.oil))
   const maxOil = Math.max(...doceMeses.map((p) => p.oil))
+  const cortePeriodo = formatMonth(`${vmMeses[vmMeses.length - 1].period}-01`)
 
   return (
     <>
@@ -199,7 +214,7 @@ export default function V2Inicio() {
 
       <Seccion
         n="02"
-        titulo="Producción mensual"
+        titulo="Producción de Vaca Muerta"
         desc="Doce meses de petróleo y gas, con el mes de corte al final."
       >
         <Card>
@@ -212,23 +227,24 @@ export default function V2Inicio() {
                   nombre: 'Petróleo',
                   color: FLUIDO.petroleo,
                   unidad: 'bbl/d',
-                  valores: doceMeses.map((p) => p.oil),
-                  textos: doceMeses.map((p) => formatInteger(p.oil)),
+                  valores: vmMeses.map((p) => p.oilBblD),
+                  textos: vmMeses.map((p) => formatInteger(Math.round(p.oilBblD))),
                 },
                 {
                   nombre: 'Gas natural',
                   color: FLUIDO.gas,
                   unidad: 'MMm³/d',
-                  valores: doceMeses.map((p) => p.gas),
-                  textos: doceMeses.map((p) => formatDecimal(p.gas, 1)),
+                  valores: vmMeses.map((p) => p.gasMm3D),
+                  textos: vmMeses.map((p) => formatDecimal(p.gasMm3D, 1)),
                 },
               ]}
             />
           </div>
         </Card>
         <Pie>
-          Cada línea usa su propia escala: los dos fluidos no son comparables entre sí. Serie
-          ilustrativa escalada para terminar en los valores reales de {periodo}.
+          Datos oficiales de Vaca Muerta, no una serie ilustrativa. Cada línea usa su propia
+          escala: bbl/d y MMm³/d no son comparables entre sí. Corta en {cortePeriodo}, el último
+          mes completo — el titular de arriba es del país entero y llega hasta {periodo}.
         </Pie>
       </Seccion>
 
