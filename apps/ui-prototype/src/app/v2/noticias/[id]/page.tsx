@@ -128,7 +128,7 @@ export default async function V2Nota({ params }: { params: Params }) {
           porque una página es una lista de secciones; acá la página es UNA
           cosa y el número diría «01 de 1». Las relacionadas sí, porque ahí
           vuelve a haber una sección. */}
-      <section className="s-seccion">
+      <section className="s-seccion s-seccion--lectura">
         <div className="s-marco">
           <nav aria-label="Miga de pan" className="mb-3">
             <Link href="/v2/noticias" className="s-pill">
@@ -136,11 +136,6 @@ export default async function V2Nota({ params }: { params: Params }) {
             </Link>
           </nav>
 
-          {/* La cabecera también entra en la columna de lectura. Suelta medía
-              584 contra los 548 del resto: seis por ciento de diferencia no se
-              lee como una cabecera más ancha, se lee como desprolijidad. Con
-              todo alineado, la nota es UNA columna. */}
-          <div className="s-lectura">
           <Card>
             <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-stretch">
               {/* La misma placa de 161 que la destacada del listado: una nota
@@ -204,7 +199,6 @@ export default async function V2Nota({ params }: { params: Params }) {
               </span>
             </CardPie>
           </Card>
-          </div>
 
           {/* PUNTOS CLAVE — la receta de las Context Cards (§11): el rótulo y
               su contador afuera de la card, y adentro un renglón por item.
@@ -214,13 +208,11 @@ export default async function V2Nota({ params }: { params: Params }) {
               la ancla; acá no colgaba de nada. Y el ícono de lista repetido en
               cada renglón no distinguía nada, porque todos los renglones son
               items de una lista. */}
-          {/* LA COLUMNA DE LECTURA. Todo lo que se lee vive acá adentro y mide
-              lo mismo: los puntos clave, los párrafos, las figuras, el video y
-              el pie. Antes el tope estaba en .s-prosa y la nota tenía tres
-              anchos —cards 584, párrafos 548, figuras 540—, con el salto
-              cayendo justo entre la card de puntos y la foto de abajo, que son
-              vecinas. Lo único al ancho entero es la cabecera. */}
-          <div className="s-lectura">
+          {/* Todo mide lo mismo —cabecera, puntos, párrafos, figuras, video y
+              pie— porque el ancho lo pone la sección. Antes el tope estaba en
+              .s-prosa y la nota tenía tres anchos: cards 584, párrafos 548,
+              figuras 540, con el salto justo entre la card de puntos y la foto
+              de abajo, que son vecinas. */}
           <div className="mt-3">
             <div className="s-clave-cab">
               <span className="rot">Puntos clave</span>
@@ -276,11 +268,10 @@ export default async function V2Nota({ params }: { params: Params }) {
               </span>
             </div>
           </div>
-          </div>
         </div>
       </section>
 
-      <Seccion n="01" titulo="Relacionadas" desc={`Otras notas de ${rot.toLowerCase()}.`}>
+      <Seccion n="01" titulo="Relacionadas" desc={`Otras notas de ${rot.toLowerCase()}.`} ancho="lectura">
         <Card>
           {relacionadas.map((n) => (
             <FilaNoticia

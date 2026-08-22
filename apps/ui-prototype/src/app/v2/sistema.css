@@ -175,6 +175,23 @@
       los demás componentes. La sección era la única que la invertía. */
 .s-seccion { max-width: 672px; padding: 16px 32px; }
 @media (max-width: 639px) { .s-seccion { padding: 12px 20px; } }
+/* La página de una nota es la única de largo aliento del sitio, y ahí el largo
+   del renglón importa. A 672 —o sea 584 adentro del marco— los párrafos daban
+   unos 81 caracteres por línea, bien arriba del rango cómodo.
+
+   Se angosta LA SECCIÓN y no la columna de adentro, que fue el primer intento
+   y estuvo mal: con el tope en un contenedor interno la columna quedaba pegada
+   a la izquierda del marco y sobraban 36px sólo del lado derecho — un margen
+   de un lado y no del otro se lee como error, no como composición. Angostada
+   la sección, todo anida a ras y el aire que sobra queda a la derecha de la
+   columna de contenido, que es donde el sistema ya lo deja: «en una pantalla
+   de 1920 el contenido sigue midiendo 960 y se ve la trama a los costados».
+
+   636 = 548 de texto + 24 del marco + 64 de la sección. Medido sobre el texto
+   servido, ese ancho da 76 caracteres de promedio contra los 81 de antes. No
+   llega a los 66 del ideal tipográfico y conviene decirlo: bajar más obligaría
+   a angostar tanto la sección que dejaría de parecerse al resto del sitio. */
+.s-seccion--lectura { max-width: 636px; }
 
 /* la descripción comparte renglón con el título: el layout impone su largo */
 @media (min-width: 640px) {
@@ -1113,17 +1130,12 @@
    cambio de tamaño de fuente, que el sistema sí prohíbe: es dónde corta el
    renglón.
 
-   El tope va en .s-lectura y NO en .s-prosa, y ésa es la corrección: con el
-   tope en la prosa, la nota tenía tres anchos —las cards a 584, los párrafos a
-   548 y las figuras a 540— y el salto caía justo entre la card de puntos clave
-   y la foto que va debajo, dos bloques vecinos. Ahora todo lo que se lee vive
-   en la misma columna: los puntos, los párrafos, las figuras, el video y el
-   pie. Lo único que se queda al ancho entero es la cabecera, que es la
-   cabecera.
+   El ancho lo pone la SECCIÓN —.s-seccion--lectura— y no un contenedor de
+   adentro: con el tope adentro, la columna quedaba pegada a la izquierda del
+   marco y sobraban 36px sólo del lado derecho.
 
    El párrafo separa con 12px y sin sangría, que es lo que hace la referencia
    entre bloques de texto. */
-.s-lectura { max-width: 62ch; }
 .s-prosa > p { margin: 0 0 12px; font-size: 13px; line-height: 19.5px; text-wrap: pretty; }
 .s-prosa > p:last-child { margin-bottom: 0; }
 /* La entradilla sube UN escalón de peso y de tinta, no de tamaño: es la

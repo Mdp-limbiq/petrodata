@@ -22,6 +22,7 @@ export function Seccion({
   n,
   titulo,
   desc,
+  ancho,
   children,
 }: {
   n: string
@@ -30,10 +31,19 @@ export function Seccion({
       repetirlo con otras palabras. Sin `desc`, el <p> no se dibuja —vacío
       dejaría un renglón de aire en la cabecera. */
   desc?: string
+  /** 'lectura' angosta la sección a 636. Es para la página de una nota, que es
+      la única de largo aliento: a 672 los párrafos dan unos 81 caracteres por
+      renglón. Va en la sección y no adentro para que el aire que sobra quede a
+      la derecha de la columna y no de un solo lado del marco. Si una sección de
+      la nota se quedara en 672 al lado de otra en 636, el salto se vería. */
+  ancho?: 'lectura'
   children: ReactNode
 }) {
   return (
-    <section className="s-seccion" id={`s${n}`}>
+    <section
+      className={`s-seccion ${ancho === 'lectura' ? 's-seccion--lectura' : ''}`}
+      id={`s${n}`}
+    >
       <div className="s-marco">
         <header className="mb-3 flex flex-wrap items-baseline gap-2 px-1">
           <span className="s-mono shrink-0 text-[11px]" style={{ color: 'var(--ink-3)' }}>
