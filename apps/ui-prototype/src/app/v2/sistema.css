@@ -1087,9 +1087,28 @@
 .s-prosa { max-width: 62ch; }
 .s-prosa > p { margin: 0 0 12px; font-size: 13px; line-height: 19.5px; text-wrap: pretty; }
 .s-prosa > p:last-child { margin-bottom: 0; }
-/* La entradilla sube UN escalón de peso y de tinta, no de tamaño: es la
-   jerarquía del sistema —peso y color, nunca cuerpo— aplicada a un párrafo. */
-.s-prosa > p.entrada { font-weight: 500; }
+/* LA ESCALERA DE LA NOTA. El cuerpo entero estaba en 13 y se leía monótono
+   (observación de Mariano). El sistema tiene diez tamaños declarados —21, 17,
+   14, 13, 12,5, 12, 11,5, 11, 10,5 y 10— y la nota usaba tres.
+
+   Conviene ser preciso con la regla que esto podría estar pisando. SISTEMA.md
+   §2 dice que agrandar la fuente no es una herramienta disponible PARA
+   DESTACAR ALGO: prohíbe el titular de 40px, no prohíbe que un rol editorial
+   distinto tenga su tamaño. La entradilla no es un párrafo enfatizado, es otra
+   cosa —el resumen que abre y que se lee antes de decidir seguir— y en
+   cualquier diario tiene su propio cuerpo.
+
+   Queda 21 titular → 17 entradilla → 13 cuerpo → 11,5 epígrafe y pie. Cuatro
+   escalones, y ninguno inventado: los cuatro estaban en la escala.
+
+   Un solo 17 en toda la nota. Dos serían un segundo cuerpo de texto, y ahí sí
+   se rompe la regla. */
+.s-prosa > p.entrada {
+  font-size: 17px;
+  line-height: 25.5px;
+  font-weight: 400;
+  margin-bottom: 16px;
+}
 
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
@@ -1141,24 +1160,23 @@
   text-wrap: pretty;
 }
 
-/* La cifra destacada. Entre dos filetes horizontales y a ancho completo de la
-   prosa: es la única forma que tiene el sistema de decir «esto sale del flujo»
-   sin agrandar nada ni pintar un fondo. La cifra va a 17/600 —.s-cifra— y no
-   a 21: el 21 es del titular de la página y hay uno solo por página. */
-.s-dato-nota {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  margin: 20px 0;
-  padding: 12px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
+/* El intertítulo va NUMERADO, con el número en la mono y en la tinta más
+   tenue. Es el mismo idioma que la cabecera de cada sección del sitio —«01
+   Dashboard», «05 Indicadores»— y suma dos contrastes que el tamaño solo no
+   daba: familia y tinta. El texto se queda en 13/600, que es lo que el sistema
+   permite; lo que lo separa del párrafo es el aire de arriba.
 
-/* El intertítulo. 13/600 —.s-titulo— y no más: la jerarquía es peso y tinta.
-   Lo que lo separa del párrafo es el aire de arriba, no el cuerpo. */
-.s-intertitulo { margin: 24px 0 8px; font-size: 13px; font-weight: 600; }
+   Y el párrafo que le sigue arranca pegado: un intertítulo con el mismo aire
+   arriba y abajo no dice de cuál de los dos bloques es cabecera. */
+.s-intertitulo { display: flex; align-items: baseline; gap: 8px; margin: 26px 0 6px; font-size: 13px; font-weight: 600; }
+.s-intertitulo > .n {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.s-intertitulo + p { margin-top: 0; }
 
 /* Figura del cuerpo: foto a ancho completo de la prosa con su epígrafe. Alto
    FIJO en px y no aspect-ratio, que el sistema prohíbe, y porque las fotos del

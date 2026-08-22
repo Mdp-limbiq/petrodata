@@ -9,16 +9,9 @@ import {
   Tag,
   colorCategoria,
 } from '../../_ui/kit'
-import {
-  Cita,
-  Compartir,
-  DatoNota,
-  Figura,
-  Intertitulo,
-  Video,
-} from '../../_ui/BloquesNota'
+import { Cita, Compartir, Figura, Intertitulo, Video } from '../../_ui/BloquesNota'
 import { CATEGORY_LABEL, NEWS } from '@/fixtures/news'
-import { formatDate, formatInteger } from '@/lib/format'
+import { formatDate } from '@/lib/format'
 
 /* LA NOTA — el cuerpo del artículo, rederivado.
 
@@ -36,6 +29,14 @@ import { formatDate, formatInteger } from '@/lib/format'
    · SE VA EL ESPACIO PUBLICITARIO. Era un rectángulo gris de 336×280 con la
      palabra «publicidad». En un prototipo de sistema no mide nada: no hay
      ninguna decisión de diseño ahí que verificar.
+
+   · SE VA LA CIFRA DESTACADA. La puse mostrando cuántas notas del mismo tema
+     hay en la portada, para no inventar un número — y el resultado fue un
+     bloque de cifra que hablaba del CORPUS y no de la noticia. En una cifra
+     destacada el lector espera el número de la nota, y acá no hay ninguno
+     marcado en el dato: el fixture trae título, resumen, fuente, fecha,
+     categoría y minutos. Un bloque cuya función el lector no puede adivinar no
+     cumple ninguna. Vuelve el día que el pipeline marque una cifra.
 
    · SE VA LA CITA DESTACADA. La elegía un buscador de oraciones que prefería
      la que tuviera un número, y con el cuerpo simulado eso daba relleno: en
@@ -120,10 +121,6 @@ export default async function V2Nota({ params }: { params: Params }) {
   ).sort((a, b) => b.date.localeCompare(a.date))
   const relacionadas = [...mismaCat, ...resto].slice(0, 3)
 
-  const delTema = NEWS.filter((n) => n.category === item.category).length
-  const fechas = NEWS.map((n) => n.date).sort()
-  const desde = fechas[0]
-  const hasta = fechas[fechas.length - 1]
 
   return (
     <>
@@ -237,22 +234,12 @@ export default async function V2Nota({ params }: { params: Params }) {
 
             <p>{cuerpos[2]}</p>
 
-            <Intertitulo>Los cuellos de botella</Intertitulo>
+            <Intertitulo n="01">Los cuellos de botella</Intertitulo>
             <p>{cuerpos[3]}</p>
 
             <Cita>{frase(rot)}</Cita>
 
             <p>{cuerpos[4]}</p>
-
-            {/* El dato destacado sale del fixture y no del cuerpo simulado: es
-                cuántas notas del mismo tema hay en la portada. Un bloque de
-                cifra con un número inventado sería peor que no tenerlo. */}
-            <DatoNota
-              valor={formatInteger(delTema)}
-              unidad={delTema === 1 ? 'nota' : 'notas'}
-              rotulo={`de ${rot.toLowerCase()} en esta portada`}
-              nota={`entre el ${desde} y el ${hasta} · ${formatInteger(NEWS.length)} en total`}
-            />
 
             {item.video && (
               <Video
@@ -261,6 +248,10 @@ export default async function V2Nota({ params }: { params: Params }) {
               />
             )}
 
+            {/* Dos capítulos y no uno: un intertítulo solo en seis párrafos
+                marca dónde empieza el segundo bloque pero deja al primero sin
+                nombre. La práctica editorial es uno cada tres o cuatro. */}
+            <Intertitulo n="02">Lo que decide el ritmo</Intertitulo>
             <p>{cuerpos[5]}</p>
           </div>
 

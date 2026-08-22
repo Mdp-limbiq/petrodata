@@ -10,10 +10,19 @@
    Los cuatro comparten un margen vertical de 20px. Que el pulso sea parejo es
    lo que hace que ninguna interrupción pese más que otra. */
 
-/** Intertítulo. 13/600 y nada más: la jerarquía del sistema es peso y tinta,
-    no cuerpo. Lo que lo separa del párrafo es el aire de arriba. */
-export function Intertitulo({ children }: { children: React.ReactNode }) {
-  return <h2 className="s-intertitulo">{children}</h2>
+/** Intertítulo NUMERADO. El texto se queda en 13/600 —la jerarquía del sistema
+    es peso y tinta, no cuerpo— y el número en la mono y en ink-3 suma los dos
+    contrastes que el tamaño solo no daba: familia y tinta. Es el mismo idioma
+    que la cabecera de cada sección del sitio. */
+export function Intertitulo({ n, children }: { n: string; children: React.ReactNode }) {
+  return (
+    <h2 className="s-intertitulo">
+      <span className="n" aria-hidden>
+        {n}
+      </span>
+      {children}
+    </h2>
+  )
 }
 
 /** Cita destacada. Filete vertical a la izquierda y el texto un escalón más de
@@ -28,41 +37,6 @@ export function Cita({ children, quien }: { children: React.ReactNode; quien?: s
         </figcaption>
       )}
     </figure>
-  )
-}
-
-/** Cifra destacada: el número de la nota afuera del párrafo. Entre dos filetes
-    y a 17/600 —.s-cifra—, no a 21: el 21 es del titular y hay uno por página. */
-export function DatoNota({
-  valor,
-  unidad,
-  rotulo,
-  nota,
-}: {
-  valor: string
-  unidad?: string
-  rotulo: string
-  nota?: string
-}) {
-  return (
-    <aside className="s-dato-nota" aria-label={`Dato destacado: ${rotulo}`}>
-      <span className="flex items-baseline gap-1.5">
-        <b className="s-cifra">{valor}</b>
-        {unidad && (
-          <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
-            {unidad}
-          </span>
-        )}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="s-etq block">{rotulo}</span>
-        {nota && (
-          <span className="s-micro s-num block" style={{ color: 'var(--ink-2)' }}>
-            {nota}
-          </span>
-        )}
-      </span>
-    </aside>
   )
 }
 
