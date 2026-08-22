@@ -14,6 +14,7 @@ import {
 import { SerieLinea } from '../_ui/SerieLinea'
 import { SerieBarras } from '../_ui/SerieBarras'
 import { MundoRanking, PodioMundial, MundoCrecimiento } from '../_ui/Mundo'
+import { EscenarioBrent } from '../_ui/EscenarioBrent'
 import { Gasoductos } from '../_ui/Gasoductos'
 import {
   DAY_VALUE,
@@ -338,29 +339,36 @@ export default function V2Indicadores() {
         </Pie>
       </Seccion>
 
+      {/* El sitio real trae acá un ESCENARIO: un control que mueve el precio
+          del Brent y recalcula el valor de la producción y el margen. El
+          prototipo lo había aplanado a cuatro filas fijas, que es justamente
+          perder lo único interactivo de la sección.
+
+          El control no es un deslizador de riel porque la referencia no tiene
+          ninguno: son los rótulos arrastrables de la Fine-tune Card (§19). Ver
+          .s-escenario en sistema.css. */}
       <Seccion
         n="05"
         titulo="Margen sobre el breakeven"
-        desc="Brent contra el costo de equilibrio del barril."
+        desc="Movés el Brent y se recalcula lo que vale la producción."
       >
         <Card>
-          <CardHead titulo="Precio y equilibrio" nota="US$/bbl" />
-          {/* Sin la unidad en cada fila: la cabecera ya dice US$/bbl y las
-              cuatro filas son la misma unidad. Repetirla cuatro veces era
-              ruido, y en la fila del margen además mentía un poco —el margen
-              es una diferencia, no un precio—. */}
-          <FilaDato etiqueta={`Brent (${BRENT.asOf})`} valor={formatDecimal(BRENT.value, 1)} />
-          <FilaDato etiqueta="Promedio 12 meses" valor={formatDecimal(BRENT.avg12m, 1)} />
-          <FilaDato etiqueta="Costo de equilibrio" valor={formatInteger(BRENT.breakeven)} />
-          <FilaDato
-            etiqueta="Margen sobre el equilibrio"
-            valor={formatDecimal(BRENT.marginOverBreakeven, 1)}
+          <CardHead titulo="Escenario de precio" nota="US$/bbl" />
+          <EscenarioBrent
+            inicial={BRENT.value}
+            hoy={BRENT.value}
+            promedio={BRENT.avg12m}
+            breakeven={BRENT.breakeven}
+            descuento={DAY_VALUE_INPUTS.oilDiscountUsd}
+            barriles={DAY_VALUE_INPUTS.oilBbl}
           />
         </Card>
         <Pie>
-          El margen es la diferencia entre Brent y el equilibrio: lo que queda por barril antes
-          de transporte e impuestos. Brent es un precio del día y no del mes, por eso lleva su
-          fecha propia.
+          La cuenta es la del sitio y sale entera del fixture: el volumen de doce meses
+          —{formatInteger(Math.round(DAY_VALUE_INPUTS.oilBbl))} barriles— por el precio menos
+          los {formatInteger(DAY_VALUE_INPUTS.oilDiscountUsd)} US$/bbl de descuento por calidad.
+          Valúa <b className="font-semibold">sólo el petróleo</b>: no incluye el gas y no
+          descuenta costos ni impuestos. El Brent de partida es el del {BRENT.asOf}.
         </Pie>
       </Seccion>
 

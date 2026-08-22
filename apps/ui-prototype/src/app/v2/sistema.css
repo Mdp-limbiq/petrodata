@@ -1083,6 +1083,59 @@
   scrollbar-width: none;
 }
 .s-filtros::-webkit-scrollbar { display: none; }
+/* ── Escenario: el rótulo arrastrable ──────────────────────────────────
+   MEDIDO en la Fine-tune Card (§19). La referencia NO tiene un deslizador de
+   riel; lo que tiene son cuatro `role="slider"` que son rótulos ARRASTRABLES:
+   un span con cursor ew-resize que al arrastrarse cambia el número de al lado,
+   dentro de una píldora sobre --field con un campo numérico editable. Es el
+   idioma de las herramientas de diseño y resuelve lo mismo que un riel sin
+   ocupar el ancho de uno.
+
+   La píldora: 26 de alto, radio de chip, padding 4px 4px 4px 2px y gap 4. El
+   rótulo: radio 4, padding 0 2, 12px en ink-3 que sube a ink-2 en hover y a
+   accent-ink con foco. El campo: 12px, tinta plena, tabular, transparente y
+   sin contorno.
+
+   `touch-action: none` en el rótulo, o en un teléfono el arrastre horizontal
+   se lo lleva el scroll de la página antes de que el gesto empiece. */
+.s-escenario {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 4px 4px 4px 2px;
+  border-radius: var(--radius-chip);
+  background: var(--field);
+}
+.s-escenario > .tirador {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  height: 100%;
+  padding: 0 2px;
+  border-radius: 4px;
+  color: var(--ink-3);
+  font-size: 12px;
+  cursor: ew-resize;
+  touch-action: none;
+  user-select: none;
+  transition: color var(--dur-instant) var(--ease-out);
+}
+.s-escenario > .tirador:hover { color: var(--ink-2); }
+.s-escenario > .tirador:focus-visible { color: var(--accent-ink); outline: none; }
+.s-escenario > input {
+  width: 48px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  outline: none;
+}
+
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
    card, y adentro un renglón por item con el padding medido de 10×12 y filete
