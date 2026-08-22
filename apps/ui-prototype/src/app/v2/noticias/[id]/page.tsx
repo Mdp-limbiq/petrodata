@@ -9,7 +9,6 @@ import {
   Tag,
   colorCategoria,
 } from '../../_ui/kit'
-import { Icono, PATH } from '../../_ui/iconos'
 import {
   Cita,
   Compartir,
@@ -204,32 +203,29 @@ export default async function V2Nota({ params }: { params: Params }) {
             </CardPie>
           </Card>
 
-          {/* PUNTOS CLAVE. En la ruta vieja era una caja con un borde de color
-              a la izquierda; acá es el riel de desglose que ya usan provincias
-              y empresas —.s-rama con un .s-paso por línea—. Es la pieza del
-              sistema para «esto se desprende de aquello», que es exactamente
-              lo que un punto clave es respecto de la nota. */}
-          <Card className="mt-3">
-            <div className="px-3 py-3">
-              <span className="s-etq mb-2 block">Puntos clave</span>
-              <div className="s-rama">
-                {puntos.map((p) => (
-                  <div key={p} className="s-paso s-paso--intro">
-                    <span className="mt-[3px] shrink-0" style={{ color: 'var(--ink-3)' }}>
-                      <Icono d={PATH.lista} size={14} grosor={2} />
-                    </span>
-                    <span className="s-cuerpo min-w-0">{p}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Card>
+          {/* PUNTOS CLAVE — la receta de las Context Cards (§11): el rótulo y
+              su contador afuera de la card, y adentro un renglón por item.
 
-          {/* El cuerpo con sus interrupciones. Seis párrafos seguidos son un
-              bloque de texto; las cinco piezas que los cortan —figura,
-              intertítulo, cita, dato y video— están COLOCADAS, no elegidas por
-              una heurística. El pipeline real las trae marcadas desde el CMS y
-              esta composición es el molde de cómo se ven. */}
+              Antes era el riel de desglose, que es la pieza para «esto se
+              desprende de aquello» y está pensada para colgar de una fila que
+              la ancla; acá no colgaba de nada. Y el ícono de lista repetido en
+              cada renglón no distinguía nada, porque todos los renglones son
+              items de una lista. */}
+          <div className="mt-3">
+            <div className="s-clave-cab">
+              <span className="rot">Puntos clave</span>
+              <span className="s-contador">{puntos.length}</span>
+            </div>
+            <Card>
+              {puntos.map((p) => (
+                <div key={p} className="s-clave">
+                  <i style={{ background: color }} aria-hidden />
+                  <span className="s-cuerpo min-w-0 flex-1">{p}</span>
+                </div>
+              ))}
+            </Card>
+          </div>
+
           <div className="s-prosa mt-4 px-1">
             <p className="entrada">{cuerpos[0]}</p>
             <p>{cuerpos[1]}</p>

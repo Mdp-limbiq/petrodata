@@ -1091,6 +1091,32 @@
    jerarquía del sistema —peso y color, nunca cuerpo— aplicada a un párrafo. */
 .s-prosa > p.entrada { font-weight: 500; }
 
+/* ── Puntos clave ──────────────────────────────────────────────────────
+   La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
+   card, y adentro un renglón por item con el padding medido de 10×12 y filete
+   abajo.
+
+   Antes esto era el riel de desglose —.s-rama con un .s-paso por línea—, que
+   es la pieza que el sistema usa para decir «esto se desprende de aquello» y
+   está pensada para colgar de una fila que la ancla, como en provincias y en
+   empresas. Acá no colgaba de nada: el codo del primer punto apuntaba a un
+   espacio vacío.
+
+   El marcador es el punto de 8px de la Insight Card (§16), en el color de la
+   categoría de la nota (elección de Mariano). Es la única marca de color del
+   sistema, y acá ata los puntos al tema sin repetir la palabra. Iba con el
+   ícono de lista repetido en cada renglón, que no distinguía nada: todos los
+   renglones son items de una lista.
+
+   align-items en flex-start y el punto bajado 6px: el texto envuelve en dos
+   líneas y centrado el punto quedaba a media altura del bloque en vez de al
+   lado del primer renglón, que es lo que ancla. */
+.s-clave-cab { display: flex; align-items: center; gap: 8px; padding: 0 2px; margin-bottom: 8px; }
+.s-clave-cab > .rot { font-size: 13px; font-weight: 600; }
+.s-clave { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.s-clave:last-child { border-bottom: 0; }
+.s-clave > i { display: block; flex-shrink: 0; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; }
+
 /* ── Bloques del cuerpo de la nota ─────────────────────────────────────
    Las interrupciones que hacen que una nota no sea un bloque de texto. La
    referencia no tiene ninguna —es un catálogo de componentes, su prosa más
