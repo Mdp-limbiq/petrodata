@@ -136,6 +136,11 @@ export default async function V2Nota({ params }: { params: Params }) {
             </Link>
           </nav>
 
+          {/* La cabecera también entra en la columna de lectura. Suelta medía
+              584 contra los 548 del resto: seis por ciento de diferencia no se
+              lee como una cabecera más ancha, se lee como desprolijidad. Con
+              todo alineado, la nota es UNA columna. */}
+          <div className="s-lectura">
           <Card>
             <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-stretch">
               {/* La misma placa de 161 que la destacada del listado: una nota
@@ -199,6 +204,7 @@ export default async function V2Nota({ params }: { params: Params }) {
               </span>
             </CardPie>
           </Card>
+          </div>
 
           {/* PUNTOS CLAVE — la receta de las Context Cards (§11): el rótulo y
               su contador afuera de la card, y adentro un renglón por item.
@@ -208,6 +214,13 @@ export default async function V2Nota({ params }: { params: Params }) {
               la ancla; acá no colgaba de nada. Y el ícono de lista repetido en
               cada renglón no distinguía nada, porque todos los renglones son
               items de una lista. */}
+          {/* LA COLUMNA DE LECTURA. Todo lo que se lee vive acá adentro y mide
+              lo mismo: los puntos clave, los párrafos, las figuras, el video y
+              el pie. Antes el tope estaba en .s-prosa y la nota tenía tres
+              anchos —cards 584, párrafos 548, figuras 540—, con el salto
+              cayendo justo entre la card de puntos y la foto de abajo, que son
+              vecinas. Lo único al ancho entero es la cabecera. */}
+          <div className="s-lectura">
           <div className="mt-3">
             <div className="s-clave-cab">
               <span className="rot">Puntos clave</span>
@@ -223,7 +236,7 @@ export default async function V2Nota({ params }: { params: Params }) {
             </Card>
           </div>
 
-          <div className="s-prosa mt-4 px-1">
+          <div className="s-prosa mt-4">
             <p className="entrada">{cuerpos[0]}</p>
             <p>{cuerpos[1]}</p>
 
@@ -234,7 +247,7 @@ export default async function V2Nota({ params }: { params: Params }) {
 
             <p>{cuerpos[2]}</p>
 
-            <Intertitulo n="01">Los cuellos de botella</Intertitulo>
+            <Intertitulo>Los cuellos de botella</Intertitulo>
             <p>{cuerpos[3]}</p>
 
             <Cita>{frase(rot)}</Cita>
@@ -248,10 +261,6 @@ export default async function V2Nota({ params }: { params: Params }) {
               />
             )}
 
-            {/* Dos capítulos y no uno: un intertítulo solo en seis párrafos
-                marca dónde empieza el segundo bloque pero deja al primero sin
-                nombre. La práctica editorial es uno cada tres o cuatro. */}
-            <Intertitulo n="02">Lo que decide el ritmo</Intertitulo>
             <p>{cuerpos[5]}</p>
           </div>
 
@@ -266,6 +275,7 @@ export default async function V2Nota({ params }: { params: Params }) {
                 tiempo de lectura.
               </span>
             </div>
+          </div>
           </div>
         </div>
       </section>

@@ -10,23 +10,15 @@
    Los cuatro comparten un margen vertical de 20px. Que el pulso sea parejo es
    lo que hace que ninguna interrupción pese más que otra. */
 
-/** Intertítulo NUMERADO. El texto se queda en 13/600 —la jerarquía del sistema
-    es peso y tinta, no cuerpo— y el número en la mono y en ink-3 suma los dos
-    contrastes que el tamaño solo no daba: familia y tinta. Es el mismo idioma
-    que la cabecera de cada sección del sitio. */
-export function Intertitulo({ n, children }: { n: string; children: React.ReactNode }) {
-  return (
-    <h2 className="s-intertitulo">
-      <span className="n" aria-hidden>
-        {n}
-      </span>
-      {children}
-    </h2>
-  )
+/** Intertítulo. 13/600 y nada más: la jerarquía del sistema es peso y tinta,
+    no cuerpo. Lo que lo separa del párrafo es el aire de arriba. */
+export function Intertitulo({ children }: { children: React.ReactNode }) {
+  return <h2 className="s-intertitulo">{children}</h2>
 }
 
-/** Cita destacada. Filete vertical a la izquierda y el texto un escalón más de
-    peso, que es el único realce disponible cuando agrandar la fuente no lo es. */
+/** Cita destacada. Filete vertical a la izquierda y el texto a 17 —el escalón
+    de display que queda debajo del titular—, que es lo que hace que la
+    interrupción se note. Ver .s-cita en sistema.css para el porqué del tamaño. */
 export function Cita({ children, quien }: { children: React.ReactNode; quien?: string }) {
   return (
     <figure className="m-0">

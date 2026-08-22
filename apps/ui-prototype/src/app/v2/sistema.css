@@ -1066,50 +1066,6 @@
   scrollbar-width: none;
 }
 .s-filtros::-webkit-scrollbar { display: none; }
-/* ── Nota larga ────────────────────────────────────────────────────────
-   El sistema no tiene precedente de texto corrido: la referencia es un
-   catálogo de componentes y su prosa más larga es una descripción de sección
-   de dos renglones. Así que esto es extensión, y conviene que quede escrito
-   qué se toma prestado y qué se decide.
-
-   Se toma: el cuerpo en 13/19,5 —.s-cuerpo, el tamaño de celda del sistema—,
-   la tinta plena para el texto y ink-2 para lo que califica, y el marco de
-   sección como contenedor.
-
-   Se decide el ANCHO. La columna de contenido mide 672 y a 13px eso son unos
-   110 caracteres por renglón, casi el doble de lo que se lee cómodo. La prosa
-   se topa en 62ch —unos 470px— y el resto de la nota sigue usando el ancho
-   entero. No es un cambio de tamaño de fuente, que el sistema sí prohíbe: es
-   dónde corta el renglón.
-
-   El párrafo separa con 12px y sin sangría, que es lo que hace la referencia
-   entre bloques de texto. */
-.s-prosa { max-width: 62ch; }
-.s-prosa > p { margin: 0 0 12px; font-size: 13px; line-height: 19.5px; text-wrap: pretty; }
-.s-prosa > p:last-child { margin-bottom: 0; }
-/* LA ESCALERA DE LA NOTA. El cuerpo entero estaba en 13 y se leía monótono
-   (observación de Mariano). El sistema tiene diez tamaños declarados —21, 17,
-   14, 13, 12,5, 12, 11,5, 11, 10,5 y 10— y la nota usaba tres.
-
-   Conviene ser preciso con la regla que esto podría estar pisando. SISTEMA.md
-   §2 dice que agrandar la fuente no es una herramienta disponible PARA
-   DESTACAR ALGO: prohíbe el titular de 40px, no prohíbe que un rol editorial
-   distinto tenga su tamaño. La entradilla no es un párrafo enfatizado, es otra
-   cosa —el resumen que abre y que se lee antes de decidir seguir— y en
-   cualquier diario tiene su propio cuerpo.
-
-   Queda 21 titular → 17 entradilla → 13 cuerpo → 11,5 epígrafe y pie. Cuatro
-   escalones, y ninguno inventado: los cuatro estaban en la escala.
-
-   Un solo 17 en toda la nota. Dos serían un segundo cuerpo de texto, y ahí sí
-   se rompe la regla. */
-.s-prosa > p.entrada {
-  font-size: 17px;
-  line-height: 25.5px;
-  font-weight: 400;
-  margin-bottom: 16px;
-}
-
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
    card, y adentro un renglón por item con el padding medido de 10×12 y filete
@@ -1138,44 +1094,81 @@
 
 /* ── Bloques del cuerpo de la nota ─────────────────────────────────────
    Las interrupciones que hacen que una nota no sea un bloque de texto. La
-   referencia no tiene ninguna —es un catálogo de componentes, su prosa más
-   larga son dos renglones— así que todo esto es extensión, y se construye con
-   lo que el sistema sí tiene: el filete de 1px, las seis superficies y los
-   tres niveles de tinta. Nada de comillas gigantes, itálicas ni degradados.
+   referencia no tiene ninguna, así que todas son extensión y se construyen con
+   lo que el sistema sí tiene: el filete de 1px, las seis superficies y los tres
+   niveles de tinta. Nada de comillas gigantes, itálicas ni degradados. */
 
-   El ritmo: los cuatro bloques usan el mismo margen vertical de 20px, así la
-   prosa mantiene un pulso parejo y ninguna interrupción pesa más que otra. */
+/* ── Nota larga ────────────────────────────────────────────────────────
+   El sistema no tiene precedente de texto corrido: la referencia es un
+   catálogo de componentes y su prosa más larga es una descripción de sección
+   de dos renglones. Así que esto es extensión, y conviene que quede escrito
+   qué se toma prestado y qué se decide.
 
-/* La cita. Un filete VERTICAL a la izquierda y el texto un escalón más de
-   peso — que es el único realce que el sistema tiene, porque agrandar la
-   fuente no es una palanca disponible. Sin color: el filete en acento la
-   convertiría en un aviso, y una cita no es un estado. */
+   Se toma: el cuerpo en 13/19,5 —.s-cuerpo, el tamaño de celda del sistema—,
+   la tinta plena para el texto y ink-2 para lo que califica, y el marco de
+   sección como contenedor.
+
+   Se decide el ANCHO. La columna de contenido mide 672 y a 13px eso son unos
+   110 caracteres por renglón, casi el doble de lo que se lee cómodo. No es un
+   cambio de tamaño de fuente, que el sistema sí prohíbe: es dónde corta el
+   renglón.
+
+   El tope va en .s-lectura y NO en .s-prosa, y ésa es la corrección: con el
+   tope en la prosa, la nota tenía tres anchos —las cards a 584, los párrafos a
+   548 y las figuras a 540— y el salto caía justo entre la card de puntos clave
+   y la foto que va debajo, dos bloques vecinos. Ahora todo lo que se lee vive
+   en la misma columna: los puntos, los párrafos, las figuras, el video y el
+   pie. Lo único que se queda al ancho entero es la cabecera, que es la
+   cabecera.
+
+   El párrafo separa con 12px y sin sangría, que es lo que hace la referencia
+   entre bloques de texto. */
+.s-lectura { max-width: 62ch; }
+.s-prosa > p { margin: 0 0 12px; font-size: 13px; line-height: 19.5px; text-wrap: pretty; }
+.s-prosa > p:last-child { margin-bottom: 0; }
+/* La entradilla sube UN escalón de peso y de tinta, no de tamaño: es la
+   jerarquía del sistema —peso y color, nunca cuerpo— aplicada a un párrafo. */
+.s-prosa > p.entrada { font-weight: 500; }
+
+/* La cita va a 17 y no a 13 (pedido de Mariano, 2026-08-21). Era el único
+   bloque del cuerpo que se distinguía sólo por el filete: a 13/500 entre
+   párrafos de 13/400 la interrupción casi no se notaba, y una cita destacada
+   existe justamente para cortar el ritmo.
+
+   17 es el escalón que hay. El sistema declara 21 y lo reserva para el título
+   de la página —hay uno por página, y en una nota es el titular—; una cita a
+   21 competiría con él. 17 es el «display» que queda debajo, y sale de la
+   escala: no se inventa nada.
+
+   Conviene decir qué regla toca. SISTEMA.md §2 dice que agrandar la fuente no
+   es una herramienta disponible PARA DESTACAR ALGO, y prohíbe el titular de
+   40px. Una cita destacada no es un párrafo enfatizado: es un bloque con su
+   propio rol editorial, y en cualquier diario tiene su cuerpo. El resto del
+   cuerpo se queda entero en 13.
+
+   La interlínea baja de 1,5 a 1,35 —23 sobre 17—: el texto grande necesita
+   menos aire entre renglones que el de lectura, o se desarma en líneas
+   sueltas. Y el peso BAJA a 400: a 17 el tamaño ya hace el trabajo que a 13
+   hacía el 500, y sumar los dos lo dejaba pesado.
+
+   Sin color: el filete en acento la convertiría en un aviso, y una cita no es
+   un estado. */
 .s-cita {
-  margin: 20px 0;
-  padding: 2px 0 2px 14px;
+  margin: 22px 0;
+  padding: 2px 0 2px 16px;
   border-left: 2px solid var(--line-strong);
-  font-size: 13px;
-  line-height: 19.5px;
-  font-weight: 500;
+  font-size: 17px;
+  line-height: 23px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   text-wrap: pretty;
 }
 
-/* El intertítulo va NUMERADO, con el número en la mono y en la tinta más
-   tenue. Es el mismo idioma que la cabecera de cada sección del sitio —«01
-   Dashboard», «05 Indicadores»— y suma dos contrastes que el tamaño solo no
-   daba: familia y tinta. El texto se queda en 13/600, que es lo que el sistema
-   permite; lo que lo separa del párrafo es el aire de arriba.
-
-   Y el párrafo que le sigue arranca pegado: un intertítulo con el mismo aire
-   arriba y abajo no dice de cuál de los dos bloques es cabecera. */
-.s-intertitulo { display: flex; align-items: baseline; gap: 8px; margin: 26px 0 6px; font-size: 13px; font-weight: 600; }
-.s-intertitulo > .n {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-}
+/* El intertítulo. 13/600 —.s-titulo— y no más: la jerarquía es peso y tinta.
+   Lo que lo separa del párrafo es el aire de arriba, no el cuerpo. Y el
+   párrafo que le sigue arranca pegado: con el mismo aire arriba y abajo no
+   diría de cuál de los dos bloques es cabecera. */
+.s-intertitulo { margin: 24px 0 6px; font-size: 13px; font-weight: 600; }
 .s-intertitulo + p { margin-top: 0; }
 
 /* Figura del cuerpo: foto a ancho completo de la prosa con su epígrafe. Alto
