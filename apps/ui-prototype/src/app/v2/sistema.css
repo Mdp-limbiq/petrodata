@@ -1114,14 +1114,20 @@
   height: 100%;
   padding: 0 2px;
   border-radius: 4px;
-  color: var(--ink-3);
+  /* ink-2 y no ink-3, apartándose de la referencia a propósito. Allá el
+     tirador es una letra —«W», «H»— que sólo nombra la propiedad y se puede
+     ignorar; acá es la ÚNICA afordancia del control, y medido en ink-3 daba
+     2,43 en claro y 2,77 en oscuro. Un mando que no se ve no se agarra.
+     El hover sube a la tinta plena y el foco al acento, así el estado se
+     sigue leyendo por encima del reposo. */
+  color: var(--ink-2);
   font-size: 12px;
   cursor: ew-resize;
   touch-action: none;
   user-select: none;
   transition: color var(--dur-instant) var(--ease-out);
 }
-.s-escenario > .tirador:hover { color: var(--ink-2); }
+.s-escenario > .tirador:hover { color: var(--ink); }
 .s-escenario > .tirador:focus-visible { color: var(--accent-ink); outline: none; }
 .s-escenario > input {
   width: 48px;
