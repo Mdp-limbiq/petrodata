@@ -99,6 +99,15 @@ export default function V2Indicadores() {
   const pbiBusd = DAY_VALUE_INPUTS.gdpUsd / 1e9
   const pbiVeces = DAY_VALUE_INPUTS.gdpUsd / DAY_VALUE_INPUTS.grossValueUsd
 
+  /* El volumen que hay DETRÁS de los 22,3 B, y lo que Vaca Muerta puso en la
+     misma ventana. Los dos salen del fixture y la comparación es una división:
+     no hay nada estimado. Ver el pie de la sección 02 para por qué importa. */
+  const bbldValor = DAY_VALUE_INPUTS.oilBbl / 365
+  const ventanaVM = SERIE.points.filter(
+    (x) => x.period >= '2025-06' && x.period <= '2026-05',
+  )
+  const bbldVM = ventanaVM.reduce((a, x) => a + x.oilBblD, 0) / ventanaVM.length
+
   const maxKm = Math.max(...TRANSPORT.gasByOperator.map((o) => o.km))
   const maxRigi = Math.max(...RIGI.projects.map((p) => p.busd))
 
@@ -275,6 +284,17 @@ export default function V2Indicadores() {
             </span>
           </CardPie>
         </Card>
+        {/* El título es el del producto y no se toca, pero la cifra que hay
+            debajo no es de Vaca Muerta y eso sí hay que decirlo. */}
+        <Pie>
+          El título viene así de la fuente, pero el volumen detrás de estos{' '}
+          {formatDecimal(DAY_VALUE.perYearBUSD, 1)} BUSD son{' '}
+          <b className="font-semibold">{formatInteger(Math.round(bbldValor))} bbl/d</b>, que es
+          escala nacional: en la misma ventana Vaca Muerta promedió{' '}
+          {formatInteger(Math.round(bbldVM))} —el {formatDecimal((bbldVM / bbldValor) * 100, 0)}%—
+          y su mejor mes llegó a {formatInteger(Math.round(Math.max(...ventanaVM.map((x) => x.oilBblD))))}.
+          O sea que la cifra es de la producción del país, no la de la cuenca.
+        </Pie>
       </Seccion>
 
       {/* ── Las tres series ────────────────────────────────────────────────
@@ -365,8 +385,10 @@ export default function V2Indicadores() {
         </Card>
         <Pie>
           La cuenta es la del sitio y sale entera del fixture: el volumen de doce meses
-          —{formatInteger(Math.round(DAY_VALUE_INPUTS.oilBbl))} barriles— por el precio menos
-          los {formatInteger(DAY_VALUE_INPUTS.oilDiscountUsd)} US$/bbl de descuento por calidad.
+          —{formatInteger(Math.round(DAY_VALUE_INPUTS.oilBbl))} barriles, que son{' '}
+          {formatInteger(Math.round(bbldValor))} bbl/d de producción nacional, no de la cuenca—
+          por el precio menos los {formatInteger(DAY_VALUE_INPUTS.oilDiscountUsd)} US$/bbl de
+          descuento por calidad.
           Valúa <b className="font-semibold">sólo el petróleo</b>: no incluye el gas y no
           descuenta costos ni impuestos. El Brent de partida es el del {BRENT.asOf}.
         </Pie>
