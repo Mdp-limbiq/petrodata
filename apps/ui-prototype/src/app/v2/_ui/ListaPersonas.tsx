@@ -112,9 +112,9 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
           cabecera reservaba 100px para un voto que medía 98. */}
       <div className="s-pcab hidden sm:grid">
         <span />
-        <span>Puntos</span>
         <span />
         <span>Persona</span>
+        <span className="text-right">Puntos</span>
         <span className="text-right">Votación semanal</span>
       </div>
       {personas.map((p, i) => {
@@ -127,7 +127,7 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
           <div key={p.slug} className="s-persona">
             <span
               className="s-mono text-[11px]"
-              style={{ color: 'var(--ink-3)', gridArea: 'pos' }}
+              style={{ color: 'var(--ink-3)' }}
               /* El «=» delante marca el empate. Es la notación de las tablas
                  de posiciones y ocupa un carácter, así que la columna no
                  cambia de ancho entre una fila y la siguiente. */
@@ -141,18 +141,12 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                 que deja la fila en la altura del resto de las listas del sitio.
                 Cuando no hay imagen cae al monograma, que es la misma pieza que
                 usa la lista de empresas. */}
-            {/* Los puntos van pegados al puesto: en una tabla de posiciones
-                el puesto y el puntaje se leen juntos de arriba abajo. Al final
-                de la fila había que cruzarla entera para saber por qué alguien
-                estaba donde estaba. */}
-            <span className="s-idx">{formatDecimal(p.indice, 1)}</span>
-
             <Cara slug={p.slug} nombre={p.nombre} />
 
             {/* Tres renglones —nombre, cargo, empresa— y no dos: 19,5 + 17,25
                 + 17,25 llenan el alto de la foto de 60. En dos, la foto quedaba
                 23px más alta que la columna que acompaña. */}
-            <span className="flex min-w-0 flex-col justify-center" style={{ gridArea: 'quien' }}>
+            <span className="flex min-w-0 flex-col justify-center">
               <span className="s-cuerpo flex items-center gap-1.5 font-medium">
                 <span className="truncate">{p.nombre}</span>
                 {/* El cargo sin confirmar se marca. Es más honesto que
@@ -179,6 +173,9 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
               </span>
             </span>
 
+            <span className="s-pcontrol">
+            <span className="s-idx">{formatDecimal(p.indice, 1)}</span>
+
             <span className="s-voto">
               <span className="n">
                 {n > 0 ? '+' : ''}
@@ -192,7 +189,7 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                   aria-label={`Votar a favor de ${p.nombre}`}
                   onClick={() => votar(p.slug, 1)}
                 >
-                  <Icono d="M18 15l-6-6-6 6" size={11} grosor={2.6} />
+                  <Icono d="M18 15l-6-6-6 6" size={13} grosor={2.4} />
                 </button>
                 <button
                   type="button"
@@ -201,9 +198,10 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                   aria-label={`Votar en contra de ${p.nombre}`}
                   onClick={() => votar(p.slug, -1)}
                 >
-                  <Icono d="M6 9l6 6 6-6" size={11} grosor={2.6} />
+                  <Icono d="M6 9l6 6 6-6" size={13} grosor={2.4} />
                 </button>
               </span>
+            </span>
             </span>
           </div>
         )
@@ -225,16 +223,10 @@ function Cara({ slug, nombre }: { slug: string; nombre: string }) {
     .join('')
     .toUpperCase()
 
-  if (rota)
-    return (
-      <span className="s-cara s-cara--mono" style={{ gridArea: 'foto' }}>
-        {ini}
-      </span>
-    )
+  if (rota) return <span className="s-cara s-cara--mono">{ini}</span>
   return (
     <img
       className="s-cara"
-      style={{ gridArea: 'foto' }}
       src={`/images/ceos/${slug}.jpg`}
       alt=""
       width={200}

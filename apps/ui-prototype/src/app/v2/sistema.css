@@ -1150,23 +1150,18 @@
    100px para el voto y el voto medía 98, así que las dos columnas de la
    derecha salían corridas dos píxeles.
 
-   Las cinco columnas: puesto 28, PUNTOS 60, foto 60, persona 1fr y votación
-   semanal 100. Ningún número inventado: salen de las piezas que van adentro
-   —el conteo de 30, la separación de 8 y los dos botones de 20— más lo que
-   mide el rótulo «Votación semanal», que es la pieza más ancha de esa columna.
-
-   Los puntos van SEGUNDOS, pegados al puesto (pedido de Mariano). En una tabla
-   de posiciones el puesto y el puntaje se leen juntos de arriba abajo; con el
-   puntaje al final había que cruzar la fila entera para saber por qué alguien
-   estaba donde estaba.
+   Las cinco columnas: puesto 28, foto 60, persona 1fr, puntos 64 y votación
+   semanal 100. El control del voto mide 86 —30 del conteo + 8 de separación +
+   48 de los dos botones de 24— y la columna toma 100, que es lo que mide el
+   rótulo «Votación semanal» a 11,5px: la pieza más ancha de la columna es el
+   encabezado, no el control.
 
    La fila es la más alta de v2 —76— y es la excepción que hay que justificar:
    acá la persona ES el contenido y en 32 no se distingue una cara de otra. */
 .s-persona,
 .s-pcab {
   display: grid;
-  grid-template-columns: 28px 60px 60px minmax(0, 1fr) 100px;
-  grid-template-areas: 'pos pts foto quien voto';
+  grid-template-columns: 28px 60px minmax(0, 1fr) 64px 100px;
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
@@ -1212,54 +1207,38 @@
   font-weight: 600;
 }
 
-/* Los puntos. La cifra va a 17/600 —.s-cifra, el escalón de cifra del
-   sistema— y no a 13 (pedido de Mariano): es el número por el que la lista
-   está ordenada y tiene que pesar más que el cargo que va al lado. 17 es el
-   tamaño que el sistema usa para una cifra; el 21 es del titular de página y
-   hay uno solo por página.
+/* El índice: la caja de .s-chip —22 de alto, radio de chip, padding 0 8— que
+   HUGEA su contenido. Antes tenía min-width 56 con el texto pegado a la
+   derecha, y adentro de una pastilla de ancho fijo un «8,1» quedaba con 25px
+   de aire de un lado y 9 del otro: descentrado a la vista.
 
-   La pastilla sube a 26 para contener el 17 con el mismo aire que tenía el 13
-   en 22. HUGEA su contenido —el ancho fijo vive en la columna— así que el
-   texto queda centrado por construcción y el borde alineado con los de arriba
-   y abajo. Antes tenía min-width con el texto a la derecha y un «8,1» quedaba
-   con 25px de aire de un lado y 9 del otro.
-
-   justify-self: start, porque la columna ahora está a la izquierda y pegada al
-   puesto: alineadas por el borde IZQUIERDO se leen como una columna de
-   puntaje, y por el derecho se leerían como una cifra que cierra algo. */
+   El ancho fijo vive en la COLUMNA y no en la pastilla, así que las pastillas
+   quedan centradas por construcción y su borde derecho igual alineado. */
 .s-idx {
-  grid-area: pts;
-  justify-self: start;
+  justify-self: end;
   display: inline-flex;
   align-items: center;
-  height: 26px;
-  padding: 0 9px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: var(--radius-chip);
   background: var(--field);
   color: var(--ink);
-  font-size: 17px;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
 /* ── El voto ───────────────────────────────────────────────────────────
-   Los dos chevrones juntos en una pastilla partida al medio, en 20×20 con el
-   ícono en 11 (pedido de Mariano: mucho más chicos).
-
-   Conviene decir que 20 está por DEBAJO del botón de ícono que declara
-   SISTEMA.md §6.3 —«28×28 con radio 8, o 24×24 con radio 6»—. No es una medida
-   inventada igual: el sistema tiene controles de 19 y 20 de alto —.s-toggle-btn
-   mide 19, .s-contador 20— así que la caja existe; lo que no existe es un
-   BOTÓN de ícono de ese tamaño. Se acepta porque acá el control se repite 48
-   veces y en 24 competía con el puntaje, que es lo que la lista viene a
-   mostrar. La zona sensible sigue siendo la pastilla entera, 40×20.
+   Los dos chevrones juntos en una pastilla partida al medio. Los botones son
+   de 24×24 con radio 6, que es el tamaño chico que SISTEMA.md §6.3 declara
+   para el botón de ícono —«28×28 con radio 8, o 24×24 con radio 6»—. Estaban
+   en 30×26, una medida que no existe en el sistema y que al lado de un badge
+   de 22 pesaba más que el dato.
 
    El color va siempre y no sólo al votar: es lo que dice para qué lado va cada
    uno sin tener que probarlo. Mezclado con la tinta al 55%, como todos los
    tonos de estado del sistema. */
-.s-voto { grid-area: voto; justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
+.s-voto { justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
 .s-voto > .n {
   min-width: 30px;
   text-align: right;
@@ -1278,8 +1257,8 @@
 .s-voto button {
   display: grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1305,10 +1284,14 @@
 @media (max-width: 639px) {
   .s-persona {
     grid-template-columns: 28px 60px minmax(0, 1fr);
-    grid-template-areas:
-      'pos foto quien'
-      'pos pts  voto';
     row-gap: 6px;
+  }
+  .s-pcontrol {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    grid-column: 2 / -1;
   }
 }
 
