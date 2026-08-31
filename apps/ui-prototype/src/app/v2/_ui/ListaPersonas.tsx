@@ -106,12 +106,16 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
       {/* Los rótulos de columna. Sin ellos el número y los chevrones no se
           sabe qué son — el badge podía leerse como un precio o un porcentaje.
           Los anchos repiten los de la fila para que caigan a plomo. */}
-      <div className="s-pcab hidden sm:flex">
-        <span className="w-7 shrink-0" />
-        <span className="w-[60px] shrink-0" />
-        <span className="min-w-0 flex-1">Persona</span>
-        <span className="w-[56px] shrink-0 text-right">Índice</span>
-        <span className="w-[100px] shrink-0 text-right">Votación semanal</span>
+      {/* La cabecera usa la MISMA grilla que la fila —.s-persona y .s-pcab
+          comparten grid-template-columns— así que las columnas caen a plomo
+          sin que nadie sincronice anchos a mano. Antes eran dos flex y la
+          cabecera reservaba 100px para un voto que medía 98. */}
+      <div className="s-pcab hidden sm:grid">
+        <span />
+        <span />
+        <span>Persona</span>
+        <span className="text-right">Índice</span>
+        <span className="text-right">Votación</span>
       </div>
       {personas.map((p, i) => {
         const mio = votos[p.slug]
@@ -122,7 +126,7 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
         return (
           <div key={p.slug} className="s-persona">
             <span
-              className="s-mono w-7 shrink-0 text-[11px]"
+              className="s-mono text-[11px]"
               style={{ color: 'var(--ink-3)' }}
               /* El «=» delante marca el empate. Es la notación de las tablas
                  de posiciones y ocupa un carácter, así que la columna no
@@ -142,8 +146,7 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
             {/* Tres renglones —nombre, cargo, empresa— y no dos: 19,5 + 17,25
                 + 17,25 llenan el alto de la foto de 60. En dos, la foto quedaba
                 23px más alta que la columna que acompaña. */}
-            <span className="s-pcuerpo">
-            <span className="flex min-w-0 flex-1 flex-col justify-center">
+            <span className="flex min-w-0 flex-col justify-center">
               <span className="s-cuerpo flex items-center gap-1.5 font-medium">
                 <span className="truncate">{p.nombre}</span>
                 {/* El cargo sin confirmar se marca. Es más honesto que
@@ -171,9 +174,9 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
             </span>
 
             <span className="s-pcontrol">
-            <span className="s-idx shrink-0">{formatDecimal(p.indice, 1)}</span>
+            <span className="s-idx">{formatDecimal(p.indice, 1)}</span>
 
-            <span className="s-voto shrink-0">
+            <span className="s-voto">
               <span className="n">
                 {n > 0 ? '+' : ''}
                 {n}
@@ -186,7 +189,7 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                   aria-label={`Votar a favor de ${p.nombre}`}
                   onClick={() => votar(p.slug, 1)}
                 >
-                  <Icono d="M18 15l-6-6-6 6" size={14} grosor={2.4} />
+                  <Icono d="M18 15l-6-6-6 6" size={13} grosor={2.4} />
                 </button>
                 <button
                   type="button"
@@ -195,10 +198,9 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                   aria-label={`Votar en contra de ${p.nombre}`}
                   onClick={() => votar(p.slug, -1)}
                 >
-                  <Icono d="M6 9l6 6 6-6" size={14} grosor={2.4} />
+                  <Icono d="M6 9l6 6 6-6" size={13} grosor={2.4} />
                 </button>
               </span>
-            </span>
             </span>
             </span>
           </div>

@@ -1143,54 +1143,53 @@
 }
 
 /* ── Personalidades ────────────────────────────────────────────────────
-   La fila del ranking de personas. Más alta que el resto de las listas del
-   sitio, y es la excepción que hay que justificar: acá la persona ES el
-   contenido —la sección existe para que alguien se busque a sí mismo— y a 48
-   de alto la cara quedaba en 32, que es un tamaño donde no se distingue una
-   cara de otra. Con la foto en 60 la fila mide 76.
+   La fila y su cabecera comparten UNA grilla, que es como el sistema resuelve
+   una tabla en la §13: .s-gcab y .s-gfila declaran el mismo
+   grid-template-columns y por eso caen a plomo. Acá estaban como dos flex que
+   yo mantenía sincronizados a mano, y no lo estaban: la cabecera reservaba
+   100px para el voto y el voto medía 98, así que las dos columnas de la
+   derecha salían corridas dos píxeles.
 
-   La foto va CUADRADA con el radio de control, igual que la fila de noticia
-   (pedido de Mariano, 2026-08-31). Redonda leía como avatar de aplicación; el
-   cuadrado con radio es el tratamiento que el sistema ya usa para una imagen
-   de contenido, y hace que las dos listas con foto del sitio se lean como la
-   misma pieza.
+   Las cinco columnas: puesto 28, foto 60, persona 1fr, índice 64 y votación
+   88 —30 del conteo + 8 de separación + 48 de los dos botones de 24—. Ningún
+   número inventado: salen de las piezas que van adentro.
 
-   El texto va en TRES renglones —nombre, cargo, empresa— y no en dos: 19,5 +
-   17,25 + 17,25 son 54, que es lo que llena el alto de la foto. En dos
-   renglones la foto quedaba 23px más alta que la columna que acompaña, que es
-   exactamente el desnivel que se arregló en la fila de noticia. */
-.s-persona {
-  display: flex;
+   La fila es la más alta de v2 —76— y es la excepción que hay que justificar:
+   acá la persona ES el contenido y en 32 no se distingue una cara de otra. */
+.s-persona,
+.s-pcab {
+  display: grid;
+  grid-template-columns: 28px 60px minmax(0, 1fr) 64px 88px;
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--line);
-  transition: background-color var(--dur-slower) var(--ease-in-out);
 }
+.s-persona { transition: background-color var(--dur-slower) var(--ease-in-out); }
 .s-persona:last-child { border-bottom: 0; }
 .s-persona:hover { background: var(--hover); }
-
-/* El cuerpo de la fila: el texto y los controles. A 640 y menos se apilan —el
-   índice y el voto bajan debajo del nombre— porque a 375 la card mide 287 por
-   dentro y entre la foto de 60, el badge de 56, el conteo de 30 y el par de
-   chevrones de 60 al texto le quedaban 45px: el nombre desaparecía y sólo se
-   veía el chip de «sin confirmar». Apilados, el nombre se lleva el ancho. */
-.s-pcuerpo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  flex: 1;
-}
-.s-pcontrol { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-@media (max-width: 639px) {
-  .s-pcuerpo { flex-direction: column; align-items: stretch; gap: 6px; }
-  .s-pcontrol { justify-content: flex-end; }
+/* La cabecera es .s-gcab de la §13: 11,5/500 en ink-2 sobre el escalón de
+   fondo. Sin ella el badge podía leerse como un precio y los chevrones no se
+   sabía qué movían. */
+.s-pcab {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background: var(--inset);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-2);
 }
 
+/* display:contents en escritorio: el envoltorio desaparece de la grilla y sus
+   dos hijos —el índice y el voto— ocupan sus columnas. En móvil vuelve a ser
+   una caja y se lleva su propio renglón. */
+.s-pcontrol { display: contents; }
+
+/* La foto CUADRADA con el radio de control, igual que la fila de noticia.
+   Redonda leía como avatar de aplicación; el cuadrado con radio es el
+   tratamiento que el sistema ya usa para una imagen de contenido. */
 .s-cara {
   display: block;
-  flex-shrink: 0;
   width: 60px;
   height: 60px;
   border-radius: var(--radius-control);
@@ -1198,8 +1197,6 @@
   background: var(--inset);
   box-shadow: var(--shadow-hairline);
 }
-/* Sin foto, las iniciales. Misma caja, mismo radio y mismo anillo: la fila no
-   cambia de forma según haya o no imagen. */
 .s-cara--mono {
   display: grid;
   place-items: center;
@@ -1208,20 +1205,19 @@
   font-weight: 600;
 }
 
-/* El índice en BADGE (pedido de Mariano). Sale de las tres barritas, que
-   mostraban la composición del número pero le robaban peso: en una lista donde
-   la cifra ES el ranking, el número tiene que ser lo que se ve. La composición
-   pasa al pie de la card, en palabras.
+/* El índice: la caja de .s-chip —22 de alto, radio de chip, padding 0 8— que
+   HUGEA su contenido. Antes tenía min-width 56 con el texto pegado a la
+   derecha, y adentro de una pastilla de ancho fijo un «8,1» quedaba con 25px
+   de aire de un lado y 9 del otro: descentrado a la vista.
 
-   Superficie --field y la cifra en tinta plena, que es la caja del contador de
-   grupo del sistema con el texto subido: acá el número no es metadata. */
+   El ancho fijo vive en la COLUMNA y no en la pastilla, así que las pastillas
+   quedan centradas por construcción y su borde derecho igual alineado. */
 .s-idx {
+  justify-self: end;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
-  min-width: 56px;
-  height: 26px;
-  padding: 0 9px;
+  height: 22px;
+  padding: 0 8px;
   border-radius: var(--radius-chip);
   background: var(--field);
   color: var(--ink);
@@ -1230,34 +1226,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Cabecera de columnas. Es .s-gcab de la §13 —11,5/500 en ink-2 con filete
-   abajo— pero en flex, para que las columnas caigan exactamente donde caen las
-   de la fila. Sin ella el número y los chevrones no se sabe qué son. */
-.s-pcab {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--line);
-  background: var(--inset);
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--ink-2);
-}
-
 /* ── El voto ───────────────────────────────────────────────────────────
-   Los dos chevrones JUNTOS en una sola pastilla partida al medio, y con color
-   (pedido de Mariano). El par se lee como un control y no como dos botones
-   sueltos, que es lo que era con el conteo en el medio.
+   Los dos chevrones juntos en una pastilla partida al medio. Los botones son
+   de 24×24 con radio 6, que es el tamaño chico que SISTEMA.md §6.3 declara
+   para el botón de ícono —«28×28 con radio 8, o 24×24 con radio 6»—. Estaban
+   en 30×26, una medida que no existe en el sistema y que al lado de un badge
+   de 22 pesaba más que el dato.
 
-   El color va SIEMPRE, no sólo al votar: es lo que dice para qué lado va cada
+   El color va siempre y no sólo al votar: es lo que dice para qué lado va cada
    uno sin tener que probarlo. Mezclado con la tinta al 55%, como todos los
-   tonos de estado del sistema — el verde y el rojo plenos no llegan a AA a
-   este tamaño. Al votar, el botón toma además el tinte de fondo.
-
-   El conteo sale del medio y se va a la izquierda: entre los dos chevrones
-   partía el control en dos mitades que no se leían como par. */
-.s-voto { display: inline-flex; align-items: center; gap: 8px; }
+   tonos de estado del sistema. */
+.s-voto { justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
 .s-voto > .n {
   min-width: 30px;
   text-align: right;
@@ -1269,15 +1248,15 @@
 .s-voto > .par {
   display: inline-flex;
   align-items: center;
-  border-radius: var(--radius-chip);
+  border-radius: 6px;
   background: var(--field);
   overflow: hidden;
 }
 .s-voto button {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1285,14 +1264,34 @@
   transition: background-color var(--dur-instant), color var(--dur-instant);
 }
 .s-voto button.arriba { color: color-mix(in srgb, var(--green) 55%, var(--ink)); }
-.s-voto button.abajo { color: color-mix(in srgb, var(--red) 55%, var(--ink)); }
-/* La divisoria va en el segundo botón y no como elemento aparte: un span de
-   1px en el medio se desalinea con el radio de la pastilla. */
-.s-voto button.abajo { box-shadow: inset 1px 0 0 var(--line-strong); }
-.s-voto button.arriba:hover { background: var(--green-tint); }
-.s-voto button.abajo:hover { background: var(--red-tint); }
+/* La divisoria va como sombra interior del segundo botón: un span de 1px en el
+   medio se desalinea con el radio de la pastilla. */
+.s-voto button.abajo {
+  color: color-mix(in srgb, var(--red) 55%, var(--ink));
+  box-shadow: inset 1px 0 0 var(--line-strong);
+}
+.s-voto button.arriba:hover,
 .s-voto button.arriba[aria-pressed='true'] { background: var(--green-tint); }
+.s-voto button.abajo:hover,
 .s-voto button.abajo[aria-pressed='true'] { background: var(--red-tint); }
+
+/* A 375 la card mide 287 por dentro: entre la foto de 60, el índice y el voto
+   al nombre le quedaban 45px y sólo se veía el chip de «sin confirmar». Abajo
+   de 640 la grilla pasa a tres columnas y los controles bajan a un segundo
+   renglón, alineados a la derecha. */
+@media (max-width: 639px) {
+  .s-persona {
+    grid-template-columns: 28px 60px minmax(0, 1fr);
+    row-gap: 6px;
+  }
+  .s-pcontrol {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    grid-column: 2 / -1;
+  }
+}
 
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
