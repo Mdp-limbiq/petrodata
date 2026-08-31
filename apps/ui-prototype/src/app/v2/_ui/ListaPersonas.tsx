@@ -73,18 +73,6 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
     })
   }
 
-  /* El conteo de muestra es determinista por slug: la maqueta tiene que verse
-     igual en cada carga, o parece que los números se inventan solos. */
-  const conteo = useMemo(() => {
-    const m: Record<string, number> = {}
-    for (const p of personas) {
-      let h = 0
-      for (const c of p.slug) h = (h * 31 + c.charCodeAt(0)) >>> 0
-      m[p.slug] = (h % 61) - 24
-    }
-    return m
-  }, [personas])
-
   /* POSICIÓN CON EMPATES. Numerar 30, 31, 32… cuando dieciséis personas tienen
      el mismo 7,3 afirma un orden que el dato no tiene, y en un ranking donde
      cada uno se busca a sí mismo ese es el peor error posible: nadie acepta
@@ -117,14 +105,13 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
             60px corrido a la derecha del bloque que describe. */}
         <span style={{ gridColumn: '2 / 4' }}>Persona</span>
         <span className="text-right">Puntos</span>
-        <span className="text-right">Votación semanal</span>
+        <span className="text-center">Votación semanal</span>
       </div>
       {personas.map((p, i) => {
         const mio = votos[p.slug]
         const empata =
           (i > 0 && personas[i - 1].indice === p.indice) ||
           (i < personas.length - 1 && personas[i + 1].indice === p.indice)
-        const n = conteo[p.slug] + (mio ?? 0)
         return (
           <div key={p.slug} className="s-persona">
             <span
@@ -178,11 +165,10 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
             <span className="s-pcontrol">
             <span className="s-idx">{formatDecimal(p.indice, 1)}</span>
 
+            {/* Sin el conteo (pedido de Mariano): quedan los dos chevrones. Lo
+                único que se pierde es el número; el estado del voto propio se
+                sigue viendo, porque el botón elegido queda con su tinte. */}
             <span className="s-voto">
-              <span className="n">
-                {n > 0 ? '+' : ''}
-                {n}
-              </span>
               <span className="par">
                 <button
                   type="button"

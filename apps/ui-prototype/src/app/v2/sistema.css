@@ -1151,10 +1151,9 @@
    derecha salían corridas dos píxeles.
 
    Las cinco columnas: puesto 28, foto 60, persona 1fr, puntos 64 y votación
-   semanal 100. El control del voto mide 86 —30 del conteo + 8 de separación +
-   48 de los dos botones de 24— y la columna toma 100, que es lo que mide el
-   rótulo «Votación semanal» a 11,5px: la pieza más ancha de la columna es el
-   encabezado, no el control.
+   semanal 100. En esa última columna la pieza más ancha es el ENCABEZADO y no
+   el control: «Votación semanal» mide unos 100 a 11,5px y el par de chevrones,
+   48. Por eso el control va centrado y no pegado al borde.
 
    La fila es la más alta de v2 —76— y es la excepción que hay que justificar:
    acá la persona ES el contenido y en 32 no se distingue una cara de otra. */
@@ -1238,15 +1237,16 @@
    El color va siempre y no sólo al votar: es lo que dice para qué lado va cada
    uno sin tener que probarlo. Mezclado con la tinta al 55%, como todos los
    tonos de estado del sistema. */
-.s-voto { justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
-.s-voto > .n {
-  min-width: 30px;
-  text-align: right;
-  font-size: 12px;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-2);
-}
+/* CENTRADO en su columna y no pegado a la derecha. Con el conteo al lado, el
+   control medía 86 sobre una columna de 100 y alinearlo a la derecha era lo
+   correcto. Sin el conteo mide 48, y ahí el rótulo «Votación semanal» —que es
+   la pieza que fija el ancho de la columna, 100— quedaba flotando sobre
+   cincuenta píxeles de nada. Centrado, el rótulo y el control comparten eje.
+
+   Es la excepción entre las columnas de la derecha, y se justifica sola: las
+   otras llevan cifras, que se alinean por el borde para poder compararlas de
+   arriba abajo; ésta lleva un control, que no se compara con nada. */
+.s-voto { justify-self: center; display: inline-flex; align-items: center; }
 .s-voto > .par {
   display: inline-flex;
   align-items: center;
