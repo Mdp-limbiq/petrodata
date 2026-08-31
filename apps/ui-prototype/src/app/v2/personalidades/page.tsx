@@ -1,4 +1,4 @@
-import { Card, CardHead, CardPie, Pie, Seccion, Dato } from '../_ui/kit'
+import { Card, CardHead, CardPie, FLUIDO, PALETA_TAGS, Pie, Seccion } from '../_ui/kit'
 import { ListaPersonas } from '../_ui/ListaPersonas'
 import { PERSONAS, PESOS, PISO_POZOS } from '@/fixtures/personas'
 import { formatDecimal, formatInteger } from '@/lib/format'
@@ -37,36 +37,57 @@ export default function V2Personalidades() {
 
   return (
     <>
+      {/* La 01 explica QUÉ es esto (pedido de Mariano, 2026-08-31). Antes eran
+          tres cifras —personas, cobertura, cargos confirmados— y estaban mal
+          puestas: son metadata del dataset, no una explicación. Un ranking de
+          personas con nombre y apellido tiene que decir de entrada qué mide,
+          quién lo calcula y qué puede hacer el que lo lee, o el que se busca a
+          sí mismo no sabe si el número es una opinión o un dato.
+
+          Las tres cifras no se tiran: bajan al pie, que es donde va lo que
+          califica a la sección. */}
       <Seccion
         n="01"
         titulo="Quiénes dirigen la cuenca"
-        desc="Las personas al frente de las empresas que producen el país."
+        desc="Qué mide este ranking y cómo se mueve."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Card>
-            <div className="px-3 py-3">
-              <Dato rotulo="Personas" valor={String(total)} nota="de las 50 primeras empresas" grande />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato
-                rotulo="Del valor del país"
-                valor={`${formatDecimal(cobertura, 1)}%`}
-                nota="suman sus empresas"
-              />
-            </div>
-          </Card>
-          <Card>
-            <div className="px-3 py-3">
-              <Dato
-                rotulo="Cargo confirmado"
-                valor={`${confirmados}`}
-                nota={`de ${total}, contra más de una fuente`}
-              />
-            </div>
-          </Card>
-        </div>
+        <Card>
+          <CardHead titulo="El Índice Vaca Muerta" nota={`${total} personas`} />
+          <div className="s-clave">
+            <i style={{ background: FLUIDO.petroleo }} aria-hidden />
+            <span className="s-cuerpo min-w-0 flex-1">
+              <b className="font-semibold">Ordena a quienes están al frente</b> de las empresas
+              que producen el país. Las {total} que figuran acá dirigen compañías que suman el{' '}
+              {formatDecimal(cobertura, 1)}% del valor de la producción nacional.
+            </span>
+          </div>
+          <div className="s-clave">
+            <i style={{ background: FLUIDO.gas }} aria-hidden />
+            <span className="s-cuerpo min-w-0 flex-1">
+              <b className="font-semibold">El algoritmo es propio.</b> Combina la escala de la
+              empresa, el rendimiento que saca por pozo que opera y la prima de valor que captura
+              por encima de su volumen. Los insumos son públicos; la ponderación, nuestra.
+            </span>
+          </div>
+          <div className="s-clave">
+            <i style={{ background: PALETA_TAGS[2] }} aria-hidden />
+            <span className="s-cuerpo min-w-0 flex-1">
+              <b className="font-semibold">La votación semanal pesa.</b> Cada lunes el conteo
+              vuelve a cero y lo que vota la gente entra en el índice de esa semana. El ranking no
+              es una foto fija: se mueve.
+            </span>
+          </div>
+          <CardPie>
+            <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
+              {/* El pie dice las dos cosas que el lector necesita para saber
+                  cuánto creerle a la fila donde aparece su nombre. */}
+              El índice mide a la <b className="font-semibold">empresa</b> y se atribuye a quien la
+              dirige: en el dato no hay ninguna métrica de la persona.{' '}
+              <b className="font-semibold">{confirmados}</b> de {total} tienen el cargo verificado
+              contra más de una fuente; el resto va marcado como sin confirmar.
+            </span>
+          </CardPie>
+        </Card>
       </Seccion>
 
       <Seccion

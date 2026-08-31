@@ -103,6 +103,16 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
 
   return (
     <>
+      {/* Los rótulos de columna. Sin ellos el número y los chevrones no se
+          sabe qué son — el badge podía leerse como un precio o un porcentaje.
+          Los anchos repiten los de la fila para que caigan a plomo. */}
+      <div className="s-pcab hidden sm:flex">
+        <span className="w-7 shrink-0" />
+        <span className="w-[60px] shrink-0" />
+        <span className="min-w-0 flex-1">Persona</span>
+        <span className="w-[56px] shrink-0 text-right">Índice</span>
+        <span className="w-[100px] shrink-0 text-right">Votación semanal</span>
+      </div>
       {personas.map((p, i) => {
         const mio = votos[p.slug]
         const empata =
@@ -129,7 +139,11 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                 usa la lista de empresas. */}
             <Cara slug={p.slug} nombre={p.nombre} />
 
-            <span className="min-w-0 flex-1">
+            {/* Tres renglones —nombre, cargo, empresa— y no dos: 19,5 + 17,25
+                + 17,25 llenan el alto de la foto de 60. En dos, la foto quedaba
+                23px más alta que la columna que acompaña. */}
+            <span className="s-pcuerpo">
+            <span className="flex min-w-0 flex-1 flex-col justify-center">
               <span className="s-cuerpo flex items-center gap-1.5 font-medium">
                 <span className="truncate">{p.nombre}</span>
                 {/* El cargo sin confirmar se marca. Es más honesto que
@@ -144,48 +158,48 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                 )}
               </span>
               <span className="s-micro block truncate" style={{ color: 'var(--ink-2)' }}>
-                {p.cargo ? `${p.cargo} · ` : ''}
+                {p.cargo || '—'}
+              </span>
+              {/* La empresa en ink-2 y no en ink-3: medido daba 2,72 en claro.
+                  ink-3 es para metadata que nadie necesita leer —un número de
+                  sección, una unidad— y qué empresa dirige esta persona es el
+                  dato que sostiene toda la fila. Queda del mismo tono que el
+                  cargo, que es correcto: los dos son el contexto del nombre. */}
+              <span className="s-micro block truncate" style={{ color: 'var(--ink-2)' }}>
                 {p.empresa}
               </span>
             </span>
 
-            {/* Los tres componentes del índice: la fila dice de qué está hecho
-                el número, que es lo que separa un índice de un invento. */}
-            <span className="s-comp hidden sm:flex" aria-hidden>
-              {[p.escala, p.rinde, p.prima].map((v, k) => (
-                <span key={k}>
-                  <i style={{ width: `${Math.max(2, v)}%` }} />
-                </span>
-              ))}
-            </span>
-
-            <span className="s-num w-11 shrink-0 text-right text-[13px] font-medium">
-              {formatDecimal(p.indice, 1)}
-            </span>
+            <span className="s-pcontrol">
+            <span className="s-idx shrink-0">{formatDecimal(p.indice, 1)}</span>
 
             <span className="s-voto shrink-0">
-              <button
-                type="button"
-                className="arriba"
-                aria-pressed={listo && mio === 1}
-                aria-label={`Votar a favor de ${p.nombre}`}
-                onClick={() => votar(p.slug, 1)}
-              >
-                <Icono d="M18 15l-6-6-6 6" size={13} grosor={2.4} />
-              </button>
               <span className="n">
                 {n > 0 ? '+' : ''}
                 {n}
               </span>
-              <button
-                type="button"
-                className="abajo"
-                aria-pressed={listo && mio === -1}
-                aria-label={`Votar en contra de ${p.nombre}`}
-                onClick={() => votar(p.slug, -1)}
-              >
-                <Icono d="M6 9l6 6 6-6" size={13} grosor={2.4} />
-              </button>
+              <span className="par">
+                <button
+                  type="button"
+                  className="arriba"
+                  aria-pressed={listo && mio === 1}
+                  aria-label={`Votar a favor de ${p.nombre}`}
+                  onClick={() => votar(p.slug, 1)}
+                >
+                  <Icono d="M18 15l-6-6-6 6" size={14} grosor={2.4} />
+                </button>
+                <button
+                  type="button"
+                  className="abajo"
+                  aria-pressed={listo && mio === -1}
+                  aria-label={`Votar en contra de ${p.nombre}`}
+                  onClick={() => votar(p.slug, -1)}
+                >
+                  <Icono d="M6 9l6 6 6-6" size={14} grosor={2.4} />
+                </button>
+              </span>
+            </span>
+            </span>
             </span>
           </div>
         )
