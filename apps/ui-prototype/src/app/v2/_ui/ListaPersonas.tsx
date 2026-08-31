@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Icono } from './iconos'
+import { LIMITE, useVotos } from './votos'
 import type { Persona } from '@/fixtures/personas'
 import { formatDecimal } from '@/lib/format'
 
@@ -24,54 +25,8 @@ import { formatDecimal } from '@/lib/format'
    viejos: sin eso, «se renueva cada lunes» sería una frase y no un
    comportamiento. */
 
-const CLAVE = 'v2-personalidades-votos'
-
-/** Lunes de la semana en curso, en ISO. Es la clave con la que caducan los
-    votos: al cambiar de lunes, el objeto guardado deja de coincidir y se
-    descarta entero. */
-function semana(): string {
-  const d = new Date()
-  const dia = (d.getDay() + 6) % 7 // lunes = 0
-  d.setDate(d.getDate() - dia)
-  return d.toISOString().slice(0, 10)
-}
-
-type Voto = 1 | -1
-type Guardado = { semana: string; votos: Record<string, Voto> }
-
-export function ListaPersonas({ personas, base }: { personas: Persona[]; base: number }) {
-  const [votos, setVotos] = useState<Record<string, Voto>>({})
-  const [listo, setListo] = useState(false)
-
-  /* Se lee después de montar y no en el primer render: el servidor no tiene
-     localStorage, y pintar un voto en el cliente que el HTML servido no tiene
-     es un desajuste de hidratación. Hasta que carga, los botones van sin
-     marcar, que es el estado del HTML del servidor. */
-  useEffect(() => {
-    try {
-      const g: Guardado = JSON.parse(localStorage.getItem(CLAVE) || '{}')
-      if (g.semana === semana()) setVotos(g.votos || {})
-    } catch {
-      /* storage bloqueado o basura adentro: se arranca sin votos */
-    }
-    setListo(true)
-  }, [])
-
-  function votar(slug: string, v: Voto) {
-    setVotos((prev) => {
-      const sig = { ...prev }
-      /* Clickear el voto que ya está puesto lo saca. Sin eso, quien se
-         equivoca queda atrapado con su voto hasta el lunes. */
-      if (sig[slug] === v) delete sig[slug]
-      else sig[slug] = v
-      try {
-        localStorage.setItem(CLAVE, JSON.stringify({ semana: semana(), votos: sig }))
-      } catch {
-        /* si no se puede guardar, el voto vale para esta sesión y nada más */
-      }
-      return sig
-    })
-  }
+export function ListaPersonas({ personas }: { personas: Persona[] }) {
+  const { votos, votar, restantes } = useVotos()
 
   /* POSICIÓN CON EMPATES. Numerar 30, 31, 32… cuando dieciséis personas tienen
      el mismo 7,3 afirma un orden que el dato no tiene, y en un ranking donde
@@ -88,6 +43,8 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
     })
     return m
   }, [personas])
+
+  const sinCredito = `Ya usaste tus ${LIMITE} votos de esta semana`
 
   return (
     <>
@@ -109,6 +66,7 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
       </div>
       {personas.map((p, i) => {
         const mio = votos[p.slug]
+        const agotado = restantes === 0 && !mio
         const empata =
           (i > 0 && personas[i - 1].indice === p.indice) ||
           (i < personas.length - 1 && personas[i + 1].indice === p.indice)
@@ -170,11 +128,18 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                 sigue viendo, porque el botón elegido queda con su tinte. */}
             <span className="s-voto">
               <span className="par">
+                {/* Sin crédito, los botones de las filas que NO votaste se
+                    apagan. Dejarlos vivos y que el clic no haga nada es peor
+                    que apagarlos: parece que se rompió. Las que sí votaste
+                    quedan activas para poder cambiar de idea o devolver el
+                    crédito. */}
                 <button
                   type="button"
                   className="arriba"
-                  aria-pressed={listo && mio === 1}
+                  aria-pressed={mio === 1}
                   aria-label={`Votar a favor de ${p.nombre}`}
+                  disabled={agotado}
+                  title={agotado ? sinCredito : undefined}
                   onClick={() => votar(p.slug, 1)}
                 >
                   <Icono d="M18 15l-6-6-6 6" size={13} grosor={2.4} />
@@ -182,8 +147,10 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
                 <button
                   type="button"
                   className="abajo"
-                  aria-pressed={listo && mio === -1}
+                  aria-pressed={mio === -1}
                   aria-label={`Votar en contra de ${p.nombre}`}
+                  disabled={agotado}
+                  title={agotado ? sinCredito : undefined}
                   onClick={() => votar(p.slug, -1)}
                 >
                   <Icono d="M6 9l6 6 6-6" size={13} grosor={2.4} />

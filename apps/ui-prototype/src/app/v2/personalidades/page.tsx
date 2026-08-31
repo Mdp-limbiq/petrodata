@@ -1,5 +1,7 @@
 import { Card, CardHead, CardPie, FLUIDO, PALETA_TAGS, Pie, Seccion } from '../_ui/kit'
 import { ListaPersonas } from '../_ui/ListaPersonas'
+import { PanelVoto } from '../_ui/PanelVoto'
+import { LIMITE } from '../_ui/votos'
 import { PERSONAS, PESOS, PISO_POZOS } from '@/fixtures/personas'
 import { formatDecimal, formatInteger } from '@/lib/format'
 
@@ -48,8 +50,8 @@ export default function V2Personalidades() {
           califica a la sección. */}
       <Seccion
         n="01"
-        titulo="Quiénes dirigen la cuenca"
-        desc="Qué mide este ranking y cómo se mueve."
+        titulo="El índice y tu voto"
+        desc="Qué mide el ranking, y qué parte ponés vos."
       >
         <Card>
           <CardHead titulo="El Índice Vaca Muerta" nota={`${total} personas`} />
@@ -73,10 +75,15 @@ export default function V2Personalidades() {
             <i style={{ background: PALETA_TAGS[2] }} aria-hidden />
             <span className="s-cuerpo min-w-0 flex-1">
               <b className="font-semibold">La votación semanal pesa.</b> Cada lunes el conteo
-              vuelve a cero y lo que vota la gente entra en el índice de esa semana. El ranking no
-              es una foto fija: se mueve.
+              vuelve a cero y lo que vota la gente entra en el índice de esa semana. Tenés{' '}
+              <b className="font-semibold">{LIMITE} votos</b> por semana: alcanzan para elegir, no
+              para empujar.
             </span>
           </div>
+          {/* El presupuesto y la actividad, adentro de la misma card que
+              explica la mecánica (pedido de Mariano). Es donde tienen sentido:
+              debajo de la frase que dice que el voto pesa. */}
+          <PanelVoto />
           <CardPie>
             <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
               {/* El pie dice las dos cosas que el lector necesita para saber
@@ -97,7 +104,7 @@ export default function V2Personalidades() {
       >
         <Card>
           <CardHead titulo="El ranking" nota="tu voto se renueva cada lunes" />
-          <ListaPersonas personas={PERSONAS} base={0} />
+          <ListaPersonas personas={PERSONAS} />
           <CardPie>
             {/* Las tres barritas no llevan leyenda de color porque no tienen
                 color: son tres, siempre en el mismo orden, y el pie las nombra.
