@@ -112,8 +112,10 @@ export function ListaPersonas({ personas, base }: { personas: Persona[]; base: n
           cabecera reservaba 100px para un voto que medía 98. */}
       <div className="s-pcab hidden sm:grid">
         <span />
-        <span />
-        <span>Persona</span>
+        {/* «Persona» arranca en la FOTO y no en el nombre: la columna que
+            rotula empieza ahí. Ocupando sólo la del nombre, el rótulo quedaba
+            60px corrido a la derecha del bloque que describe. */}
+        <span style={{ gridColumn: '2 / 4' }}>Persona</span>
         <span className="text-right">Puntos</span>
         <span className="text-right">Votación semanal</span>
       </div>
