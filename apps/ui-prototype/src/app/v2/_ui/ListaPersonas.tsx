@@ -45,6 +45,7 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
   }, [personas])
 
   const sinCredito = `Ya usaste tus ${LIMITE} votos de esta semana`
+  const yaVoto = 'Ya votaste a esta persona; el voto no se edita hasta el lunes'
 
   return (
     <>
@@ -66,7 +67,8 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
       </div>
       {personas.map((p, i) => {
         const mio = votos[p.slug]
-        const agotado = restantes === 0 && !mio
+        const votado = mio !== undefined
+        const agotado = !votado && restantes === 0
         const empata =
           (i > 0 && personas[i - 1].indice === p.indice) ||
           (i < personas.length - 1 && personas[i + 1].indice === p.indice)
@@ -128,18 +130,18 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
                 sigue viendo, porque el botón elegido queda con su tinte. */}
             <span className="s-voto">
               <span className="par">
-                {/* Sin crédito, los botones de las filas que NO votaste se
-                    apagan. Dejarlos vivos y que el clic no haga nada es peor
-                    que apagarlos: parece que se rompió. Las que sí votaste
-                    quedan activas para poder cambiar de idea o devolver el
-                    crédito. */}
+                {/* Dos motivos para apagar un botón, y los dos se dicen en el
+                    title: ya votaste a esta persona —el voto no se edita— o te
+                    quedaste sin crédito. Dejarlos vivos y que el clic no haga
+                    nada es peor: parece que se rompió. El elegido queda
+                    apagado pero con su tinte, así se sigue viendo qué votaste. */}
                 <button
                   type="button"
                   className="arriba"
                   aria-pressed={mio === 1}
                   aria-label={`Votar a favor de ${p.nombre}`}
-                  disabled={agotado}
-                  title={agotado ? sinCredito : undefined}
+                  disabled={votado || agotado}
+                  title={votado ? yaVoto : agotado ? sinCredito : undefined}
                   onClick={() => votar(p.slug, 1)}
                 >
                   <Icono d="M18 15l-6-6-6 6" size={13} grosor={2.4} />
@@ -149,8 +151,8 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
                   className="abajo"
                   aria-pressed={mio === -1}
                   aria-label={`Votar en contra de ${p.nombre}`}
-                  disabled={agotado}
-                  title={agotado ? sinCredito : undefined}
+                  disabled={votado || agotado}
+                  title={votado ? yaVoto : agotado ? sinCredito : undefined}
                   onClick={() => votar(p.slug, -1)}
                 >
                   <Icono d="M6 9l6 6 6-6" size={13} grosor={2.4} />

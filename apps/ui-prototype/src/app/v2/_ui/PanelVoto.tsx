@@ -3,71 +3,100 @@
 import { LIMITE, useVotos } from './votos'
 import { formatInteger } from '@/lib/format'
 
-/* EL PANEL DEL VOTO — el presupuesto de quien mira y la actividad de la semana.
+/* EL PANEL DEL VOTO — tu presupuesto y la actividad de la semana, como tres
+   figuras en fila. Es la opción 2 de indice-voto-propuestas.html.
 
-   Vive en la sección 01 y lee el MISMO store que la lista de la 02: al votar
-   allá abajo, el crédito de acá arriba baja en el mismo frame.
+   Lee el MISMO store que la lista de la sección 02: al votar allá abajo, el
+   crédito de acá arriba baja en el mismo frame.
 
-   Conviene separar bien qué es real y qué no, porque en esta card conviven las
-   dos cosas y mezclarlas sería el peor lugar para hacerlo:
+   QUÉ ES REAL Y QUÉ NO. El presupuesto sale del storage del navegador y es tu
+   voto de esta semana. Las otras dos figuras sólo puede darlas el servidor y
+   acá son inventadas. Llevaban un chip «simulado» que Mariano pidió sacar; la
+   aclaración no se pierde, baja al pie de la sección, que es donde el sistema
+   pone lo que califica a la sección entera. Conviene que quede escrito: si el
+   pie se recorta, estos dos números pasan a leerse como ciertos. */
 
-   · TU PRESUPUESTO es real. Sale del storage del navegador, es tu voto de esta
-     semana y caduca el lunes.
-   · LA ACTIVIDAD DE LA SEMANA —cuántos votos y cuántas personas— es SIMULADA.
-     Son números que sólo puede dar el servidor: cuántos votaron en total y
-     cuántos usuarios únicos hubo. Van rotulados como maqueta, porque una cifra
-     de participación inventada al lado de un ranking de personas reales es
-     justo lo que no se puede publicar sin aclarar.
-
-   Los dos números simulados son fijos y no aleatorios: si cambiaran en cada
-   carga se notaría que no son ciertos, pero también se notaría que la maqueta
-   no se puede leer dos veces igual. */
-
-/* Actividad simulada de la semana. Un valor por votante de unos 3,4 votos, que
-   es coherente con un tope de 5: casi nadie usa todos. */
+/* Actividad simulada de la semana. Los tres números son coherentes entre sí:
+   1.284 votos sobre 377 personas dan 3,4 por cabeza, que es lo esperable con
+   un tope de 5 —casi nadie usa todos—, y 33 de 48 recibiendo al menos un voto
+   deja 15 sin ninguno, que es la cola larga de cualquier ranking. */
 const VOTOS_SEMANA = 1_284
 const PERSONAS_SEMANA = 377
+const VOTADAS_SEMANA = 33
 
-export function PanelVoto() {
+export function PanelVoto({ total }: { total: number }) {
   const { usados, restantes } = useVotos()
 
   return (
     <div className="s-pvoto">
-      {/* El presupuesto, que es el único dato real de este bloque. Los puntos
-          se dibujan uno por voto: cinco marcas se cuentan de un vistazo y un
-          «3 de 5» hay que leerlo. */}
-      <div className="s-pvoto-mio">
-        <span className="s-etq block">Tus votos de esta semana</span>
-        <span className="mt-1.5 flex items-center gap-2">
-          <span className="s-creditos" aria-hidden>
-            {Array.from({ length: LIMITE }, (_, i) => (
-              <i key={i} className={i < usados ? 'usado' : undefined} />
-            ))}
+      {/* TU PRESUPUESTO. Es el único dato real del bloque y el único accionable,
+          así que se lleva el 21 —.s-titular— y las otras dos van en 17. El
+          sistema reserva el 21 para el título de página, uno por página; acá la
+          página no tiene otro, y usarlo dos veces en la misma card, como estaba
+          en la propuesta, sí habría sido de más. */}
+      <div className="s-pvoto-col">
+        <span className="s-micro flex items-center gap-1.5" style={{ color: 'var(--ink-2)' }}>
+          <i
+            aria-hidden
+            className="block size-2 shrink-0 rounded-full"
+            style={{ background: 'var(--accent)' }}
+          />
+          Te quedan
+        </span>
+        <span className="mt-0.5 flex items-baseline gap-1.5">
+          <b className="s-titular">{restantes}</b>
+          <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
+            {restantes === 1 ? 'voto esta semana' : 'votos esta semana'}
           </span>
-          <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-            {restantes === 0
-              ? 'sin votos hasta el lunes'
-              : `${restantes} de ${LIMITE} disponibles`}
-          </span>
+        </span>
+        {/* Un punto por voto: cinco marcas se cuentan de un vistazo y un «3 de
+            5» hay que leerlo. */}
+        <span className="s-creditos mt-2" aria-hidden>
+          {Array.from({ length: LIMITE }, (_, i) => (
+            <i key={i} className={i < usados ? 'usado' : undefined} />
+          ))}
         </span>
       </div>
 
-      <div className="s-pvoto-sem">
-        <span className="s-etq block">Actividad de la semana</span>
-        <span className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <span className="flex items-baseline gap-1.5">
-            <b className="s-cifra-sm">{formatInteger(VOTOS_SEMANA)}</b>
-            <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-              votos
-            </span>
+      <div className="s-pvoto-col">
+        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+          Van esta semana
+        </span>
+        <span className="mt-0.5 flex items-baseline gap-1.5">
+          <b className="s-cifra">{formatInteger(VOTOS_SEMANA)}</b>
+          <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
+            votos
           </span>
-          <span className="flex items-baseline gap-1.5">
-            <b className="s-cifra-sm">{formatInteger(PERSONAS_SEMANA)}</b>
-            <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-              personas votaron
-            </span>
+        </span>
+        <span className="s-micro mt-2 block" style={{ color: 'var(--ink-2)' }}>
+          de {formatInteger(PERSONAS_SEMANA)} personas
+        </span>
+      </div>
+
+      {/* LA TERCERA MÉTRICA: cuántas de las 48 recibieron al menos un voto.
+
+          Se eligió ésta porque dice algo que las otras dos NO dicen. «Cuántos
+          votos» y «cuánta gente» son las dos caras del mismo hecho —el volumen
+          de participación—; ésta habla de cómo se REPARTE: si la atención se
+          concentra en cuatro nombres o se derrama por la lista. Y es la que le
+          importa a alguien que se busca a sí mismo: dice si quedar afuera es lo
+          normal o la excepción.
+
+          Se descartaron dos: el promedio de votos por persona —3,4 de 5— y el
+          porcentaje del cupo usado, que son las dos derivables dividiendo los
+          números de al lado. Agregan una lectura, no un hecho. */}
+      <div className="s-pvoto-col">
+        <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
+          Recibieron votos
+        </span>
+        <span className="mt-0.5 flex items-baseline gap-1.5">
+          <b className="s-cifra">{VOTADAS_SEMANA}</b>
+          <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
+            de {total}
           </span>
-          <span className="s-chip s-chip--neutro s-chip--mini">simulado</span>
+        </span>
+        <span className="s-micro mt-2 block" style={{ color: 'var(--ink-2)' }}>
+          {total - VOTADAS_SEMANA} sin ninguno
         </span>
       </div>
     </div>

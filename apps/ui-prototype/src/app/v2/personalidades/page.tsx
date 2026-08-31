@@ -83,7 +83,7 @@ export default function V2Personalidades() {
           {/* El presupuesto y la actividad, adentro de la misma card que
               explica la mecánica (pedido de Mariano). Es donde tienen sentido:
               debajo de la frase que dice que el voto pesa. */}
-          <PanelVoto />
+          <PanelVoto total={total} />
           <CardPie>
             <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
               {/* El pie dice las dos cosas que el lector necesita para saber
@@ -95,6 +95,16 @@ export default function V2Personalidades() {
             </span>
           </CardPie>
         </Card>
+        {/* El chip «simulado» salió de la card (pedido de Mariano) y la
+            aclaración baja acá, que es donde el sistema pone lo que califica a
+            la sección entera. Conviene tenerlo presente: si este pie se
+            recorta, los dos números de actividad pasan a leerse como ciertos. */}
+        <Pie>
+          Los dos números de actividad —cuántos votos van y cuánta gente votó— están{' '}
+          <b className="font-semibold">simulados</b>: sólo puede darlos el servidor. Tu
+          presupuesto de {LIMITE} votos sí es real y sale de este navegador. El voto{' '}
+          <b className="font-semibold">no se edita</b>: una vez emitido queda hasta el lunes.
+        </Pie>
       </Seccion>
 
       <Seccion

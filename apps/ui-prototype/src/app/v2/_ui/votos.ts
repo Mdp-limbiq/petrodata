@@ -101,21 +101,21 @@ export function useVotos() {
   const usados = Object.keys(estado.votos).length
   const restantes = Math.max(0, LIMITE - usados)
 
+  /* EL VOTO NO SE EDITA (pedido de Mariano). Una vez emitido no se saca ni se
+     da vuelta hasta el lunes.
+
+     Es lo correcto para lo que el voto tiene que significar —un voto que se
+     puede deshacer y rehacer es un voto que se puede tantear, y el conteo deja
+     de ser una foto de opiniones para ser una de últimas intenciones— pero
+     tiene un costo que conviene tener presente: un clic equivocado se paga
+     hasta el lunes. Si eso molesta, la salida no es volver a hacerlo editable
+     sino pedir confirmación antes del primer voto de cada fila. */
   const votar = useCallback((slug: string, v: Voto) => {
     const act = leer()
+    if (act.votos[slug]) return
     const sig = { ...act.votos }
-    if (sig[slug] === v) {
-      /* Clickear el voto puesto lo saca y DEVUELVE el crédito: si no, quien se
-         equivoca en el primer clic pierde uno de sus cinco hasta el lunes. */
-      delete sig[slug]
-    } else if (sig[slug]) {
-      /* Cambiar de sentido sobre la misma persona no gasta otro voto: sigue
-         siendo una sola opinión. */
-      sig[slug] = v
-    } else {
-      if (Object.keys(sig).length >= LIMITE) return
-      sig[slug] = v
-    }
+    if (Object.keys(sig).length >= LIMITE) return
+    sig[slug] = v
     try {
       localStorage.setItem(CLAVE, JSON.stringify({ semana: semana(), votos: sig }))
     } catch {

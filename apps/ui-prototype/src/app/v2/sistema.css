@@ -1303,13 +1303,14 @@
 
    A 640 se apilan y la divisoria pasa de vertical a horizontal: dos bloques de
    texto uno al lado del otro en 287px no entran. */
-.s-pvoto { display: grid; grid-template-columns: 1fr 1fr; }
-.s-pvoto-mio,
-.s-pvoto-sem { padding: 10px 12px; }
-.s-pvoto-sem { border-left: 1px solid var(--line); }
+.s-pvoto { display: grid; grid-template-columns: repeat(3, 1fr); }
+.s-pvoto-col { padding: 12px; }
+.s-pvoto-col + .s-pvoto-col { border-left: 1px solid var(--line); }
+/* A 640 se apilan y la divisoria gira: tres bloques de cifra en 287px no
+   entran, y a dos columnas la tercera quedaría sola en un renglón. */
 @media (max-width: 639px) {
   .s-pvoto { grid-template-columns: 1fr; }
-  .s-pvoto-sem { border-left: 0; border-top: 1px solid var(--line); }
+  .s-pvoto-col + .s-pvoto-col { border-left: 0; border-top: 1px solid var(--line); }
 }
 
 /* Los créditos: un punto por voto. Cinco marcas se cuentan de un vistazo y un
@@ -1331,6 +1332,9 @@
    apagada, porque no se entiende qué pasó. */
 .s-voto button:disabled { cursor: default; opacity: 0.35; }
 .s-voto button:disabled:hover { background: transparent; }
+/* El elegido queda apagado pero a plena tinta y con su fondo: es la única
+   marca de qué votaste, así que no puede desvanecerse con los demás. */
+.s-voto button:disabled[aria-pressed='true'] { opacity: 1; }
 
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
