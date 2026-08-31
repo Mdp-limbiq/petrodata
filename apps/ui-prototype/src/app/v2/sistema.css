@@ -1313,6 +1313,12 @@
   .s-pvoto-col + .s-pvoto-col { border-left: 0; border-top: 1px solid var(--line); }
 }
 
+/* Fila de «más votados»: puesto, apellido y votos. Es la fila de ranking del
+   sistema apretada a 18 de alto, que es lo que permite meter tres adentro de
+   una columna que las otras dos resuelven con una sola cifra: las tres
+   columnas del panel tienen que medir lo mismo. */
+.s-mvotado { display: flex; align-items: baseline; gap: 6px; height: 18px; }
+
 /* Los créditos: un punto por voto. Cinco marcas se cuentan de un vistazo y un
    «3 de 5» hay que leerlo. El gastado se llena con la tinta media y el que
    queda es el riel vacío, que es la misma gramática de .s-medidor. */

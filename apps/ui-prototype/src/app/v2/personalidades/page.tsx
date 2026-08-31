@@ -100,8 +100,9 @@ export default function V2Personalidades() {
             la sección entera. Conviene tenerlo presente: si este pie se
             recorta, los dos números de actividad pasan a leerse como ciertos. */}
         <Pie>
-          Los dos números de actividad —cuántos votos van y cuánta gente votó— están{' '}
-          <b className="font-semibold">simulados</b>: sólo puede darlos el servidor. Tu
+          La actividad de la semana —cuántos votos van, cuánta gente votó y quiénes son los
+          más votados— está <b className="font-semibold">simulada</b>: sólo puede darla el
+          servidor. Tu
           presupuesto de {LIMITE} votos sí es real y sale de este navegador. El voto{' '}
           <b className="font-semibold">no se edita</b>: una vez emitido queda hasta el lunes.
         </Pie>

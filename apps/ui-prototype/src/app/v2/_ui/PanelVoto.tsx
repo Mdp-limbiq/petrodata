@@ -16,13 +16,25 @@ import { formatInteger } from '@/lib/format'
    pone lo que califica a la sección entera. Conviene que quede escrito: si el
    pie se recorta, estos dos números pasan a leerse como ciertos. */
 
-/* Actividad simulada de la semana. Los tres números son coherentes entre sí:
-   1.284 votos sobre 377 personas dan 3,4 por cabeza, que es lo esperable con
-   un tope de 5 —casi nadie usa todos—, y 33 de 48 recibiendo al menos un voto
-   deja 15 sin ninguno, que es la cola larga de cualquier ranking. */
+/* Actividad simulada de la semana. Los números son coherentes entre sí: 1.284
+   votos sobre 377 personas dan 3,4 por cabeza, que es lo esperable con un tope
+   de 5 —casi nadie usa todos—, y los tres primeros suman 543, o sea el 42% de
+   todos los votos, que es la concentración típica de cualquier ranking con
+   voto abierto.
+
+   LOS TRES MÁS VOTADOS NO SON LOS TRES PRIMEROS DEL ÍNDICE, y está hecho a
+   propósito: por índice van Marín, Galuccio y Vila. Si el voto devolviera el
+   mismo orden que el algoritmo, la columna no diría nada —sería el ranking
+   contado dos veces— y el voto no tendría para qué existir. Que difieran es
+   justamente lo que hace que valga la pena votar, y lo que le da a alguien un
+   motivo para pedirle a los suyos que lo voten. */
 const VOTOS_SEMANA = 1_284
 const PERSONAS_SEMANA = 377
-const VOTADAS_SEMANA = 33
+const MAS_VOTADOS = [
+  { nombre: 'Galuccio', votos: 218 },
+  { nombre: 'Simonato', votos: 174 },
+  { nombre: 'Markous', votos: 151 },
+]
 
 export function PanelVoto({ total }: { total: number }) {
   const { usados, restantes } = useVotos()
@@ -73,30 +85,31 @@ export function PanelVoto({ total }: { total: number }) {
         </span>
       </div>
 
-      {/* LA TERCERA MÉTRICA: cuántas de las 48 recibieron al menos un voto.
+      {/* LA TERCERA MÉTRICA: los tres más votados de la semana (elección de
+          Mariano). Es la única de las tres que nombra PERSONAS, y ahí está su
+          valor: las otras dos miden el volumen de la participación y ésta dice
+          a quién le fue bien. Es lo que se comparte y lo que le da a alguien un
+          motivo para pedir votos.
 
-          Se eligió ésta porque dice algo que las otras dos NO dicen. «Cuántos
-          votos» y «cuánta gente» son las dos caras del mismo hecho —el volumen
-          de participación—; ésta habla de cómo se REPARTE: si la atención se
-          concentra en cuatro nombres o se derrama por la lista. Y es la que le
-          importa a alguien que se busca a sí mismo: dice si quedar afuera es lo
-          normal o la excepción.
-
-          Se descartaron dos: el promedio de votos por persona —3,4 de 5— y el
-          porcentaje del cupo usado, que son las dos derivables dividiendo los
-          números de al lado. Agregan una lectura, no un hecho. */}
+          Van los apellidos y no el nombre completo: la columna mide unos 170px
+          y «Horacio Daniel Marín» no entra sin cortarse. En una tabla de
+          posiciones el apellido alcanza. */}
       <div className="s-pvoto-col">
         <span className="s-micro block" style={{ color: 'var(--ink-2)' }}>
-          Recibieron votos
+          Más votados
         </span>
-        <span className="mt-0.5 flex items-baseline gap-1.5">
-          <b className="s-cifra">{VOTADAS_SEMANA}</b>
-          <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
-            de {total}
-          </span>
-        </span>
-        <span className="s-micro mt-2 block" style={{ color: 'var(--ink-2)' }}>
-          {total - VOTADAS_SEMANA} sin ninguno
+        <span className="mt-1 block">
+          {MAS_VOTADOS.map((m, i) => (
+            <span key={m.nombre} className="s-mvotado">
+              <b className="s-mono shrink-0 text-[10.5px]" style={{ color: 'var(--ink-3)' }}>
+                {i + 1}
+              </b>
+              <span className="s-cuerpo min-w-0 flex-1 truncate font-medium">{m.nombre}</span>
+              <span className="s-num shrink-0 text-[11.5px]" style={{ color: 'var(--ink-2)' }}>
+                {formatInteger(m.votos)}
+              </span>
+            </span>
+          ))}
         </span>
       </div>
     </div>
