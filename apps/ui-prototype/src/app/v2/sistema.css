@@ -1142,6 +1142,98 @@
   outline: none;
 }
 
+/* ── Personalidades ────────────────────────────────────────────────────
+   La fila del ranking de personas: puesto, cara, quién, los componentes del
+   índice, la cifra y el voto. Es la gramática de .s-fila —10×12 de padding,
+   filete abajo, hover— con la cara agregada al principio.
+
+   El padding vertical baja de 10 a 8: la cara mide 32 y con 10 la fila se iba
+   a 52 contra los 42 del resto de las listas del sitio. Con 8 queda en 48, que
+   es lo más cerca que se puede estar sin achicar la cara al punto de que no se
+   distinga una persona de otra. */
+.s-persona {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--dur-slower) var(--ease-in-out);
+}
+.s-persona:last-child { border-bottom: 0; }
+.s-persona:hover { background: var(--hover); }
+
+/* La cara: 32 y redonda. Es un ANCLA de identidad, no una foto — el sistema
+   trata la imagen como accesorio— y a ese tamaño la fila mantiene su altura.
+   El anillo de 1px la separa del fondo cuando el retrato tiene el fondo claro,
+   que es la mitad de los casos. */
+.s-cara {
+  display: block;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--inset);
+  box-shadow: var(--shadow-hairline);
+}
+/* Sin foto, las iniciales. Misma caja, mismo anillo: la fila no cambia de
+   forma según haya o no imagen. */
+.s-cara--mono {
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Los tres componentes del índice, apilados. No es un gráfico: es la
+   composición del número, para que la fila diga por qué está donde está. En
+   --ink-3, que es el relleno de barra del sistema. */
+.s-comp { flex-direction: column; gap: 2px; width: 56px; flex-shrink: 0; }
+.s-comp > span {
+  display: block;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--line-strong);
+  overflow: hidden;
+}
+.s-comp > span > i { display: block; height: 100%; border-radius: 999px; background: var(--ink-3); }
+
+/* ── El voto ───────────────────────────────────────────────────────────
+   El sistema no tiene control de voto. Lo más cerca que hay medido es el botón
+   de ícono de 28 que usa el buscador; acá baja a 24, porque la fila mide 48 y
+   dos botones de 28 con el conteo en el medio no entran.
+
+   El conteo va en tabular y con ancho mínimo: sin eso la fila se corre un
+   píxel cada vez que alguien vota. El color de cada estado va MEZCLADO con la
+   tinta, como el resto de los tonos de estado del sistema: el verde y el rojo
+   plenos no llegan a AA a este tamaño. */
+.s-voto { display: inline-flex; align-items: center; gap: 2px; }
+.s-voto button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background-color var(--dur-instant), color var(--dur-instant);
+}
+.s-voto button:hover { background: var(--hover-2); color: var(--ink); }
+.s-voto button.arriba[aria-pressed='true'] { color: color-mix(in srgb, var(--green) 55%, var(--ink)); }
+.s-voto button.abajo[aria-pressed='true'] { color: color-mix(in srgb, var(--red) 55%, var(--ink)); }
+.s-voto > .n {
+  min-width: 28px;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
    card, y adentro un renglón por item con el padding medido de 10×12 y filete
