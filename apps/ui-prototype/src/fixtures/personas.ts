@@ -25,6 +25,17 @@ export type Persona = {
   fuente: string
   /** fecha del dato del cargo */
   desde: string
+  /** UNA O DOS FRASES, y sólo si salen de una fuente que se leyó.
+
+      NO hay biografías en el pipeline: `state.json` trae nombre, cargo y
+      fuente, nada más. Las que están acá se escribieron con lo que apareció en
+      las notas y las páginas oficiales que se usaron para verificar el cargo
+      —formación, de dónde viene, desde cuándo—, así que cada una tiene atrás la
+      misma fuente que la fila.
+
+      Las que faltan faltan a propósito. Rellenar cuarenta y ocho con prosa
+      plausible es exactamente el error que costó doce caras inventadas. */
+  bio?: string
   /* ── los insumos del índice, todos públicos ─────────────────────────── */
   pctValor: number
   pctNacional: number
@@ -64,8 +75,21 @@ export type Persona = {
    Se saca de la proyección y no del render por la misma razón que los pesos
    del índice: lo que no se muestra tampoco tiene por qué serializarse en el
    HTML. Un `confirmado: false` en el view-source dice exactamente lo que el
-   chip decía. */
-export type PersonaFila = Pick<Persona, 'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice'>
+   chip decía.
+
+   `fuente`, `desde` y `bio` SÍ viajan, porque la ficha que se abre al tocar la
+   fila los muestra. Son datos del CARGO y de la persona; no son insumos del
+   índice, así que no dicen nada sobre la ponderación.
+
+   Lo que sigue sin viajar es lo mismo de antes: pctValor, pctNacional, pozos,
+   escala, rinde y prima. Los tres primeros son los insumos del índice —el pie
+   de la card los nombra— y publicarlos AL LADO del índice, cuarenta y ocho
+   veces, es publicar cuarenta y ocho ecuaciones con tres incógnitas. La ficha
+   se queda sin cifras de la empresa a propósito: para eso está /v2/empresas. */
+export type PersonaFila = Pick<
+  Persona,
+  'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice' | 'fuente' | 'desde' | 'bio'
+>
 
 export function aFila(p: Persona): PersonaFila {
   return {
@@ -74,6 +98,9 @@ export function aFila(p: Persona): PersonaFila {
     cargo: p.cargo,
     empresa: p.empresa,
     indice: p.indice,
+    fuente: p.fuente,
+    desde: p.desde,
+    bio: p.bio,
   }
 }
 
@@ -89,6 +116,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.lanacion.com.ar/economia/horacio-marin-presidente-y-ceo-de-ypf-sobre-su-modelo-de-conduccion-yo-lo-llamo-plata-o-mierda-nid24082026/',
     desde: '2026-08-24',
+    bio: 'Ingeniero químico de la Universidad Nacional de La Plata, con una maestría en Ingeniería de Petróleo en la Universidad de Texas. Hizo casi toda su carrera en el Grupo Techint antes de asumir en YPF.',
     pctValor: 45.6,
     pctNacional: 34.2,
     pozos: 5725,
@@ -105,6 +133,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.infobae.com/economia/2026/03/05/miguel-galuccio-presidente-de-vista-energy-la-realidad-macroeconomica-es-mucho-mejor-que-la-que-teniamos-hace-tiempo-atras/',
     desde: '2026-03-05',
+    bio: 'Fundó Vista en 2017. Antes había sido CEO de YPF y, antes de eso, ejecutivo de Schlumberger. En 2026 AmCham lo eligió empresario argentino del año.',
     pctValor: 7.7,
     pctNacional: 4.4,
     pozos: 400,
@@ -121,6 +150,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.rionegro.com.ar/energia/pluspetrol-designo-a-adrian-vila-como-nuevo-gerente-general-para-argentina-2964464/',
     desde: '2026-05-17',
+    bio: 'Asumió la gerencia general de Pluspetrol Argentina en mayo de 2026, en reemplazo de Germán Macchi.',
     pctValor: 7.7,
     pctNacional: 8.4,
     pozos: 840,
@@ -137,6 +167,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://econojournal.com.ar/2025/09/german-burmeister-presidente-de-shell/',
     desde: '2026-08-27',
+    bio: 'Ingeniero en petróleo del ITBA con un MBA del IAE. Lleva más de veinte años en Shell, con puestos comerciales y de conducción en América Latina, África, Asia y Europa; llegó al cargo desde la presidencia de Shell en Kazajistán.',
     pctValor: 3.9,
     pctNacional: 2.4,
     pozos: 162,
@@ -153,6 +184,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.lanacion.com.ar/economia/campo/marcos-bulgheroni-ceo-de-pae-quiere-invertir-en-biocombustibles-y-exportar-si-sale-una-ley-y-se-nid06082026/',
     desde: '2026-08-06',
+    bio: 'Group CEO de Pan American Energy desde 2017. La compañía es del grupo familiar Bulgheroni, que la conduce junto con su tío Alejandro.',
     pctValor: 10.9,
     pctNacional: 10.9,
     pozos: 4471,
@@ -169,6 +201,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.chevron.com/who-we-are/leadership',
     desde: '2026-08-27',
+    bio: 'Ingeniera química con más de veinticinco años en upstream. Empezó su carrera en PDVSA y entró a Chevron en 2006. Es la primera country manager de la compañía en la Argentina.',
     pctValor: 2.1,
     pctNacional: 1.5,
     pozos: 122,
@@ -192,6 +225,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://ri.pampa.com/en/corporate-governance/board-of-directors/',
     desde: '2026-09-01',
+    bio: 'Fundador de Pampa Energía e integrante de su directorio desde junio de 2006. Preside el directorio; la gerencia general está a cargo de Gustavo Mariani.',
     pctValor: 2.2,
     pctNacional: 5.8,
     pozos: 277,
@@ -208,6 +242,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.tecpetrol.com/en/leadership',
     desde: '2026-03-24',
+    bio: 'Ingeniero civil de la UBA con un Master of Science en Management de Stanford. Está en Tecpetrol desde 2005, donde condujo desarrollo de negocios, gas y comercialización; es CEO desde abril de 2021.',
     pctValor: 2.4,
     pctNacional: 7.7,
     pozos: 349,
@@ -224,6 +259,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.infobae.com/economia/networking/2025/10/14/pecom-designo-a-horacio-bustillo-como-su-nuevo-ceo/',
     desde: '2025-11-01',
+    bio: 'Ingeniero industrial de la Universidad Austral con un MBA de Harvard. Pasó por SLB y Pacific Drilling, y fue gerente general de AESA Servicios Petroleros. Asumió en PECOM en noviembre de 2025.',
     pctValor: 1.4,
     pctNacional: 0.7,
     pozos: 618,
@@ -256,6 +292,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.riotimesonline.com/capex-s-a/',
     desde: '2026-04-01',
+    bio: 'La familia Götz controla CAPSA y, a través de ella, cerca del 75% de Capex. Götz preside las dos.',
     pctValor: 1.3,
     pctNacional: 0.7,
     pozos: 673,
@@ -272,6 +309,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://cgc.energy/spanish/miembros-del-directorio/',
     desde: '2026-03-25',
+    bio: 'CGC es parte del grupo Corporación América. Bajo su conducción la compañía impulsa un proyecto propio de GNL para exportar por Chile.',
     pctValor: 1.9,
     pctNacional: 2.6,
     pozos: 1521,
@@ -288,6 +326,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://mase.lmneuquen.com/vaca-muerta/adolfo-storni-el-pozo-argentino-cuesta-50-mas-que-estados-unidos-n1237551',
     desde: '2026-04-01',
+    bio: 'Gerente general de Capex, con un MBA del IAE Austral. La presidencia de la compañía la ocupa Alejandro Götz, que también preside CAPSA, su controlante.',
     pctValor: 1.3,
     pctNacional: 1.2,
     pozos: 740,
@@ -336,6 +375,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.mejorenergia.com.ar/noticias/2026/03/05/5173-quintana-energy-a-un-ano-de-gestion-en-estacion-fernandez-oro-otro-salto-de-escala-en-rio-negro',
     desde: '2026-03-05',
+    bio: 'Ingeniero. Conduce el grupo Quintana y también FDC, una consultora especializada en ingeniería de reservorios.',
     pctValor: 0.8,
     pctNacional: 0.9,
     pozos: 859,
@@ -544,6 +584,7 @@ export const PERSONAS: Persona[] = [
     confirmado: false,
     fuente: 'https://brestsa.com.ar/',
     desde: '2011-01-01',
+    bio: 'Empresario de Pico Truncado. Fundó Brest en 2011; es la única empresa de origen puramente santacruceño entre las premiadas del sector.',
     pctValor: 0.1,
     pctNacional: 0.1,
     pozos: 175,
@@ -560,6 +601,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://pampetrol.com/nosotros/directorio/',
     desde: '2026-09-01',
+    bio: 'Preside Pampetrol, la empresa petrolera de La Pampa. Desde noviembre de 2023 es además directora titular de YPF en representación de las provincias productoras.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 46,
@@ -672,6 +714,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://econojournal.com.ar/2025/10/santa-cruz-seis-empresas-presentaron-una-sola-oferta-a-traves-de-una-ute-y-se-repartiran-las-areas-que-dejo-ypf/',
     desde: '2025-10-01',
+    bio: 'Fundó Azruge en 2023 en Puerto Madryn junto con su hermano Hernán. La empresa opera el área convencional Cañadón Vasco.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 20,
@@ -688,6 +731,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.boletinoficial.gob.ar/detalleAviso/segunda/A831400/20190422',
     desde: '2018-04-17',
+    bio: 'Preside Medanito desde el acta de directorio de abril de 2018.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 15,
@@ -704,6 +748,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://boletinoficial.jujuy.gob.ar/?p=212305',
     desde: '2021-04-26',
+    bio: 'Preside Jujuy Hidrocarburos, la empresa provincial de hidrocarburos, según el acta de directorio de abril de 2021.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 11,
@@ -720,6 +765,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://noticias.santacruz.gob.ar/organismos/energia/alianza-petrolera-destaco-el-potencial-tecnologico-del-proyecto-para-explorar-sur-rio-deseado-este',
     desde: '2026-01-01',
+    bio: 'Conduce Alianza Petrolera, que impulsa junto con la canadiense Surcana Energy una técnica de perforación nueva para el Golfo San Jorge.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 9,
@@ -736,6 +782,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.iprofesional.com/negocios/452271-central-puerto-adquiere-patagonia-energy-y-consolida-su-transformacion-integral',
     desde: '2026-01-01',
+    bio: 'Fue gerente regional de GeoPark antes de asumir en Patagonia Energy. La compañía fue adquirida por Central Puerto en 2026.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 9,
@@ -784,6 +831,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.mendoza.gov.ar/prensa/gg-adquirio-los-derechos-de-vega-grande-luego-de-que-emesa-recuperara-el-area-petrolera-mas-alta-del-pais/',
     desde: '2024-10-01',
+    bio: 'Socio de G y G Oil Service junto con Martín Guillén, los dos ingenieros. La empresa opera desde 1997 en Mendoza y en 2024 se quedó con los derechos del área Vega Grande.',
     pctValor: 0.0,
     pctNacional: 0.0,
     pozos: 3,
@@ -816,6 +864,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://dataportuaria.ar/nota/24739/interoil-anuncia-su-salida-de-argentina-y-vende-sus-activos-en-santa-cruz/',
     desde: '2026-06-03',
+    bio: 'Integra el equipo de conducción de Interoil Exploration & Production, la compañía noruega con operaciones en la Argentina y Colombia.',
     pctValor: 0.0,
     pctNacional: 0.1,
     pozos: 26,

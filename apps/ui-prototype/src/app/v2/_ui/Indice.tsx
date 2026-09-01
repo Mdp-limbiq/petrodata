@@ -41,7 +41,7 @@ const SECCIONES = [
   { href: '/v2/empresas', n: '04', label: 'Empresas' },
   { href: '/v2/indicadores', n: '05', label: 'Indicadores' },
   { href: '/v2/noticias', n: '06', label: 'Noticias' },
-  { href: '/v2/personalidades', n: '07', label: 'Personalidades' },
+  { href: '/v2/directivos', n: '07', label: 'Directivos' },
 ]
 
 export function Indice() {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { Icono, PATH } from './iconos'
 import { conVoto, dia, LIMITE, proximoCorte } from './voto-reglas'
 import { useVotos } from './votos'
@@ -28,6 +28,11 @@ import { formatDecimal } from '@/lib/format'
 
 export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
   const { votos, votar, restantes } = useVotos()
+  /* UNA SOLA FILA ABIERTA A LA VEZ. Con varias abiertas la lista deja de ser
+     una tabla de posiciones —los puestos quedan a cuarenta píxeles unos de
+     otros y a trescientos otros— y el orden, que es lo único que la fila tiene
+     que comunicar, se pierde. */
+  const [abierta, setAbierta] = useState<string | null>(null)
 
   /* EL VOTO ENTRA EN EL NÚMERO. Antes se guardaba y no pasaba nada: la página
      decía que la votación semanal pesa y el ranking no se movía nunca. Ahora
@@ -131,8 +136,31 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
            filas teñidas son las cinco que elegiste. Un destello al hacer clic
            se pierde apenas mirás para otro lado. */
         const marca = votado ? (mio === 1 ? ' s-persona--favor' : ' s-persona--contra') : ''
+        const abre = abierta === p.slug
         return (
-          <div key={p.slug} className={`s-persona${marca}`}>
+          <Fragment key={p.slug}>
+          {/* La fila ENTERA abre la ficha. No hay un chevrón de «ver más»: la
+              fila ya tiene dos chevrones que son el voto, y un tercero al lado
+              se lee como un tercer control de lo mismo. El cursor y el fondo
+              del hover, que ya existían, alcanzan para decir que se toca.
+
+              Es un div con role/tabIndex y no un <button>: adentro viven los
+              dos botones del voto, y un botón dentro de otro botón es HTML
+              inválido y un lector de pantalla que no sabe qué anunciar. */}
+          <div
+            className={`s-persona s-persona--abre${marca}${abre ? ' s-persona--abierta' : ''}`}
+            role="button"
+            tabIndex={0}
+            aria-expanded={abre}
+            aria-controls={`ficha-${p.slug}`}
+            onClick={() => setAbierta(abre ? null : p.slug)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setAbierta(abre ? null : p.slug)
+              }
+            }}
+          >
             <span className="flex flex-col items-start gap-0.5">
               <span
                 className="s-mono text-[11px]"
@@ -205,7 +233,10 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
               </span>
             </span>
 
-            <span className="s-pcontrol">
+            {/* El voto NO abre la ficha: se para la propagación en el
+                envoltorio de los controles. Sin esto, votar abría la ficha de
+                la fila que acabás de votar. */}
+            <span className="s-pcontrol" onClick={(e) => e.stopPropagation()}>
             {/* EL PUNTO COMO SEPARADOR DECIMAL (pedido de Mariano,
                 2026-09-01), y sólo acá. El resto del sitio va en es-AR con
                 coma, que es la convención del país: el puntaje queda como la
@@ -281,24 +312,115 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
             </span>
             </span>
           </div>
+          {abre && <Ficha p={p} />}
+          </Fragment>
         )
       })}
     </>
   )
 }
 
+/* LA FICHA. Lo que la fila no puede mostrar en 76px de alto: la cara en
+   grande, el cargo entero sin truncar, desde cuándo, y la fuente que lo
+   verifica.
+
+   NO LLEVA CIFRAS DE LA EMPRESA, y es a propósito: producción, valor y pozos
+   son los tres insumos del índice. Ver el comentario de `PersonaFila`.
+
+   LA FUENTE ES EL PUNTO. Es un ranking de personas con nombre y apellido
+   calculado con datos de otras fuentes; poder tocar el link y ver de dónde
+   sale el cargo es lo que separa esto de una lista de nombres. Va con
+   rel="noreferrer" porque son links a sitios de terceros. */
+function Ficha({ p }: { p: PersonaFila }) {
+  const dominio = (u: string) => {
+    try {
+      return new URL(u).hostname.replace(/^www\./, '')
+    } catch {
+      return u
+    }
+  }
+  return (
+    <div className="s-ficha s-entra" id={`ficha-${p.slug}`}>
+      <CaraGrande slug={p.slug} nombre={p.nombre} />
+      <div className="min-w-0">
+        {/* SIN REPETIR EL NOMBRE: está ocho píxeles más arriba, en la fila que
+            acabás de tocar. Lo que sí se repite es el cargo, porque en la fila
+            va truncado y acá entra entero — que es una de las razones de que
+            la ficha exista. */}
+        <div className="s-cuerpo font-medium">{p.cargo || '—'}</div>
+        <div className="s-micro mt-0.5" style={{ color: 'var(--ink-2)' }}>
+          {p.empresa}
+        </div>
+
+        {/* La bio sólo si existe. Cuarenta y ocho fichas con prosa plausible es
+            el mismo error que costó doce caras inventadas: sin fuente, no va. */}
+        {p.bio && (
+          <p className="s-cuerpo mt-2.5" style={{ color: 'var(--ink-2)', maxWidth: '62ch' }}>
+            {p.bio}
+          </p>
+        )}
+
+        <div className="s-ficha-pie">
+          {p.desde && (
+            <span>
+              Cargo registrado el <span className="s-mono">{p.desde}</span>
+            </span>
+          )}
+          {p.fuente && (
+            <a
+              className="s-chip s-chip--neutro s-chip--mini"
+              href={p.fuente}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title={p.fuente}
+            >
+              <Icono d={PATH.enlace} size={11} grosor={2.2} />
+              {dominio(p.fuente)}
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** La misma cara de la fila, en 96×120, con la misma caída al monograma. */
+function CaraGrande({ slug, nombre }: { slug: string; nombre: string }) {
+  const [rota, setRota] = useState(false)
+  const ini = iniciales(nombre)
+  if (rota) return <span className="s-cara-gr s-cara--mono">{ini}</span>
+  return (
+    <img
+      className="s-cara-gr"
+      src={`/images/ceos/${slug}.jpg`}
+      alt=""
+      width={161}
+      height={200}
+      loading="lazy"
+      decoding="async"
+      onError={() => setRota(true)}
+    />
+  )
+}
+
 /** La cara, con caída al monograma. El `onError` es la caída de verdad: el
     archivo puede no estar —las imágenes no se versionan— y una cara rota es
     peor que dos iniciales. */
-function Cara({ slug, nombre }: { slug: string; nombre: string }) {
-  const [rota, setRota] = useState(false)
-  const ini = nombre
+/** Primera y última inicial. La usan la cara de la fila y la de la ficha. */
+function iniciales(nombre: string) {
+  return nombre
     .split(' ')
     .filter(Boolean)
     .map((x) => x[0])
     .filter((_, i, a) => i === 0 || i === a.length - 1)
     .join('')
     .toUpperCase()
+}
+
+function Cara({ slug, nombre }: { slug: string; nombre: string }) {
+  const [rota, setRota] = useState(false)
+  const ini = iniciales(nombre)
 
   if (rota) return <span className="s-cara s-cara--mono">{ini}</span>
   return (

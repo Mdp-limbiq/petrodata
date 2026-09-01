@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { Icono, PATH } from './iconos'
-import { proximoCorte } from './voto-reglas'
+import { LIMITE, proximoCorte } from './voto-reglas'
+import { useVotos } from './votos'
 
 /* LA CABECERA DE LA CARD DEL RANKING.
 
@@ -23,8 +24,23 @@ import { proximoCorte } from './voto-reglas'
 
    El chip DICE «se actualiza en». Sin esas palabras era un reloj, una barra y
    una hora sueltos, y lo que faltaba era justamente el sujeto: qué es lo que
-   pasa cuando el reloj llega. */
+   pasa cuando el reloj llega.
+
+   LOS VOTOS QUE TE QUEDAN vuelven acá (pedido de Mariano, 2026-09-01). Cuando
+   se sacó la card 01 se perdió el único lugar donde se veía el presupuesto: la
+   mecánica seguía andando —los chevrones se apagan solos al quinto voto— pero
+   el que llegaba al límite se enteraba cuando un botón dejaba de responder.
+
+   Son los puntos de `.s-creditos`, que quedaron en el CSS sin usar desde que
+   se fue el panel: cinco marcas se cuentan de un vistazo y un «3 de 5» hay que
+   leerlo. El gastado se llena con la tinta media, el que queda es el riel
+   vacío. Es la misma gramática de .s-medidor.
+
+   El presupuesto sale del storage, así que en el servidor son cinco puntos
+   vacíos y los gastados aparecen al hidratar. `useVotos` tiene su snapshot de
+   servidor justamente para que el HTML servido y el primer render coincidan. */
 export function CabeceraVotos({ votos, personas }: { votos: number; personas: number }) {
+  const { usados, restantes } = useVotos()
   const [corte, setCorte] = useState<{ txt: string; pct: number } | null>(null)
 
   useEffect(() => {
@@ -46,7 +62,7 @@ export function CabeceraVotos({ votos, personas }: { votos: number; personas: nu
   const n = (v: number) => v.toLocaleString('es-AR')
 
   return (
-    <span className="flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1.5">
+    <span className="flex flex-wrap items-center justify-end gap-x-2.5 gap-y-2">
       <span className="flex items-center gap-1.5">
         <i
           className="s-pixel block size-1.5 shrink-0 rounded-full"
@@ -57,11 +73,39 @@ export function CabeceraVotos({ votos, personas }: { votos: number; personas: nu
           <b className="s-mono font-medium" style={{ color: 'var(--ink)' }}>
             {n(votos)}
           </b>{' '}
-          votos de{' '}
+          votos ·{' '}
           <b className="s-mono font-medium" style={{ color: 'var(--ink)' }}>
             {n(personas)}
           </b>{' '}
           personas
+        </span>
+      </span>
+
+      {/* LOS VOTOS QUE TE QUEDAN. Va entre las cifras de todos y el corte,
+          que es su orden lógico: cuántos votaron, cuántos te quedan a vos,
+          cuándo se cuenta. */}
+      <span
+        className="flex items-center gap-1.5"
+        title={
+          restantes === 0
+            ? `Ya usaste tus ${LIMITE} votos de esta semana`
+            : `Te quedan ${restantes} de ${LIMITE} votos; se renuevan el lunes`
+        }
+      >
+        {/* SIN EL NÚMERO AL LADO. Con «3 votos tuyos» la cabecera se iba a dos
+            renglones, que es más alta y no más ancha. Y el número repetía lo
+            que los puntos ya dicen: el CSS de .s-creditos lo tiene escrito —
+            «cinco marcas se cuentan de un vistazo y un 3 de 5 hay que leerlo».
+            Queda el rótulo, que es lo que los puntos no pueden decir solos. */}
+        <span style={{ color: 'var(--ink-2)' }}>tuyos</span>
+        <span className="s-creditos" aria-hidden>
+          {Array.from({ length: LIMITE }, (_, i) => (
+            <i key={i} className={i < usados ? 'usado' : undefined} />
+          ))}
+        </span>
+        {/* Para quien no ve los puntos. */}
+        <span className="sr-only">
+          Te quedan {restantes} de {LIMITE} votos esta semana
         </span>
       </span>
 

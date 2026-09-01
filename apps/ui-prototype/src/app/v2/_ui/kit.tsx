@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+
+import { Icono } from './iconos'
 import { formatDelta } from '@/lib/format'
 
 /* Kit del sistema V2. Las piezas son las mismas que tiene el producto —dato,
@@ -292,14 +294,46 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 }
 
 /** Cabecera de card: rótulo a la izquierda, apunte a la derecha. */
-export function CardHead({ titulo, nota }: { titulo: string; nota?: string }) {
+/* El `icono` es OPCIONAL y vive acá, en la pieza, y no puesto a mano en una
+   página: si una card lleva ícono en la cabecera, todas tienen que poder. Es
+   la geometría de §6.8 —14px con trazo 2— en ink-3, que es la tinta que la
+   referencia le da al ícono que acompaña un rótulo. */
+export function CardHead({
+  titulo,
+  nota,
+  icono,
+}: {
+  titulo: string
+  nota?: ReactNode
+  icono?: string
+}) {
   return (
     <div
       className="flex items-baseline justify-between gap-3 border-b px-3 py-2.5"
       style={{ borderColor: 'var(--line)' }}
     >
-      <span className="s-etq">{titulo}</span>
-      {nota && <span className="s-micro s-num" style={{ color: 'var(--ink-2)' }}>{nota}</span>}
+      <span className="s-etq flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+        {icono && (
+          /* self-center y no baseline: un svg alineado por línea de base
+             cuelga del renglón porque no tiene una. */
+          <Icono d={icono} size={14} grosor={2} className="shrink-0 self-center" />
+        )}
+        {titulo}
+      </span>
+      {/* `flex-1 min-w-0`: sin eso la nota se encoge a su ancho de contenido
+          mínimo —medido, 161px sobre los 590 de la card— y todo lo que lleve
+          adentro se parte en renglones. El título ya es shrink-0, así que la
+          nota se queda con TODO el resto y su contenido sigue alineado a la
+          derecha: para una nota de texto suelto se ve igual que antes, y para
+          una que lleva piezas (la cabecera del ranking) deja de romperse. */}
+      {nota && (
+        <span
+          className="s-micro s-num min-w-0 flex-1 text-right"
+          style={{ color: 'var(--ink-2)' }}
+        >
+          {nota}
+        </span>
+      )}
     </div>
   )
 }

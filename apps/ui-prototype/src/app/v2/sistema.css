@@ -1183,6 +1183,71 @@
 .s-persona--favor:hover { background: var(--green-tint); }
 .s-persona--contra:hover { background: var(--red-tint); }
 
+/* LA FILA SE ABRE. El cursor es lo único que se agrega: el fondo del hover ya
+   estaba y es la señal de que la fila responde. Un chevrón de «ver más» al
+   lado de los dos del voto se lee como un tercer control de lo mismo.
+
+   Abierta, la fila se queda con el fondo del hover y PIERDE su filete de
+   abajo: la fila y su ficha pasan a ser un solo bloque, que es lo que son. */
+.s-persona--abre { cursor: pointer; }
+.s-persona--abre:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.s-persona--abierta { border-bottom-color: transparent; }
+.s-persona--abierta:not(.s-persona--favor):not(.s-persona--contra) { background: var(--hover); }
+
+/* LA FICHA. Fondo --inset y filete abajo: es la receta del pie de card de la
+   §6, que es exactamente lo que esto es —un bloque que cierra lo de arriba—.
+   El padding repite el de la fila en horizontal para que la cara grande caiga
+   a plomo con la chica.
+
+   La cara arranca en la columna del puesto y no en la de la foto: en la ficha
+   no hay que mantener la grilla de cinco columnas, y alineada al borde el
+   bloque de texto gana 28px de ancho. */
+.s-ficha {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 14px 12px 16px;
+  background: var(--inset);
+  border-bottom: 1px solid var(--line);
+}
+.s-ficha:last-child { border-bottom: 0; }
+
+/* 96×120 mantiene la proporción de la foto (161×200), así que la cara no se
+   deforma y es la misma imagen: un archivo, dos tamaños. */
+.s-cara-gr {
+  display: block;
+  flex-shrink: 0;
+  width: 96px;
+  height: 120px;
+  border-radius: var(--radius-control);
+  object-fit: cover;
+  background: var(--field);
+  box-shadow: var(--shadow-hairline);
+}
+.s-cara-gr.s-cara--mono { font-size: 24px; }
+
+/* El pie de la ficha: la fecha del dato y la fuente. Es la parte que hace
+   verificable la fila, así que va abajo de todo y en la tinta de metadata. */
+.s-ficha-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.s-ficha-pie a { text-decoration: none; }
+.s-ficha-pie a:hover { background: var(--hover-2); }
+
+@media (max-width: 639px) {
+  /* A 375 la cara de 96 le deja 160px al texto. Se apila. */
+  .s-ficha { flex-direction: column; gap: 12px; }
+}
+
 /* LA PASTILLA DE PUNTOS SOBRE LA FILA TEÑIDA. --field y el tinte tienen la
    misma luminancia —1,003 contra el verde y 1,023 contra el rojo—: la
    pastilla no se ve poco, DESAPARECE, y lo que queda es una mancha sucia
