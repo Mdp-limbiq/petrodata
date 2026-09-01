@@ -44,6 +44,39 @@ export type Persona = {
    pozos arriba de Pampa pierde toda credibilidad ante la gente que se supone
    que tiene que impresionar. 500 es tres veces la mediana de pozos; con ese
    piso no queda ningún intruso por debajo del 0,5% del valor en el top 10. */
+/* LO QUE VIAJA AL NAVEGADOR, y es a propósito que sea menos que `Persona`.
+
+   La ponderación del índice no se publica. Pero `ListaPersonas` es un
+   componente de cliente, así que todo lo que reciba por props se serializa en
+   el HTML: pasándole `Persona[]` entero, cada fila salía con sus tres
+   componentes ya normalizados —escala, rinde, prima— al lado del índice.
+   Cuarenta y ocho filas son cuarenta y ocho ecuaciones con tres incógnitas:
+   los pesos se despejan por mínimos cuadrados en un minuto. El algoritmo era
+   secreto en la prosa y público en el `view-source`.
+
+   Así que la página manda esta proyección y nada más. Los insumos y los
+   componentes se quedan del lado del servidor, que es donde se calcula. */
+/* `confirmado` YA NO VIAJA (pedido de Mariano, 2026-09-01: «las otras van, pero
+   sin el chip de sin confirmar, a lo sumo que la empresa nos contacte»). El
+   campo se queda en `Persona` porque el dato sigue siendo cierto y es lo que
+   ordena la cola de verificación; lo que se saca es la marca en la fila.
+
+   Se saca de la proyección y no del render por la misma razón que los pesos
+   del índice: lo que no se muestra tampoco tiene por qué serializarse en el
+   HTML. Un `confirmado: false` en el view-source dice exactamente lo que el
+   chip decía. */
+export type PersonaFila = Pick<Persona, 'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice'>
+
+export function aFila(p: Persona): PersonaFila {
+  return {
+    slug: p.slug,
+    nombre: p.nombre,
+    cargo: p.cargo,
+    empresa: p.empresa,
+    indice: p.indice,
+  }
+}
+
 export const PESOS = { escala: 0.6, rinde: 0.25, prima: 0.15 } as const
 export const PISO_POZOS = 500
 
@@ -54,8 +87,8 @@ export const PERSONAS: Persona[] = [
     cargo: 'Presidente & CEO',
     empresa: 'YPF S.A.',
     confirmado: true,
-    fuente: 'https://ar.linkedin.com/in/horacio-daniel-mar%C3%ADn-63531978',
-    desde: '2026-07-07',
+    fuente: 'https://www.lanacion.com.ar/economia/horacio-marin-presidente-y-ceo-de-ypf-sobre-su-modelo-de-conduccion-yo-lo-llamo-plata-o-mierda-nid24082026/',
+    desde: '2026-08-24',
     pctValor: 45.6,
     pctNacional: 34.2,
     pozos: 5725,
@@ -70,8 +103,8 @@ export const PERSONAS: Persona[] = [
     cargo: 'Chairman & CEO',
     empresa: 'Vista Energy',
     confirmado: true,
-    fuente: 'https://dcfmodeling.com/es/blogs/history/vist-history-mission-ownership',
-    desde: '2026-08-27',
+    fuente: 'https://www.infobae.com/economia/2026/03/05/miguel-galuccio-presidente-de-vista-energy-la-realidad-macroeconomica-es-mucho-mejor-que-la-que-teniamos-hace-tiempo-atras/',
+    desde: '2026-03-05',
     pctValor: 7.7,
     pctNacional: 4.4,
     pozos: 400,
@@ -117,9 +150,9 @@ export const PERSONAS: Persona[] = [
     nombre: 'Marcos Bulgheroni',
     cargo: 'Group Chief Executive Officer',
     empresa: 'PAN AMERICAN ENERGY SL',
-    confirmado: false,
-    fuente: 'https://www.cronista.com/negocios/marcos-bulgheroni-de-pan-american-energy-es-el-ceo-del-ano-8546/',
-    desde: '2023-12-13',
+    confirmado: true,
+    fuente: 'https://www.lanacion.com.ar/economia/campo/marcos-bulgheroni-ceo-de-pae-quiere-invertir-en-biocombustibles-y-exportar-si-sale-una-ley-y-se-nid06082026/',
+    desde: '2026-08-06',
     pctValor: 10.9,
     pctNacional: 10.9,
     pozos: 4471,
@@ -145,13 +178,20 @@ export const PERSONAS: Persona[] = [
     prima: 51.4,
   },
   {
+    /* Mindlin en lugar de Mariani (pedido de Mariano, 2026-09-01). El cambio es
+       editorial: los dos cargos existen y son distintos. Mariani es el CEO;
+       Mindlin preside el directorio, y así lo lista la propia página de
+       gobierno corporativo de Pampa, que es la fuente de esta fila.
+
+       El índice y sus componentes NO se tocan: son de Pampa Energía, no de la
+       persona. Ésa es la premisa de la sección entera. */
     slug: 'pampa',
-    nombre: 'Gustavo Mariani',
-    cargo: 'Vice Chairman & Chief Executive Officer',
+    nombre: 'Marcelo Mindlin',
+    cargo: 'Presidente del Directorio',
     empresa: 'Pampa Energía S.A.',
     confirmado: true,
-    fuente: 'https://ri.pampa.com/en/corporate-governance/main-officers/',
-    desde: '2025-06-23',
+    fuente: 'https://ri.pampa.com/en/corporate-governance/board-of-directors/',
+    desde: '2026-09-01',
     pctValor: 2.2,
     pctNacional: 5.8,
     pozos: 277,
@@ -166,8 +206,8 @@ export const PERSONAS: Persona[] = [
     cargo: 'Chief Executive Officer (CEO)',
     empresa: 'Tecpetrol S.A.',
     confirmado: true,
-    fuente: 'https://www.zoominfo.com/c/tecpetrol-sa/94158964',
-    desde: '2026-08-27',
+    fuente: 'https://www.tecpetrol.com/en/leadership',
+    desde: '2026-03-24',
     pctValor: 2.4,
     pctNacional: 7.7,
     pozos: 349,
@@ -181,9 +221,9 @@ export const PERSONAS: Persona[] = [
     nombre: 'Horacio Bustillo',
     cargo: 'CEO',
     empresa: 'PECOM SERVICIOS ENERGIA SAU',
-    confirmado: false,
-    fuente: '',
-    desde: '2026-08-27',
+    confirmado: true,
+    fuente: 'https://www.infobae.com/economia/networking/2025/10/14/pecom-designo-a-horacio-bustillo-como-su-nuevo-ceo/',
+    desde: '2025-11-01',
     pctValor: 1.4,
     pctNacional: 0.7,
     pozos: 618,
@@ -230,8 +270,8 @@ export const PERSONAS: Persona[] = [
     cargo: 'President & CEO',
     empresa: 'CGC (Compañía General de Combustibles)',
     confirmado: true,
-    fuente: 'https://www.bloomberglinea.com/latinoamerica/argentina/cgc-apuesta-al-gas-el-plan-para-exportar-gnl-por-chile-y-llegar-a-brasil-via-bolivia/',
-    desde: '2026-08-27',
+    fuente: 'https://cgc.energy/spanish/miembros-del-directorio/',
+    desde: '2026-03-25',
     pctValor: 1.9,
     pctNacional: 2.6,
     pozos: 1521,

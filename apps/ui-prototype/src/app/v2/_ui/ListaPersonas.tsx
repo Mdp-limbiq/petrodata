@@ -1,9 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Icono } from './iconos'
-import { LIMITE, useVotos } from './votos'
-import type { Persona } from '@/fixtures/personas'
+import { Icono, PATH } from './iconos'
+import { conVoto, dia, LIMITE, proximoCorte } from './voto-reglas'
+import { useVotos } from './votos'
+import type { PersonaFila } from '@/fixtures/personas'
 import { formatDecimal } from '@/lib/format'
 
 /* LA LISTA DE PERSONALIDADES — el índice, y el voto por fila.
@@ -25,27 +26,72 @@ import { formatDecimal } from '@/lib/format'
    viejos: sin eso, «se renueva cada lunes» sería una frase y no un
    comportamiento. */
 
-export function ListaPersonas({ personas }: { personas: Persona[] }) {
+export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
   const { votos, votar, restantes } = useVotos()
 
-  /* POSICIÓN CON EMPATES. Numerar 30, 31, 32… cuando dieciséis personas tienen
-     el mismo 7,3 afirma un orden que el dato no tiene, y en un ranking donde
-     cada uno se busca a sí mismo ese es el peor error posible: nadie acepta
-     estar 44.º empatado con el 30.º. Se usa la numeración de competencia —los
-     empatados comparten puesto y el siguiente salta— que es la convención de
-     cualquier tabla deportiva. */
-  const puestos = useMemo(() => {
+  /* EL VOTO ENTRA EN EL NÚMERO. Antes se guardaba y no pasaba nada: la página
+     decía que la votación semanal pesa y el ranking no se movía nunca. Ahora
+     cada voto suma o resta (ver PESO_VOTO) y la lista se reordena acá mismo,
+     en el render, sin esperar nada.
+
+     Se ordena por el valor ya ajustado, no por el del fixture. El orden del
+     fixture se guarda aparte para poder mostrar cuánto se movió cada uno. */
+  const base = useMemo(() => {
     const m: Record<string, number> = {}
-    let ultimo = 0
     personas.forEach((p, i) => {
-      if (i === 0 || p.indice !== personas[i - 1].indice) ultimo = i + 1
-      m[p.slug] = ultimo
+      m[p.slug] = i + 1
     })
     return m
   }, [personas])
 
+  /* EL CORTE. La lista se ordena SÓLO con los votos de días anteriores. Los de
+     hoy están emitidos y no se pueden deshacer, pero no mueven a nadie hasta
+     medianoche. Ver voto-reglas.ts. */
+  const hoy = dia()
+  const filas = useMemo(
+    () =>
+      personas
+        .map((p, i) => {
+          const e = votos[p.slug]
+          const dentro = e && e.d !== hoy ? e.v : undefined
+          return {
+            ...p,
+            orden: i,
+            puntos: conVoto(p.indice, dentro),
+            pendiente: !!e && e.d === hoy,
+          }
+        })
+        /* EL DESEMPATE ES EXPLÍCITO y no el que regala el sort estable: con
+           veinticinco personas empatadas, dejarlo librado a la implementación
+           es dejar librado el puesto de la mitad de la lista. Se cae al orden
+           del fixture, que es el del ranking de empresas —el mismo que produjo
+           el índice—, así que dentro de un empate manda la empresa más
+           grande. */
+        .sort((a, b) => b.puntos - a.puntos || a.orden - b.orden),
+    [personas, votos, hoy],
+  )
+
+  /* PUESTO ÚNICO, 01 a 48 (pedido de Mariano, 2026-09-01: «no tiene que haber
+     empates de puestos»). Antes se compartía el puesto entre empatados, que es
+     la convención de las tablas deportivas.
+
+     Lo que hay que tener presente, porque el dato no cambió: los empates SIGUEN
+     ESTANDO. Dieciséis personas tienen exactamente 7,3 y otras nueve están en
+     grupos de dos y tres —veinticinco de cuarenta y ocho—. Con puesto único, el
+     orden adentro de cada grupo lo pone el desempate y no una diferencia de
+     puntos: entre el 24.º y el 39.º no hay nada que los separe salvo el tamaño
+     de la empresa. La pastilla de Puntos, que va al lado, lo deja ver. */
+  const puestos = useMemo(() => {
+    const m: Record<string, number> = {}
+    filas.forEach((p, i) => {
+      m[p.slug] = i + 1
+    })
+    return m
+  }, [filas])
+
   const sinCredito = `Ya usaste tus ${LIMITE} votos de esta semana`
   const yaVoto = 'Ya votaste a esta persona; el voto no se edita hasta el lunes'
+  const enCorte = 'Tu voto quedó registrado y entra en el próximo corte'
 
   return (
     <>
@@ -63,27 +109,65 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
             60px corrido a la derecha del bloque que describe. */}
         <span style={{ gridColumn: '2 / 4' }}>Persona</span>
         <span className="text-right">Puntos</span>
-        <span className="text-center">Votación semanal</span>
+        <span className="text-center">Voto semanal</span>
       </div>
-      {personas.map((p, i) => {
-        const mio = votos[p.slug]
+      {filas.map((p, i) => {
+        const mio = votos[p.slug]?.v
         const votado = mio !== undefined
         const agotado = !votado && restantes === 0
-        const empata =
-          (i > 0 && personas[i - 1].indice === p.indice) ||
-          (i < personas.length - 1 && personas[i + 1].indice === p.indice)
+        /* Cuántos puestos se movió respecto del orden sin votos. Positivo =
+           subió. Es lo que hace visible que el voto sirvió: sin esto la fila
+           salta de lugar y no se entiende por qué. */
+        const salto = base[p.slug] - puestos[p.slug]
+        /* Pero no se muestra siempre. Con tres votos a favor en el pelotón,
+           treinta y cuatro personas bajan UN puesto sin que nadie las votara,
+           y la lista quedaba llena de flechas rojas de gente que no hizo nada.
+           Se muestra si la votaste —ahí la flecha es la respuesta a tu clic— o
+           si el salto es de dos o más, que ya no es corrimiento sino que algo
+           pasó. */
+        const muestraSalto = !p.pendiente && salto !== 0 && (votado || Math.abs(salto) > 1)
+        /* LA FILA VOTADA QUEDA TEÑIDA toda la semana, no un instante. El voto
+           dura hasta el lunes, así que la marca dura lo mismo: al volver, las
+           filas teñidas son las cinco que elegiste. Un destello al hacer clic
+           se pierde apenas mirás para otro lado. */
+        const marca = votado ? (mio === 1 ? ' s-persona--favor' : ' s-persona--contra') : ''
         return (
-          <div key={p.slug} className="s-persona">
-            <span
-              className="s-mono text-[11px]"
-              style={{ color: 'var(--ink-3)' }}
-              /* El «=» delante marca el empate. Es la notación de las tablas
-                 de posiciones y ocupa un carácter, así que la columna no
-                 cambia de ancho entre una fila y la siguiente. */
-              title={empata ? 'Empatado en este puesto' : undefined}
-            >
-              {empata ? '=' : '\u00a0'}
-              {String(puestos[p.slug]).padStart(2, '0')}
+          <div key={p.slug} className={`s-persona${marca}`}>
+            <span className="flex flex-col items-start gap-0.5">
+              <span
+                className="s-mono text-[11px]"
+                /* ink-3 sobre el tinte mide 2,42 en claro y 2,43 en oscuro.
+                   Sobre la card blanca ya estaba en 2,72 —es metadata y pasa—
+                   pero bajar todavía más justo en la fila que el que vota
+                   busca es al revés de lo que se quiere. Sube a ink-2, que
+                   sobre el tinte da 5,21 y 5,13. */
+                style={{ color: votado ? 'var(--ink-2)' : 'var(--ink-3)' }}
+              >
+                {/* Sin el «=» del empate y sin el espacio duro que le
+                    reservaba el lugar: ese carácter corría el número tres
+                    píxeles a la derecha y lo dejaba desalineado con todo lo
+                    que caía debajo en la misma columna. */}
+                {String(puestos[p.slug]).padStart(2, '0')}
+              </span>
+
+              {/* El salto de puesto, sólo cuando lo hubo. Va en la columna del
+                  puesto y no al lado de los puntos: del voto interesa el lugar
+                  que ganó, no los puntos que sumó. Y va DENTRO de esta celda
+                  porque la fila es una grilla de cinco columnas fijas — un
+                  hijo más caía en la de la foto y corría toda la fila. */}
+              {muestraSalto && (
+                <span
+                  className={`s-mono flex items-center ${salto > 0 ? 's-sube' : 's-baja'}`}
+                  style={{ fontSize: 10, lineHeight: '12px' }}
+                  title={`${salto > 0 ? 'Subió' : 'Bajó'} ${Math.abs(salto)} puesto${Math.abs(salto) === 1 ? '' : 's'} esta semana`}
+                >
+                  {/* El mismo chevrón que los botones de voto, no un ▲ de
+                      texto: el sistema dibuja los íconos con trazo, y el
+                      triángulo tipográfico venía con su propio interletrado. */}
+                  <Icono d={salto > 0 ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'} size={11} grosor={2.6} />
+                  {Math.abs(salto)}
+                </span>
+              )}
             </span>
 
             {/* La cara es un ancla de identidad, no una foto: 32px, que es lo
@@ -96,18 +180,17 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
                 + 17,25 llenan el alto de la foto de 60. En dos, la foto quedaba
                 23px más alta que la columna que acompaña. */}
             <span className="flex min-w-0 flex-col justify-center">
+              {/* SIN EL CHIP DE «SIN CONFIRMAR» (pedido de Mariano,
+                  2026-09-01). El campo `confirmado` ni siquiera llega acá: se
+                  quedó del lado del servidor, ver `PersonaFila`.
+
+                  Lo que se pierde y conviene tener escrito: dieciocho de los
+                  cuarenta y ocho cargos no están verificados, y varios salen de
+                  registros de 2017 y 2018. La página los publica sin distinguir
+                  de los que sí lo están. La apuesta es que si alguno está mal,
+                  la empresa escriba. */}
               <span className="s-cuerpo flex items-center gap-1.5 font-medium">
                 <span className="truncate">{p.nombre}</span>
-                {/* El cargo sin confirmar se marca. Es más honesto que
-                    esconderlo y que publicarlo como si estuviera verificado. */}
-                {!p.confirmado && (
-                  <span
-                    className="s-chip s-chip--neutro s-chip--mini shrink-0"
-                    title="El cargo lo sugiere una sola fuente y no está verificado"
-                  >
-                    sin confirmar
-                  </span>
-                )}
               </span>
               <span className="s-micro block truncate" style={{ color: 'var(--ink-2)' }}>
                 {p.cargo || '—'}
@@ -123,25 +206,62 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
             </span>
 
             <span className="s-pcontrol">
-            <span className="s-idx">{formatDecimal(p.indice, 1)}</span>
+            {/* EL PUNTO COMO SEPARADOR DECIMAL (pedido de Mariano,
+                2026-09-01), y sólo acá. El resto del sitio va en es-AR con
+                coma, que es la convención del país: el puntaje queda como la
+                única cifra de la web con punto. Se pide el locale en vez de
+                reemplazar el carácter, así el formateo sigue saliendo de
+                `formatDecimal` y nadie lo hardcodea en la fila. */}
+            <span className="s-idx">{formatDecimal(p.puntos, 1, 'en')}</span>
 
             {/* Sin el conteo (pedido de Mariano): quedan los dos chevrones. Lo
                 único que se pierde es el número; el estado del voto propio se
-                sigue viendo, porque el botón elegido queda con su tinte. */}
+                sigue viendo, porque el botón elegido queda con su tinte.
+
+                VOTADA LA FILA, EL PAR SE VA Y QUEDA EL BADGE. No conviven: el
+                voto no se edita hasta el lunes, así que los dos botones que
+                quedaban eran controles muertos, y sumarles un chip abajo daba
+                tres piezas diciendo lo mismo en una celda de 100px.
+
+                Con una sola pieza por celda la fila vuelve a tener una altura
+                y un eje: el badge mide 22, igual que el de Puntos al lado, y
+                los dos caen centrados en el mismo renglón. */}
             <span className="s-voto">
+              {votado ? (
+                <span
+                  className={`s-chip ${mio === 1 ? 's-chip--ok' : 's-chip--bad'}`}
+                  title={p.pendiente ? enCorte : yaVoto}
+                >
+                  {/* EL ÍCONO DICE EN QUÉ ESTADO ESTÁ EL VOTO. Contado, es el
+                      chevrón del botón que apretaste: el badge ocupa su lugar y
+                      hereda su gramática. Emitido hoy y todavía sin contar, es
+                      el reloj.
+
+                      El reloj estaba suelto en la columna del puesto, debajo
+                      del número, en una celda de 28px que no es suya: ahí no se
+                      entendía a qué se refería y quedaba desalineado. Acá
+                      califica al badge que tiene al lado, que es exactamente lo
+                      que hace. */}
+                  <Icono
+                    d={p.pendiente ? PATH.reloj : mio === 1 ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'}
+                    size={11}
+                    grosor={p.pendiente ? 2.2 : 2.6}
+                  />
+                  {mio === 1 ? 'A favor' : 'En contra'}
+                </span>
+              ) : (
               <span className="par">
-                {/* Dos motivos para apagar un botón, y los dos se dicen en el
-                    title: ya votaste a esta persona —el voto no se edita— o te
-                    quedaste sin crédito. Dejarlos vivos y que el clic no haga
-                    nada es peor: parece que se rompió. El elegido queda
-                    apagado pero con su tinte, así se sigue viendo qué votaste. */}
+                {/* Queda UN motivo para apagar los botones: te quedaste sin
+                    crédito. El otro —«ya votaste a esta persona»— dejó de
+                    existir acá, porque en esa fila ya no hay botones sino el
+                    badge. Dejarlos vivos y que el clic no haga nada es peor:
+                    parece que se rompió. */}
                 <button
                   type="button"
                   className="arriba"
-                  aria-pressed={mio === 1}
                   aria-label={`Votar a favor de ${p.nombre}`}
-                  disabled={votado || agotado}
-                  title={votado ? yaVoto : agotado ? sinCredito : undefined}
+                  disabled={agotado}
+                  title={agotado ? sinCredito : undefined}
                   onClick={() => votar(p.slug, 1)}
                 >
                   <Icono d="M18 15l-6-6-6 6" size={13} grosor={2.4} />
@@ -149,15 +269,15 @@ export function ListaPersonas({ personas }: { personas: Persona[] }) {
                 <button
                   type="button"
                   className="abajo"
-                  aria-pressed={mio === -1}
                   aria-label={`Votar en contra de ${p.nombre}`}
-                  disabled={votado || agotado}
-                  title={votado ? yaVoto : agotado ? sinCredito : undefined}
+                  disabled={agotado}
+                  title={agotado ? sinCredito : undefined}
                   onClick={() => votar(p.slug, -1)}
                 >
                   <Icono d="M6 9l6 6 6-6" size={13} grosor={2.4} />
                 </button>
               </span>
+              )}
             </span>
             </span>
           </div>

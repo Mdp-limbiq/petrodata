@@ -1142,7 +1142,7 @@
   outline: none;
 }
 
-/* ── Personalidades ────────────────────────────────────────────────────
+/* ── Directivos ────────────────────────────────────────────────────────
    La fila y su cabecera comparten UNA grilla, que es como el sistema resuelve
    una tabla en la §13: .s-gcab y .s-gfila declaran el mismo
    grid-template-columns y por eso caen a plomo. Acá estaban como dos flex que
@@ -1150,10 +1150,11 @@
    100px para el voto y el voto medía 98, así que las dos columnas de la
    derecha salían corridas dos píxeles.
 
-   Las cinco columnas: puesto 28, foto 60, persona 1fr, puntos 64 y votación
-   semanal 100. En esa última columna la pieza más ancha es el ENCABEZADO y no
-   el control: «Votación semanal» mide unos 100 a 11,5px y el par de chevrones,
-   48. Por eso el control va centrado y no pegado al borde.
+   Las cinco columnas: puesto 28, foto 60, persona 1fr, puntos 64 y voto
+   semanal 100. Los 100 los fijaba el ENCABEZADO cuando decía «Votación
+   semanal»; con «Voto semanal» —unos 75 a 11,5px— los fija el badge «En
+   contra», que mide 83. El par de chevrones mide 48, así que el control va
+   centrado y no pegado al borde.
 
    La fila es la más alta de v2 —76— y es la excepción que hay que justificar:
    acá la persona ES el contenido y en 32 no se distingue una cara de otra. */
@@ -1169,6 +1170,30 @@
 .s-persona { transition: background-color var(--dur-slower) var(--ease-in-out); }
 .s-persona:last-child { border-bottom: 0; }
 .s-persona:hover { background: var(--hover); }
+/* LA FILA QUE VOTASTE. Sólo el tinte de estado: el filete lateral de 2px
+   está sacado (no gustó, 2026-09-01). El tinte solo alcanza porque el badge
+   de la celda del voto ya nombra el estado; el filete repetía en el canto lo
+   que la fila dice dos veces adentro.
+
+   El hover se repite con la misma especificidad porque .s-persona:hover le
+   gana a una sola clase. Sin esto, pasar el mouse por encima borra el tinte y
+   parece que se despintó. */
+.s-persona--favor { background: var(--green-tint); }
+.s-persona--contra { background: var(--red-tint); }
+.s-persona--favor:hover { background: var(--green-tint); }
+.s-persona--contra:hover { background: var(--red-tint); }
+
+/* LA PASTILLA DE PUNTOS SOBRE LA FILA TEÑIDA. --field y el tinte tienen la
+   misma luminancia —1,003 contra el verde y 1,023 contra el rojo—: la
+   pastilla no se ve poco, DESAPARECE, y lo que queda es una mancha sucia
+   alrededor de la cifra.
+
+   Pasa a --surface, que es el papel de la card. Se despega del tinte en los
+   dos temas (1,12 en claro, 1,27 en oscuro) —más que el escalón surface/inset
+   que el sistema ya usa para separar superficies— y la cifra sube de 14,42 a
+   16,14 de contraste. */
+.s-persona--favor .s-idx,
+.s-persona--contra .s-idx { background: var(--surface); }
 /* La cabecera es .s-gcab de la §13: 11,5/500 en ink-2 sobre el escalón de
    fondo. Sin ella el badge podía leerse como un precio y los chevrones no se
    sabía qué movían. */
@@ -1239,8 +1264,7 @@
    tonos de estado del sistema. */
 /* CENTRADO en su columna y no pegado a la derecha. Con el conteo al lado, el
    control medía 86 sobre una columna de 100 y alinearlo a la derecha era lo
-   correcto. Sin el conteo mide 48, y ahí el rótulo «Votación semanal» —que es
-   la pieza que fija el ancho de la columna, 100— quedaba flotando sobre
+   correcto. Sin el conteo mide 48, y ahí el rótulo quedaba flotando sobre
    cincuenta píxeles de nada. Centrado, el rótulo y el control comparten eje.
 
    Es la excepción entre las columnas de la derecha, y se justifica sola: las
@@ -1272,10 +1296,8 @@
   color: color-mix(in srgb, var(--red) 55%, var(--ink));
   box-shadow: inset 1px 0 0 var(--line-strong);
 }
-.s-voto button.arriba:hover,
-.s-voto button.arriba[aria-pressed='true'] { background: var(--green-tint); }
-.s-voto button.abajo:hover,
-.s-voto button.abajo[aria-pressed='true'] { background: var(--red-tint); }
+.s-voto button.arriba:hover { background: var(--green-tint); }
+.s-voto button.abajo:hover { background: var(--red-tint); }
 
 /* A 375 la card mide 287 por dentro: entre la foto de 60, el índice y el voto
    al nombre le quedaban 45px y sólo se veía el chip de «sin confirmar». Abajo
@@ -1338,9 +1360,6 @@
    apagada, porque no se entiende qué pasó. */
 .s-voto button:disabled { cursor: default; opacity: 0.35; }
 .s-voto button:disabled:hover { background: transparent; }
-/* El elegido queda apagado pero a plena tinta y con su fondo: es la única
-   marca de qué votaste, así que no puede desvanecerse con los demás. */
-.s-voto button:disabled[aria-pressed='true'] { opacity: 1; }
 
 /* ── Puntos clave ──────────────────────────────────────────────────────
    La receta de las Context Cards (§11): el rótulo y su contador AFUERA de la
