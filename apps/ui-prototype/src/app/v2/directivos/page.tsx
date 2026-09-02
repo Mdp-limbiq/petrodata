@@ -3,6 +3,8 @@ import { ListaPersonas } from '../_ui/ListaPersonas'
 import { CabeceraVotos } from '../_ui/CabeceraVotos'
 import { PATH } from '../_ui/iconos'
 import { LIMITE, VOTANTES_SEMANA, VOTOS_SEMANA } from '../_ui/voto-reglas'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { aFila, PERSONAS } from '@/fixtures/personas'
 
 /* DIRECTIVOS — quién dirige la cuenca, ordenado por un índice.
@@ -51,8 +53,26 @@ import { aFila, PERSONAS } from '@/fixtures/personas'
 export default function V2Directivos() {
   /* Se proyecta ACÁ, del lado del servidor. Ver PersonaFila: pasar `Persona`
      entero publicaría los tres componentes del índice en el HTML y con eso los
-     pesos se despejan. */
-  const filas = PERSONAS.map(aFila)
+     pesos se despejan.
+
+     QUIÉN TIENE CARA SE RESUELVE ACÁ Y NO EN EL NAVEGADOR. Dieciséis de las
+     cuarenta y ocho no tienen foto, y hasta ahora la fila igual pedía el
+     archivo y caía al monograma con el `onError` de la imagen. Eso fallaba de
+     dos maneras distintas:
+
+     · en producción el 404 puede llegar ANTES de que React hidrate, y ahí el
+       manejador todavía no existe: el evento se dispara contra nadie y queda
+       el ícono de imagen rota;
+     · en desarrollo es peor, porque Next responde los estáticos que faltan con
+       200 y la página de error en HTML —35 KB—, así que no hay error que
+       atrapar: la imagen queda cargando para siempre.
+
+     El servidor ya sabe qué archivos hay. Preguntándole al disco acá, la fila
+     que no tiene cara no pide nada y renderiza el monograma de una: no hay
+     404, no hay parpadeo y no hay dieciséis pedidos al pedo. */
+  const filas = PERSONAS.map((p) =>
+    aFila(p, existsSync(join(process.cwd(), 'public/images/ceos', `${p.slug}.jpg`))),
+  )
 
   return (
     <>

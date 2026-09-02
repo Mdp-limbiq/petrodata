@@ -95,10 +95,14 @@ export type Persona = {
 export type PersonaFila = Pick<
   Persona,
   'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice' | 'desde' | 'bio'
->
+> & {
+  /** si el archivo de la cara existe. Lo resuelve el SERVIDOR, ver page.tsx. */
+  foto: boolean
+}
 
-export function aFila(p: Persona): PersonaFila {
+export function aFila(p: Persona, foto = false): PersonaFila {
   return {
+    foto,
     slug: p.slug,
     nombre: p.nombre,
     cargo: p.cargo,

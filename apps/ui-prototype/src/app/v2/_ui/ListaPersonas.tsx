@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { AvisoDato } from './AvisoDato'
 import { Icono, PATH } from './iconos'
 import { conVoto, dia, LIMITE, proximoCorte } from './voto-reglas'
@@ -203,7 +203,7 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
                 que deja la fila en la altura del resto de las listas del sitio.
                 Cuando no hay imagen cae al monograma, que es la misma pieza que
                 usa la lista de empresas. */}
-            <Cara slug={p.slug} nombre={p.nombre} />
+            <Cara slug={p.slug} nombre={p.nombre} hay={p.foto} />
 
             {/* Tres renglones —nombre, cargo, empresa— y no dos: 19,5 + 17,25
                 + 17,25 llenan el alto de la foto de 60. En dos, la foto quedaba
@@ -359,7 +359,7 @@ function Ficha({
 }) {
   return (
     <div className="s-ficha s-entra" id={`ficha-${p.slug}`}>
-      <CaraGrande slug={p.slug} nombre={p.nombre} />
+      <CaraGrande slug={p.slug} nombre={p.nombre} hay={p.foto} />
 
       <div className="s-ficha-col">
         {/* EL TÍTULO ES EL NOMBRE (pedido de Mariano). Repite el de la fila de
@@ -443,12 +443,12 @@ function Ficha({
 
     El navegador elige: 1x en pantalla común, 2x en Retina. El `src` queda como
     respaldo para quien no entienda srcset. */
-function CaraGrande({ slug, nombre }: { slug: string; nombre: string }) {
-  const [rota, setRota] = useState(false)
-  const ini = iniciales(nombre)
-  if (rota) return <span className="s-cara-gr s-cara--mono">{ini}</span>
+function CaraGrande({ slug, nombre, hay }: { slug: string; nombre: string; hay: boolean }) {
+  const { rota, alMontar, marcarRota } = useCaidaAMonograma()
+  if (!hay || rota) return <span className="s-cara-gr s-cara--mono">{iniciales(nombre)}</span>
   return (
     <img
+      ref={alMontar}
       className="s-cara-gr"
       src={`/images/ceos/${slug}.jpg`}
       srcSet={`/images/ceos/${slug}.jpg 1x, /images/ceos/${slug}@2x.jpg 2x`}
@@ -457,7 +457,7 @@ function CaraGrande({ slug, nombre }: { slug: string; nombre: string }) {
       height={200}
       loading="lazy"
       decoding="async"
-      onError={() => setRota(true)}
+      onError={marcarRota}
     />
   )
 }
@@ -465,6 +465,31 @@ function CaraGrande({ slug, nombre }: { slug: string; nombre: string }) {
 /** La cara, con caída al monograma. El `onError` es la caída de verdad: el
     archivo puede no estar —las imágenes no se versionan— y una cara rota es
     peor que dos iniciales. */
+/** LA CAÍDA AL MONOGRAMA. Es la segunda línea: quién tiene cara lo decide el
+    servidor (ver page.tsx), así que acá no debería fallar ninguna. Queda para
+    el archivo que se borre después del build.
+
+    `onError` NO ALCANZA por sí solo: la lista se renderiza en el servidor,
+    así que el navegador empieza a bajar las imágenes mientras parsea el HTML.
+    Las que fallan ahí lo hacen ANTES de que React hidrate y enganche el
+    manejador, así que el evento se dispara contra nadie y la fila queda con el
+    ícono de imagen rota para siempre. Medido: dieciséis de cuarenta y ocho.
+
+    Las de más abajo se salvaban de casualidad, porque con loading="lazy" no
+    empiezan a bajar hasta que se las scrollea y para entonces ya hidrató. Por
+    eso se veía sólo a veces, y arriba de todo.
+
+    El ref se ejecuta al montar y pregunta por el estado que quedó: `complete`
+    con `naturalWidth` en cero es exactamente «terminó y no cargó». Es la única
+    forma de enterarse de un error que pasó antes de existir. */
+function useCaidaAMonograma() {
+  const [rota, setRota] = useState(false)
+  const alMontar = useCallback((n: HTMLImageElement | null) => {
+    if (n && n.complete && n.naturalWidth === 0) setRota(true)
+  }, [])
+  return { rota, alMontar, marcarRota: () => setRota(true) }
+}
+
 /** Primera y última inicial. La usan la cara de la fila y la de la ficha. */
 function iniciales(nombre: string) {
   return nombre
@@ -476,21 +501,20 @@ function iniciales(nombre: string) {
     .toUpperCase()
 }
 
-function Cara({ slug, nombre }: { slug: string; nombre: string }) {
-  const [rota, setRota] = useState(false)
-  const ini = iniciales(nombre)
-
-  if (rota) return <span className="s-cara s-cara--mono">{ini}</span>
+function Cara({ slug, nombre, hay }: { slug: string; nombre: string; hay: boolean }) {
+  const { rota, alMontar, marcarRota } = useCaidaAMonograma()
+  if (!hay || rota) return <span className="s-cara s-cara--mono">{iniciales(nombre)}</span>
   return (
     <img
+      ref={alMontar}
       className="s-cara"
       src={`/images/ceos/${slug}.jpg`}
       alt=""
-      width={200}
+      width={161}
       height={200}
       loading="lazy"
       decoding="async"
-      onError={() => setRota(true)}
+      onError={marcarRota}
     />
   )
 }
