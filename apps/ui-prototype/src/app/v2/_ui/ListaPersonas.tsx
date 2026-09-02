@@ -122,16 +122,19 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
         const votado = mio !== undefined
         const agotado = !votado && restantes === 0
         /* Cuántos puestos se movió respecto del orden sin votos. Positivo =
-           subió. Es lo que hace visible que el voto sirvió: sin esto la fila
-           salta de lugar y no se entiende por qué. */
-        const salto = base[p.slug] - puestos[p.slug]
-        /* Pero no se muestra siempre. Con tres votos a favor en el pelotón,
-           treinta y cuatro personas bajan UN puesto sin que nadie las votara,
-           y la lista quedaba llena de flechas rojas de gente que no hizo nada.
-           Se muestra si la votaste —ahí la flecha es la respuesta a tu clic— o
-           si el salto es de dos o más, que ya no es corrimiento sino que algo
-           pasó. */
-        const muestraSalto = !p.pendiente && salto !== 0 && (votado || Math.abs(salto) > 1)
+           subió.
+
+           SE MUESTRA EN LA FICHA Y NO EN LA FILA (pedido de Mariano,
+           2026-09-02: «tampoco sé qué es ese número abajo del puesto»). Estaba
+           debajo del número de puesto como un chevrón y una cifra, sin rótulo:
+           quien no lo construyó no tiene forma de saber que son puestos y no
+           votos, ni contra qué se compara. Un indicador que hay que explicar no
+           está funcionando.
+
+           En la ficha va con la palabra adelante y deja de ser adivinanza. Y de
+           paso la columna de 28px se queda sólo con el puesto, que es lo único
+           que tiene que decir. */
+        const salto = p.pendiente ? 0 : base[p.slug] - puestos[p.slug]
         /* LA FILA VOTADA QUEDA TEÑIDA toda la semana, no un instante. El voto
            dura hasta el lunes, así que la marca dura lo mismo: al volver, las
            filas teñidas son las cinco que elegiste. Un destello al hacer clic
@@ -184,24 +187,6 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
                 {String(puestos[p.slug]).padStart(2, '0')}
               </span>
 
-              {/* El salto de puesto, sólo cuando lo hubo. Va en la columna del
-                  puesto y no al lado de los puntos: del voto interesa el lugar
-                  que ganó, no los puntos que sumó. Y va DENTRO de esta celda
-                  porque la fila es una grilla de cinco columnas fijas — un
-                  hijo más caía en la de la foto y corría toda la fila. */}
-              {muestraSalto && (
-                <span
-                  className={`s-mono flex items-center ${salto > 0 ? 's-sube' : 's-baja'}`}
-                  style={{ fontSize: 10, lineHeight: '12px' }}
-                  title={`${salto > 0 ? 'Subió' : 'Bajó'} ${Math.abs(salto)} puesto${Math.abs(salto) === 1 ? '' : 's'} esta semana`}
-                >
-                  {/* El mismo chevrón que los botones de voto, no un ▲ de
-                      texto: el sistema dibuja los íconos con trazo, y el
-                      triángulo tipográfico venía con su propio interletrado. */}
-                  <Icono d={salto > 0 ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'} size={11} grosor={2.6} />
-                  {Math.abs(salto)}
-                </span>
-              )}
             </span>
 
             {/* La cara es un ancla de identidad, no una foto: 32px, que es lo
@@ -318,7 +303,7 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
             </span>
             </span>
           </div>
-          {abre && <Ficha p={p} puesto={puestos[p.slug]} total={filas.length} />}
+          {abre && <Ficha p={p} puesto={puestos[p.slug]} total={filas.length} salto={salto} />}
           </Fragment>
         )
       })}
@@ -357,10 +342,13 @@ function Ficha({
   p,
   puesto,
   total,
+  salto,
 }: {
   p: PersonaFila
   puesto: number
   total: number
+  /** puestos ganados desde el orden sin votos. Positivo = subió. */
+  salto: number
 }) {
   return (
     <div className="s-ficha s-entra" id={`ficha-${p.slug}`}>
@@ -412,6 +400,28 @@ function Ficha({
               </span>
             </span>
           </div>
+          {/* EL MOVIMIENTO, rotulado. Es .s-delta, la primitiva del sistema
+              para una variación, que estaba en el CSS con la receta medida:
+              11,5 en peso 400, sin fondo, sin padding, sin radio y —textual—
+              «no lleva flecha ni triangulito: es texto de color y nada más».
+              En la fila yo le había puesto un chevrón, que es justo lo que la
+              primitiva descarta.
+
+              El menos es el real (U+2212) y no un guion, como pide el mismo
+              comentario: a 11,5px el guion queda más corto y más alto que el
+              «+» y la columna se ve desprolija.
+
+              Sin movimiento no hay renglón: «0 puestos» ocupa lugar para decir
+              que no pasó nada. */}
+          {salto !== 0 && (
+            <div className="s-ficha-fila">
+              <span style={{ color: 'var(--ink-2)' }}>Movimiento</span>
+              <span className={`s-delta ml-auto ${salto > 0 ? 's-delta--sube' : 's-delta--baja'}`}>
+                {salto > 0 ? '+' : '\u2212'}
+                {Math.abs(salto)} {Math.abs(salto) === 1 ? 'puesto' : 'puestos'}
+              </span>
+            </div>
+          )}
           {p.desde && (
             <div className="s-ficha-fila">
               <span style={{ color: 'var(--ink-2)' }}>Cargo registrado</span>
