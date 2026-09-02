@@ -435,7 +435,20 @@ function Ficha({
   )
 }
 
-/** La misma cara de la fila, en 96×120, con la misma caída al monograma. */
+/** La cara de la ficha, en 161×200, con la misma caída al monograma.
+
+    VA CON srcset PORQUE 161×200 ES LA MEDIDA EN CSS, NO EN PÍXELES. En una
+    pantalla Retina —devicePixelRatio 2, que es cualquier Mac— esa caja son 322
+    por 400 píxeles reales, y el archivo de 161 se agranda al doble: se ve
+    exactamente igual de borroso que ampliar cualquier imagen, que es lo que
+    --placa-tope evita en la placa de logo.
+
+    En la fila no hace falta: la cara chica se muestra a 60 y el archivo de 161
+    ya cubre los 120 que pide Retina. Por eso el @2x existe sólo para la ficha,
+    que además se monta recién al abrir la fila: en la lista no se baja ninguno.
+
+    El navegador elige: 1x en pantalla común, 2x en Retina. El `src` queda como
+    respaldo para quien no entienda srcset. */
 function CaraGrande({ slug, nombre }: { slug: string; nombre: string }) {
   const [rota, setRota] = useState(false)
   const ini = iniciales(nombre)
@@ -444,6 +457,7 @@ function CaraGrande({ slug, nombre }: { slug: string; nombre: string }) {
     <img
       className="s-cara-gr"
       src={`/images/ceos/${slug}.jpg`}
+      srcSet={`/images/ceos/${slug}.jpg 1x, /images/ceos/${slug}@2x.jpg 2x`}
       alt=""
       width={161}
       height={200}
