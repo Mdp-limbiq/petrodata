@@ -313,40 +313,39 @@ export function CardHead({
   sub?: ReactNode
 }) {
   return (
-    <div
-      className={`flex justify-between gap-3 border-b px-3 py-2.5 ${
-        /* Con segunda línea la cabecera deja de alinear por línea de base: el
-           título y la nota tienen que quedar arriba, no repartidos contra un
-           bloque de dos renglones. */
-        sub ? 'items-start' : 'items-baseline'
-      }`}
-      style={{ borderColor: 'var(--line)' }}
-    >
-      <span className="flex shrink-0 flex-col gap-1.5">
-      <span className="s-etq flex shrink-0 items-center gap-1.5 whitespace-nowrap">
-        {icono && (
-          /* self-center y no baseline: un svg alineado por línea de base
-             cuelga del renglón porque no tiene una. */
-          <Icono d={icono} size={14} grosor={2} className="shrink-0 self-center" />
-        )}
-        {titulo}
-      </span>
-        {sub}
-      </span>
-      {/* `flex-1 min-w-0`: sin eso la nota se encoge a su ancho de contenido
-          mínimo —medido, 161px sobre los 590 de la card— y todo lo que lleve
-          adentro se parte en renglones. El título ya es shrink-0, así que la
-          nota se queda con TODO el resto y su contenido sigue alineado a la
-          derecha: para una nota de texto suelto se ve igual que antes, y para
-          una que lleva piezas (la cabecera del ranking) deja de romperse. */}
-      {nota && (
-        <span
-          className="s-micro s-num min-w-0 flex-1 text-right"
-          style={{ color: 'var(--ink-2)' }}
-        >
-          {nota}
+    /* Dos renglones cuando hay `sub`, y el sub ocupa TODO el ancho: sólo así
+       puede empujar algo contra el borde derecho de la card. Metido en la
+       columna del título quedaba limitado al ancho del rótulo.
+
+       Sin `sub` el renglón de arriba es exactamente lo que era —el mismo flex
+       con justify-between y align por línea de base—, así que ninguna de las
+       otras cards se entera. */
+    <div className="border-b px-3 py-2.5" style={{ borderColor: 'var(--line)' }}>
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="s-etq flex shrink-0 items-center gap-1.5 whitespace-nowrap">
+          {icono && (
+            /* self-center y no baseline: un svg alineado por línea de base
+               cuelga del renglón porque no tiene una. */
+            <Icono d={icono} size={14} grosor={2} className="shrink-0 self-center" />
+          )}
+          {titulo}
         </span>
-      )}
+        {/* `flex-1 min-w-0`: sin eso la nota se encoge a su ancho de contenido
+            mínimo —medido, 161px sobre los 584 de la card— y todo lo que lleve
+            adentro se parte en renglones. El título ya es shrink-0, así que la
+            nota se queda con TODO el resto y su contenido sigue alineado a la
+            derecha: para una nota de texto suelto se ve igual que antes, y para
+            una que lleva piezas (la cabecera del ranking) deja de romperse. */}
+        {nota && (
+          <span
+            className="s-micro s-num min-w-0 flex-1 text-right"
+            style={{ color: 'var(--ink-2)' }}
+          >
+            {nota}
+          </span>
+        )}
+      </div>
+      {sub && <div className="mt-2">{sub}</div>}
     </div>
   )
 }
