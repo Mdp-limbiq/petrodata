@@ -148,64 +148,51 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
           </div>
 
           {enviado ? (
-            <div className="s-modal-cuerpo">
-              <p className="s-cuerpo" style={{ color: 'var(--ink-2)' }}>
-                Reporte sobre <b style={{ color: 'var(--ink)' }}>{nombre}</b> registrado.
-                Respuesta a <span className="s-mono">{correo.trim()}</span>.
-              </p>
-            </div>
+            <p className="s-modal-desc s-cuerpo" style={{ color: 'var(--ink-2)' }}>
+              Reporte sobre <b style={{ color: 'var(--ink)' }}>{nombre}</b> registrado.
+              Respuesta a <span className="s-mono">{correo.trim()}</span>.
+            </p>
           ) : (
-            <div className="s-modal-cuerpo">
-              {/* §8.2: la descripción explica el MECANISMO, no el beneficio, y
-                  no le habla al lector. Antes era una instrucción en voseo. */}
-              <p className="s-desc">
+            <>
+              {/* §8.2: la descripción explica el MECANISMO y no le habla al
+                  lector. Se lleva adentro para qué sirve el correo, que antes
+                  era un renglón de ayuda aparte debajo del campo. */}
+              <p className="s-modal-desc s-desc">
                 Corrección sobre el cargo, el nombre o la foto de{' '}
                 <b style={{ color: 'var(--ink)' }}>{nombre}</b>, de {empresa}
-                {/* Treinta y ocho de las cuarenta y ocho empresas terminan en
-                    «S.A.», «SAU» o «S.R.L.», así que el punto final duplicaba
-                    el de la abreviatura: «de YPF S.A..». */}
-                {empresa.endsWith('.') ? '' : '.'}
+                {empresa.endsWith('.') ? '' : '.'} El correo queda para responder el reporte.
               </p>
 
-              <label className="s-modal-campo">
-                <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                  Correo
-                </span>
-                <span className="s-campo">
-                  <input
-                    type="email"
-                    value={correo}
-                    onChange={(e) => setCorreo(e.target.value)}
-                    placeholder="nombre@empresa.com"
-                    autoComplete="email"
-                    required
-                  />
-                </span>
-                {/* Se dice el PORQUÉ, no que es obligatorio: el botón apagado
-                    ya dice que falta algo. Sustantivo y sin segunda persona.
-
-                    En ink-3 medía 2,72 en claro y 3,08 en oscuro. Es una
-                    instrucción: hay que poder leerla. ink-2 la deja en 5,84. */}
-                <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                  Necesario para responder el reporte.
-                </span>
+              {/* Cada campo es una FILA con su rótulo a la izquierda: la misma
+                  gramática de .s-ficha-fila, que es la ficha desde donde se abre
+                  este diálogo. Sin cajas, sin etiquetas flotando arriba y sin
+                  aire entre bloques: lo que separa es el filete. */}
+              <label className="s-fcampo">
+                <span className="rot">Correo</span>
+                <input
+                  type="email"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
+                  placeholder="nombre@empresa.com"
+                  autoComplete="email"
+                  required
+                />
               </label>
 
-              <label className="s-modal-campo">
-                <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                  Detalle
-                </span>
-                <span className="s-campo">
-                  <textarea
-                    value={texto}
-                    onChange={(e) => setTexto(e.target.value)}
-                    rows={4}
-                    placeholder="Dejó el cargo en marzo. El actual es…"
-                    required
-                  />
-                </span>
+              {/* El detalle usa la misma fila; lo único que cambia es que el
+                  control crece. Alineado arriba para que el rótulo quede a la
+                  altura del primer renglón y no centrado contra tres. */}
+              <label className="s-fcampo" style={{ alignItems: 'flex-start' }}>
+                <span className="rot">Detalle</span>
+                <textarea
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  rows={3}
+                  placeholder="Dejó el cargo en marzo. El actual es…"
+                  required
+                />
               </label>
-            </div>
+            </>
           )}
 
           <div className="s-pie-card s-modal-pie">
