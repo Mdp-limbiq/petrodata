@@ -1,7 +1,7 @@
 import { Card, CardHead, CardPie, Seccion } from '../_ui/kit'
 import { ListaPersonas } from '../_ui/ListaPersonas'
 import { CabeceraVotos } from '../_ui/CabeceraVotos'
-import { VotosDisponibles } from '../_ui/VotosDisponibles'
+import { EstadoVoto } from '../_ui/EstadoVoto'
 import { PATH } from '../_ui/iconos'
 import { LIMITE, VOTANTES_SEMANA, VOTOS_SEMANA } from '../_ui/voto-reglas'
 import { existsSync } from 'node:fs'
@@ -92,10 +92,10 @@ export default function V2Directivos() {
                Los dos estaban en el catálogo sin usar, así que ninguno le pisa
                el significado a otro ícono de la web. */
             icono={PATH.lista}
-            /* El presupuesto propio cuelga del rótulo y no de la nota: la nota
-               es de la card —cuántos votaron, cuándo es el corte— y esto es de
-               quien mira. */
-            sub={<VotosDisponibles />}
+            /* Los dos chips de estado cuelgan del rótulo y no de la nota: la
+               nota es de la card —cuánta gente votó— y éstos son del estado del
+               voto, el presupuesto de quien mira y el reloj del corte. */
+            sub={<EstadoVoto />}
             /* Los dos números salen de VOTANTES_SEMANA y VOTOS_SEMANA, que
                están escritos a mano. Leé el comentario de voto-reglas.ts antes
                de citarlos en cualquier lado que no sea esta pantalla. */
