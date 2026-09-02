@@ -1279,6 +1279,110 @@
   .s-ficha-datos { margin-top: 0; }
 }
 
+/* ── El campo. La receta de la §6.5, que el sistema declaraba y no tenía en
+      CSS: el input es transparente y sin borde, y quien dibuja el control y
+      reacciona al foco es el CONTENEDOR. ─────────────────────────────────── */
+.s-campo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  transition: border-color var(--dur-base), background-color var(--dur-base);
+}
+.s-campo:focus-within {
+  border-color: var(--line-strong);
+  background: var(--hover);
+  box-shadow: 0 1px 2px #00000006;
+}
+.s-campo input,
+.s-campo textarea {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  outline: none;
+  font: inherit;
+  font-size: 13px;
+  line-height: 19.5px;
+  color: var(--ink);
+}
+.s-campo textarea { resize: vertical; }
+.s-campo input::placeholder,
+.s-campo textarea::placeholder { color: var(--ink-3); }
+
+/* ── El modal ───────────────────────────────────────────────────────────
+   Es un <dialog> nativo con la receta de card: superficie, radio de card,
+   sombra y overflow oculto. No hay componente de modal en el sistema y éste es
+   el primero, así que se compone con lo que ya existe en vez de inventar una
+   caja nueva —barra de card arriba, pie de card abajo—.
+
+   El ancho es fijo en 420 y no un porcentaje: a 13px de cuerpo, 420 menos el
+   padding deja un renglón cómodo, y un modal que cambia de ancho con la
+   ventana obliga a releer dónde empieza cada cosa.
+
+   El ::backdrop va en la tinta al 45% y SIN blur: la §9 prohíbe el
+   backdrop-filter en todo el sistema. */
+.s-modal {
+  /* `margin: auto` es lo que centra un <dialog> abierto con showModal(): lo
+     pone la hoja del navegador y el preflight de Tailwind lo pisa con
+     `margin: 0`, así que el modal salía pegado arriba a la izquierda. Hay que
+     reponerlo a mano. */
+  margin: auto;
+  width: min(420px, calc(100vw - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  color: var(--ink);
+  overflow: hidden;
+}
+/* El velo va con alfa EN EL COLOR y no con `opacity`: sobre ::backdrop la
+   opacidad se comporta distinto entre navegadores y el velo salía lavado.
+   Sin blur, que la §9 prohíbe el backdrop-filter en todo el sistema. */
+.s-modal::backdrop { background: rgb(31 33 36 / 45%); }
+.s-modal .s-barra-card { justify-content: space-between; }
+
+/* El botón de cerrar: el de ícono chico de la §6.3 —24×24 con radio 6—. */
+.s-modal-x {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background-color var(--dur-instant), color var(--dur-instant);
+}
+.s-modal-x:hover { background: var(--hover); color: var(--ink); }
+
+.s-modal-cuerpo { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
+.s-modal-campo { display: flex; flex-direction: column; gap: 4px; }
+
+/* El pie alinea a la derecha y el cancelar queda a la izquierda del envío,
+   que es el orden de lectura: primero la salida, después la acción. */
+.s-modal-pie { justify-content: flex-end; }
+.s-modal-cancel {
+  margin-right: auto;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.s-modal-cancel:hover { color: var(--ink); }
+/* Apagado mientras falte el correo o el mensaje. Se ve que existe y que no
+   responde, que es lo contrario de esconderlo. */
+.s-pill:disabled { cursor: default; opacity: 0.4; box-shadow: none; }
+.s-pill:disabled:hover { background: var(--field); }
+
 /* LA PASTILLA DE PUNTOS SOBRE LA FILA TEÑIDA. --field y el tinte tienen la
    misma luminancia —1,003 contra el verde y 1,023 contra el rojo—: la
    pastilla no se ve poco, DESAPARECE, y lo que queda es una mancha sucia

@@ -1,6 +1,7 @@
 'use client'
 
 import { Fragment, useMemo, useState } from 'react'
+import { AvisoDato } from './AvisoDato'
 import { Icono, PATH } from './iconos'
 import { conVoto, dia, LIMITE, proximoCorte } from './voto-reglas'
 import { useVotos } from './votos'
@@ -356,24 +357,25 @@ function Ficha({
   puesto: number
   total: number
 }) {
-  const dominio = (u: string) => {
-    try {
-      return new URL(u).hostname.replace(/^www\./, '')
-    } catch {
-      return u
-    }
-  }
   return (
     <div className="s-ficha s-entra" id={`ficha-${p.slug}`}>
       <CaraGrande slug={p.slug} nombre={p.nombre} />
 
       <div className="s-ficha-col">
-        {/* El cargo ENTERO, que en la fila va truncado: es una de las razones
-            de que la ficha exista. 13/600 —.s-titulo—, no más: la jerarquía la
-            hace el peso y la tinta, nunca el tamaño. */}
-        <div className="s-titulo">{p.cargo || '—'}</div>
+        {/* EL TÍTULO ES EL NOMBRE (pedido de Mariano). Repite el de la fila de
+            arriba, sí, y es lo correcto: con la foto de 200 la ficha pesa como
+            una card propia y una card sin nombre no se entiende sola. Antes
+            encabezaba el cargo, que ahorraba la repetición y dejaba el bloque
+            sin sujeto.
+
+            13/600 —.s-titulo—, no más: la jerarquía la hace el peso y la
+            tinta, nunca el tamaño.
+
+            Debajo, el cargo ENTERO, que en la fila va truncado: es una de las
+            razones de que la ficha exista. */}
+        <div className="s-titulo">{p.nombre}</div>
         <div className="s-micro" style={{ color: 'var(--ink-2)' }}>
-          {p.empresa}
+          {p.cargo || '—'} · {p.empresa}
         </div>
 
         {/* La bio si existe, en la prosa del sistema —13/19,5— y con el ancho
@@ -409,26 +411,18 @@ function Ficha({
               <span className="s-mono ml-auto">{p.desde}</span>
             </div>
           )}
-          {p.fuente && (
-            <div className="s-ficha-fila">
-              <span style={{ color: 'var(--ink-2)' }}>Fuente</span>
-              {/* El link es lo que separa esto de una lista de nombres: es un
-                  ranking de personas con nombre y apellido calculado con cifras
-                  que no son de ellas, y poder ver de dónde sale el cargo es la
-                  diferencia. rel="noreferrer" porque son sitios de terceros. */}
-              <a
-                className="s-chip s-chip--neutro s-chip--mini ml-auto"
-                href={p.fuente}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                title={p.fuente}
-              >
-                {dominio(p.fuente)}
-                <Icono d={PATH.enlace} size={11} grosor={2.2} />
-              </a>
-            </div>
-          )}
+          {/* EL RENGLÓN DE «FUENTE» SALIÓ (pedido de Mariano) y en su lugar va
+              el canal de corrección. El link probaba que el cargo se verificó,
+              pero dieciocho de cuarenta y ocho no tienen fuente: aparecía en
+              unas filas y en otras no, que es marcar cuáles están sin
+              confirmar —justo lo que se sacó con el chip—. El aviso va en las
+              cuarenta y ocho por igual. */}
+          <div className="s-ficha-fila">
+            <span style={{ color: 'var(--ink-2)' }}>¿Ves algo mal?</span>
+            <span className="ml-auto">
+              <AvisoDato nombre={p.nombre} empresa={p.empresa} />
+            </span>
+          </div>
         </div>
       </div>
     </div>

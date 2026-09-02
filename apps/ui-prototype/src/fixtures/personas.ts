@@ -77,9 +77,15 @@ export type Persona = {
    HTML. Un `confirmado: false` en el view-source dice exactamente lo que el
    chip decía.
 
-   `fuente`, `desde` y `bio` SÍ viajan, porque la ficha que se abre al tocar la
-   fila los muestra. Son datos del CARGO y de la persona; no son insumos del
-   índice, así que no dicen nada sobre la ponderación.
+   `desde` y `bio` SÍ viajan, porque la ficha que se abre al tocar la fila los
+   muestra. Son datos del CARGO y de la persona; no son insumos del índice, así
+   que no dicen nada sobre la ponderación.
+
+   `fuente` DEJÓ de viajar cuando se sacó el renglón que la mostraba: sigue en
+   `Persona` porque es lo que respalda cada cargo y ordena la cola de
+   verificación, pero un campo que no se pinta no se serializa. Un fuente vacío
+   en el view-source dice «esta fila no está confirmada», que es exactamente lo
+   que se sacó de la vista.
 
    Lo que sigue sin viajar es lo mismo de antes: pctValor, pctNacional, pozos,
    escala, rinde y prima. Los tres primeros son los insumos del índice —el pie
@@ -88,7 +94,7 @@ export type Persona = {
    se queda sin cifras de la empresa a propósito: para eso está /v2/empresas. */
 export type PersonaFila = Pick<
   Persona,
-  'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice' | 'fuente' | 'desde' | 'bio'
+  'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice' | 'desde' | 'bio'
 >
 
 export function aFila(p: Persona): PersonaFila {
@@ -98,7 +104,6 @@ export function aFila(p: Persona): PersonaFila {
     cargo: p.cargo,
     empresa: p.empresa,
     indice: p.indice,
-    fuente: p.fuente,
     desde: p.desde,
     bio: p.bio,
   }
