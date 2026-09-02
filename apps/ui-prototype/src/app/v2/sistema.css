@@ -1313,6 +1313,33 @@
 .s-campo input::placeholder,
 .s-campo textarea::placeholder { color: var(--ink-3); }
 
+/* ── Acción en línea ────────────────────────────────────────────────────
+   El control que dispara algo desde adentro de una fila de datos. NO es
+   .s-pill: ése se usa tres veces en v2 y las tres son navegación, y la §6.3 lo
+   declara «el llamado a la acción más fuerte del sistema». Una corrección no
+   es la acción más fuerte de una página de ranking, y sus 28px de alto no
+   entran en un renglón de 27.
+
+   Es la gramática que el sitio ya usa para una acción en línea —11,5/500 en
+   --accent-ink, como «Leer →» en noticias y «Ver el mapa →» en el minimapa—.
+   Va sin flecha: ahí significa «vas a otra pantalla» y acá se abre un diálogo.
+
+   El acento es para enlaces y detalles (§3), que es exactamente este caso. */
+.s-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-ink);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--dur-instant);
+}
+.s-accion:hover { color: var(--accent); }
+
 /* ── El modal ───────────────────────────────────────────────────────────
    Es un <dialog> nativo con la receta de card: superficie, radio de card,
    sombra y overflow oculto. No hay componente de modal en el sistema y éste es

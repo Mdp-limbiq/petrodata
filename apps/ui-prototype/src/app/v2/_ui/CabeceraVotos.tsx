@@ -36,6 +36,12 @@ import { useVotos } from './votos'
    leerlo. El gastado se llena con la tinta media, el que queda es el riel
    vacío. Es la misma gramática de .s-medidor.
 
+   EL RÓTULO ES «Créditos» Y NO «tuyos». Es el nombre que el propio CSS le da
+   —«Los créditos: un punto por voto»— y es un sustantivo, que es como rotula
+   todo el sitio: El ranking, La lista, Operadores principales, Cobertura. La
+   §8.1 lo pide y la §1.5 aclara que no es opcional. «tuyos» además le hablaba
+   al lector, cosa que ningún otro rótulo de v2 hace.
+
    El presupuesto sale del storage, así que en el servidor son cinco puntos
    vacíos y los gastados aparecen al hidratar. `useVotos` tiene su snapshot de
    servidor justamente para que el HTML servido y el primer render coincidan. */
@@ -86,18 +92,14 @@ export function CabeceraVotos({ votos, personas }: { votos: number; personas: nu
           cuándo se cuenta. */}
       <span
         className="flex items-center gap-1.5"
-        title={
-          restantes === 0
-            ? `Ya usaste tus ${LIMITE} votos de esta semana`
-            : `Te quedan ${restantes} de ${LIMITE} votos; se renuevan el lunes`
-        }
+        title={`${restantes} de ${LIMITE} créditos. Se renuevan el lunes.`}
       >
-        {/* SIN EL NÚMERO AL LADO. Con «3 votos tuyos» la cabecera se iba a dos
-            renglones, que es más alta y no más ancha. Y el número repetía lo
-            que los puntos ya dicen: el CSS de .s-creditos lo tiene escrito —
-            «cinco marcas se cuentan de un vistazo y un 3 de 5 hay que leerlo».
-            Queda el rótulo, que es lo que los puntos no pueden decir solos. */}
-        <span style={{ color: 'var(--ink-2)' }}>tuyos</span>
+        {/* SIN EL NÚMERO AL LADO. Con el número la cabecera se iba a dos
+            renglones, que es más alta y no más ancha. Y repetía lo que los
+            puntos ya dicen: el CSS de .s-creditos lo tiene escrito —«cinco
+            marcas se cuentan de un vistazo y un 3 de 5 hay que leerlo». Queda
+            el rótulo, que es lo que los puntos no pueden decir solos. */}
+        <span style={{ color: 'var(--ink-2)' }}>Créditos</span>
         <span className="s-creditos" aria-hidden>
           {Array.from({ length: LIMITE }, (_, i) => (
             <i key={i} className={i < usados ? 'usado' : undefined} />
@@ -105,7 +107,7 @@ export function CabeceraVotos({ votos, personas }: { votos: number; personas: nu
         </span>
         {/* Para quien no ve los puntos. */}
         <span className="sr-only">
-          Te quedan {restantes} de {LIMITE} votos esta semana
+          Créditos: {restantes} de {LIMITE} disponibles esta semana
         </span>
       </span>
 

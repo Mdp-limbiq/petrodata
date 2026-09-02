@@ -17,9 +17,14 @@ import { Icono, PATH } from './iconos'
    movimiento en CSS y nada más.
 
    EL CORREO ES OBLIGATORIO (pedido de Mariano). No es una traba de formulario:
-   un aviso de «el cargo de fulano está mal» sin forma de repreguntar no se
+   un reporte de «el cargo de fulano está mal» sin forma de repreguntar no se
    puede verificar, y verificar es todo el trabajo de esta sección. Por eso el
    botón nace apagado y sólo se enciende con las dos cosas cargadas.
+
+   LA VOZ, §8. Rótulos sustantivos y sin segunda persona, como todo el resto
+   del sitio —El ranking, La lista, Operadores principales—. La primera versión
+   de esta pieza tenía «Avisanos», «Contanos» y «Tu correo», y eran las únicas
+   formas en segunda persona de todo v2.
 
    ⚠️ TODAVÍA NO SE ENVÍA A NINGUNA PARTE. Falta el destino: un endpoint o una
    casilla. Hasta que exista, el aviso se guarda en localStorage y nada sale
@@ -85,16 +90,28 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
 
   return (
     <>
+      {/* NO ES UN PILL. .s-pill se usa tres veces en v2 y las tres son
+          navegación —«Ver todas las noticias», «Volver»—; la §6.3 lo define
+          como «el llamado a la acción más fuerte del sistema», y reportar un
+          dato no lo es. Encima mide 28 de alto dentro de un renglón de 27.
+
+          Es la gramática de acción en línea que el sitio ya usa —.s-micro en
+          --accent-ink, como «Leer →» en noticias y «Ver el mapa →» en el
+          minimapa— sin la flecha, que ahí significa «vas a otra pantalla» y acá
+          no se va a ninguna. El acento es para enlaces, §3.
+
+          El ícono a 11 con trazo 2,2: la tabla de la §1.3 compensa el trazo en
+          las cajas chicas para que no se adelgace a menos de un píxel. */}
       <button
         type="button"
-        className="s-pill"
+        className="s-accion"
         onClick={(e) => {
           e.stopPropagation()
           setAbierto(true)
         }}
       >
-        <Icono d={PATH.info} size={13} grosor={2} />
-        Avisanos
+        <Icono d={PATH.info} size={11} grosor={2.2} />
+        Reportar
       </button>
 
       <dialog
@@ -112,8 +129,18 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
       >
         <form onSubmit={enviar}>
           <div className="s-barra-card">
-            <span className="s-titulo">
-              {enviado ? 'Gracias' : 'Avisanos si hay algo mal'}
+            {/* Ícono + rótulo, la misma ranura que CardHead: si una card lleva
+                ícono en la cabecera, todas tienen que poder. 14 con trazo 2,
+                que es lo que usa CardHead. */}
+            <span className="s-titulo flex items-center gap-1.5">
+              <Icono
+                d={enviado ? PATH.tilde : PATH.info}
+                size={14}
+                grosor={2}
+                className="shrink-0"
+                style={{ color: enviado ? 'var(--green)' : 'var(--ink-3)' }}
+              />
+              {enviado ? 'Reporte enviado' : 'Reportar dato'}
             </span>
             <button type="button" className="s-modal-x" onClick={cerrar} aria-label="Cerrar">
               <Icono d={PATH.cerrar} size={14} grosor={2} />
@@ -123,20 +150,26 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
           {enviado ? (
             <div className="s-modal-cuerpo">
               <p className="s-cuerpo" style={{ color: 'var(--ink-2)' }}>
-                Anotamos tu aviso sobre <b style={{ color: 'var(--ink)' }}>{nombre}</b>. Si hace
-                falta, escribimos a <span className="s-mono">{correo.trim()}</span>.
+                Reporte sobre <b style={{ color: 'var(--ink)' }}>{nombre}</b> registrado.
+                Respuesta a <span className="s-mono">{correo.trim()}</span>.
               </p>
             </div>
           ) : (
             <div className="s-modal-cuerpo">
+              {/* §8.2: la descripción explica el MECANISMO, no el beneficio, y
+                  no le habla al lector. Antes era una instrucción en voseo. */}
               <p className="s-desc">
-                Estás avisando sobre <b style={{ color: 'var(--ink)' }}>{nombre}</b>, de {empresa}.
-                Contanos qué está mal —el cargo, el nombre, la foto— y lo corregimos.
+                Corrección sobre el cargo, el nombre o la foto de{' '}
+                <b style={{ color: 'var(--ink)' }}>{nombre}</b>, de {empresa}
+                {/* Treinta y ocho de las cuarenta y ocho empresas terminan en
+                    «S.A.», «SAU» o «S.R.L.», así que el punto final duplicaba
+                    el de la abreviatura: «de YPF S.A..». */}
+                {empresa.endsWith('.') ? '' : '.'}
               </p>
 
               <label className="s-modal-campo">
                 <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                  Tu correo
+                  Correo
                 </span>
                 <span className="s-campo">
                   <input
@@ -149,23 +182,22 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
                   />
                 </span>
                 {/* Se dice el PORQUÉ, no que es obligatorio: el botón apagado
-                    ya dice que falta algo, y «para poder repreguntar» explica
-                    qué se gana dándolo. */}
+                    ya dice que falta algo. Sustantivo y sin segunda persona. */}
                 <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
-                  Lo necesitamos para poder repreguntarte.
+                  Necesario para responder el reporte.
                 </span>
               </label>
 
               <label className="s-modal-campo">
                 <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
-                  Qué está mal
+                  Detalle
                 </span>
                 <span className="s-campo">
                   <textarea
                     value={texto}
                     onChange={(e) => setTexto(e.target.value)}
                     rows={4}
-                    placeholder="Dejó el cargo en marzo; el actual es…"
+                    placeholder="Dejó el cargo en marzo. El actual es…"
                     required
                   />
                 </span>
@@ -190,7 +222,7 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
                   type="submit"
                   className="s-pill"
                   disabled={!valido}
-                  title={valido ? undefined : 'Hace falta tu correo y el mensaje'}
+                  title={valido ? undefined : 'Correo y detalle requeridos'}
                 >
                   Enviar
                 </button>

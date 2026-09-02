@@ -418,7 +418,7 @@ function Ficha({
               confirmar —justo lo que se sacó con el chip—. El aviso va en las
               cuarenta y ocho por igual. */}
           <div className="s-ficha-fila">
-            <span style={{ color: 'var(--ink-2)' }}>¿Ves algo mal?</span>
+            <span style={{ color: 'var(--ink-2)' }}>Correcciones</span>
             <span className="ml-auto">
               <AvisoDato nombre={p.nombre} empresa={p.empresa} />
             </span>
