@@ -338,6 +338,29 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
    columna 27px por encima del alto de la foto, que es justo lo que rompía el
    cierre a ras. El puesto sí queda, porque «07 de 48» es contexto que la fila
    sola no da. */
+/** Cuánto lleva en el cargo, a partir de un año, un año-mes o una fecha
+    completa: casi ninguna fuente da el día.
+
+    Bajo el año se cuenta en meses —«10 meses» dice más que «0 años»— y arriba
+    se trunca, que es como se lee «años en el cargo»: quien lleva dos años y
+    nueve meses lleva dos años, no tres. El arranque exacto queda en el title,
+    así que redondear no esconde nada. */
+function calcularAntiguedad(desde?: string) {
+  if (!desde) return null
+  const [a, m] = desde.split('-').map(Number)
+  const inicio = new Date(a, (m || 1) - 1, 1)
+  if (Number.isNaN(inicio.getTime())) return null
+  const hoy = new Date()
+  const meses = (hoy.getFullYear() - a) * 12 + (hoy.getMonth() - ((m || 1) - 1))
+  if (meses < 0) return null
+  const años = Math.floor(meses / 12)
+  const MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+  return {
+    txt: años >= 1 ? `${años} ${años === 1 ? 'año' : 'años'}` : `${meses} ${meses === 1 ? 'mes' : 'meses'}`,
+    desde: m ? `En el cargo desde ${MES[m - 1]} de ${a}` : `En el cargo desde ${a}`,
+  }
+}
+
 function Ficha({
   p,
   puesto,
@@ -350,6 +373,7 @@ function Ficha({
   /** puestos ganados desde el orden sin votos. Positivo = subió. */
   salto: number
 }) {
+  const antiguedad = calcularAntiguedad(p.enElCargoDesde)
   return (
     <div className="s-ficha s-entra" id={`ficha-${p.slug}`}>
       <CaraGrande slug={p.slug} nombre={p.nombre} hay={p.foto} />
@@ -422,10 +446,21 @@ function Ficha({
               </span>
             </div>
           )}
-          {p.desde && (
+          {/* AÑOS EN EL CARGO, no la fecha en que se verificó (pedido de
+              Mariano, 2026-09-02: «lo del cargo registrado no sirve»). El
+              renglón anterior mostraba `desde`, que es la fecha de la FUENTE:
+              la ficha de Marín decía 2026 cuando asumió en diciembre de 2023, y
+              la de Mindlin decía 2026 estando en el directorio desde 2006.
+
+              Sale de `enElCargoDesde`, que es un campo aparte y verificado uno
+              por uno. Hay trece de cuarenta y ocho; el resto omite el renglón
+              en vez de calcular sobre un dato que no es. */}
+          {antiguedad && (
             <div className="s-ficha-fila">
-              <span style={{ color: 'var(--ink-2)' }}>Cargo registrado</span>
-              <span className="s-mono ml-auto">{p.desde}</span>
+              <span style={{ color: 'var(--ink-2)' }}>Años en el cargo</span>
+              <span className="s-cifra-sm ml-auto" title={antiguedad.desde}>
+                {antiguedad.txt}
+              </span>
             </div>
           )}
           {/* EL RENGLÓN DE «FUENTE» SALIÓ (pedido de Mariano) y en su lugar va

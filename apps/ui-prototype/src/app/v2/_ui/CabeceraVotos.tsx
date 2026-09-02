@@ -14,14 +14,14 @@
      para lo que se cuenta). La jerarquía la hace el peso y el color, nunca el
      tamaño — todo sigue a 11,5.
 
-   EL CORTE Y EL PRESUPUESTO SE FUERON A LA SEGUNDA LÍNEA, en `EstadoVoto`
-   (pedido de Mariano, 2026-09-02). Esta nota describe la CARD —cuánta gente
-   votó— y aquéllos describen el estado del voto. Separados, cada uno cuelga del
-   rótulo que le corresponde. */
+   VA DEBAJO DEL RÓTULO (pedido de Mariano, 2026-09-02) y por eso alinea a la
+   izquierda: cuelga de «El ranking» y dice de qué tamaño es lo que se está
+   mirando. Los dos chips de estado —el presupuesto y el corte— se fueron a la
+   nota, contra el borde derecho, en `EstadoVoto`. */
 export function CabeceraVotos({ votos, personas }: { votos: number; personas: number }) {
   const n = (v: number) => v.toLocaleString('es-AR')
   return (
-    <span className="flex items-center justify-end gap-1.5">
+    <span className="flex items-center gap-1.5">
       <i
         className="s-pixel block size-1.5 shrink-0 rounded-full"
         style={{ background: 'var(--accent)' }}

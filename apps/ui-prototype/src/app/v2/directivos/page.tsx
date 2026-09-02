@@ -92,14 +92,18 @@ export default function V2Directivos() {
                Los dos estaban en el catálogo sin usar, así que ninguno le pisa
                el significado a otro ícono de la web. */
             icono={PATH.lista}
-            /* Los dos chips de estado cuelgan del rótulo y no de la nota: la
-               nota es de la card —cuánta gente votó— y éstos son del estado del
-               voto, el presupuesto de quien mira y el reloj del corte. */
-            sub={<EstadoVoto />}
+            /* Las cifras cuelgan del rótulo y los chips ocupan la nota
+               (pedido de Mariano, 2026-09-02). El rótulo dice qué es la card y
+               el renglón de abajo dice de qué tamaño: «El ranking» y, debajo,
+               cuánta gente lo votó. Los dos chips son estado —el presupuesto
+               de quien mira y el reloj del corte— y cierran contra el borde
+               derecho, que es donde el sistema pone lo que no se lee de
+               corrido. */
+            sub={<CabeceraVotos votos={VOTOS_SEMANA} personas={VOTANTES_SEMANA} />}
             /* Los dos números salen de VOTANTES_SEMANA y VOTOS_SEMANA, que
                están escritos a mano. Leé el comentario de voto-reglas.ts antes
                de citarlos en cualquier lado que no sea esta pantalla. */
-            nota={<CabeceraVotos votos={VOTOS_SEMANA} personas={VOTANTES_SEMANA} />}
+            nota={<EstadoVoto />}
           />
           <ListaPersonas personas={filas} />
           <CardPie>

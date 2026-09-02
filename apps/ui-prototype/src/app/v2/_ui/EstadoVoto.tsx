@@ -17,9 +17,14 @@ import { useVotos } from './votos'
    sobraba: la cifra que va al lado ya dice lo mismo con más precisión —«4» y
    «13 h 37 min»— y una barra de 28px que repite un número exacto es adorno.
 
-   VAN A LOS EXTREMOS. El presupuesto es de quien mira y arranca pegado al
-   rótulo; el corte es del reloj, no pertenece a nadie, y cierra la línea del
-   otro lado.
+   VAN APILADOS Y A LA DERECHA, ocupando la nota de la card (pedido de Mariano,
+   2026-09-02). Los dos son estado —cuánto te queda y cuánto falta para el
+   corte— y ninguno se lee de corrido, así que cierran contra el borde en vez de
+   competir con el rótulo.
+
+   Uno debajo del otro y no en fila: apilados, los dos terminan en el mismo eje
+   derecho y se leen como una columna de estado. En fila, el ancho del primero
+   corría al segundo cada vez que el número cambiaba de dígito.
 
    EL CHEVRÓN DEL PRESUPUESTO es el mismo path que el botón de votar a favor de
    cada fila. Un ícono que ya significa «voto» en esta pantalla dice de qué son
@@ -49,7 +54,7 @@ export function EstadoVoto() {
   }, [])
 
   return (
-    <span className="flex flex-wrap items-center gap-2">
+    <span className="flex flex-col items-end gap-1.5">
       <span
         className="s-chip s-chip--neutro s-chip--mini"
         title={`${restantes} de ${LIMITE} votos. Se renuevan el lunes.`}
@@ -66,10 +71,7 @@ export function EstadoVoto() {
           render no coincida con el HTML servido. */}
       {corte && (
         <span
-          /* ml-auto: contra el borde derecho de la card. El presupuesto es de
-             quien mira y arranca pegado al rótulo; el corte es del reloj y no
-             pertenece a nadie, así que cierra la línea del otro lado. */
-          className="s-chip s-chip--neutro s-chip--mini ml-auto"
+          className="s-chip s-chip--neutro s-chip--mini"
           title="El orden del ranking se recalcula una vez por día"
         >
           <Icono d={PATH.reloj} size={11} grosor={2.2} />

@@ -23,8 +23,21 @@ export type Persona = {
   confirmado: boolean
   /** la fuente del cargo, para poder citarla en la ficha */
   fuente: string
-  /** fecha del dato del cargo */
+  /** FECHA DE LA FUENTE, no de la asunción. Es cuándo se verificó el cargo, y
+      en 25 de las 48 sigue siendo literalmente el `as_of` del pipeline. No
+      sirve para calcular antigüedad y no viaja al navegador: ordena la cola de
+      verificación y nada más. */
   desde: string
+  /** DESDE CUÁNDO OCUPA EL CARGO. Es otro dato y por eso es otro campo: mezclar
+      los dos fue lo que hizo que la ficha mostrara la fecha de una nota de
+      prensa como si fuera la asunción —Marín salía con 2026 cuando asumió en
+      diciembre de 2023, y Mindlin con 2026 cuando está en el directorio desde
+      2006—.
+
+      Acepta año, año-mes o fecha completa, según lo que diga la fuente: casi
+      ninguna da el día. Va sólo si está verificado; sin dato, la ficha omite el
+      renglón, igual que hace con la bio. */
+  enElCargoDesde?: string
   /** UNA O DOS FRASES, y sólo si salen de una fuente que se leyó.
 
       NO hay biografías en el pipeline: `state.json` trae nombre, cargo y
@@ -77,13 +90,13 @@ export type Persona = {
    HTML. Un `confirmado: false` en el view-source dice exactamente lo que el
    chip decía.
 
-   `desde` y `bio` SÍ viajan, porque la ficha que se abre al tocar la fila los
-   muestra. Son datos del CARGO y de la persona; no son insumos del índice, así
+   `enElCargoDesde` y `bio` SÍ viajan, porque la ficha que se abre al tocar la
+   fila los muestra. Son datos del CARGO y de la persona; no son insumos del índice, así
    que no dicen nada sobre la ponderación.
 
-   `fuente` DEJÓ de viajar cuando se sacó el renglón que la mostraba: sigue en
-   `Persona` porque es lo que respalda cada cargo y ordena la cola de
-   verificación, pero un campo que no se pinta no se serializa. Un fuente vacío
+   `fuente` y `desde` NO viajan. Los dos describen la VERIFICACIÓN y no a la
+   persona: uno es el link que respalda el cargo y el otro la fecha en que se
+   comprobó. Un campo que no se pinta no se serializa, y además un fuente vacío
    en el view-source dice «esta fila no está confirmada», que es exactamente lo
    que se sacó de la vista.
 
@@ -94,7 +107,7 @@ export type Persona = {
    se queda sin cifras de la empresa a propósito: para eso está /v2/empresas. */
 export type PersonaFila = Pick<
   Persona,
-  'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice' | 'desde' | 'bio'
+  'slug' | 'nombre' | 'cargo' | 'empresa' | 'indice' | 'enElCargoDesde' | 'bio'
 > & {
   /** si el archivo de la cara existe. Lo resuelve el SERVIDOR, ver page.tsx. */
   foto: boolean
@@ -108,7 +121,7 @@ export function aFila(p: Persona, foto = false): PersonaFila {
     cargo: p.cargo,
     empresa: p.empresa,
     indice: p.indice,
-    desde: p.desde,
+    enElCargoDesde: p.enElCargoDesde,
     bio: p.bio,
   }
 }
@@ -125,6 +138,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.lanacion.com.ar/economia/horacio-marin-presidente-y-ceo-de-ypf-sobre-su-modelo-de-conduccion-yo-lo-llamo-plata-o-mierda-nid24082026/',
     desde: '2026-08-24',
+    enElCargoDesde: '2023-12',
     bio: 'Ingeniero químico de la Universidad Nacional de La Plata, con una maestría en Ingeniería de Petróleo en la Universidad de Texas. Hizo casi toda su carrera en el Grupo Techint antes de asumir en YPF.',
     pctValor: 45.6,
     pctNacional: 34.2,
@@ -142,6 +156,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.infobae.com/economia/2026/03/05/miguel-galuccio-presidente-de-vista-energy-la-realidad-macroeconomica-es-mucho-mejor-que-la-que-teniamos-hace-tiempo-atras/',
     desde: '2026-03-05',
+    enElCargoDesde: '2017',
     bio: 'Fundó Vista en 2017. Antes había sido CEO de YPF y, antes de eso, ejecutivo de Schlumberger. En 2026 AmCham lo eligió empresario argentino del año.',
     pctValor: 7.7,
     pctNacional: 4.4,
@@ -159,6 +174,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.rionegro.com.ar/energia/pluspetrol-designo-a-adrian-vila-como-nuevo-gerente-general-para-argentina-2964464/',
     desde: '2026-05-17',
+    enElCargoDesde: '2026-05',
     bio: 'Asumió la gerencia general de Pluspetrol Argentina en mayo de 2026, en reemplazo de Germán Macchi.',
     pctValor: 7.7,
     pctNacional: 8.4,
@@ -176,6 +192,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://econojournal.com.ar/2025/09/german-burmeister-presidente-de-shell/',
     desde: '2026-08-27',
+    enElCargoDesde: '2024-08',
     bio: 'Ingeniero en petróleo del ITBA con un MBA del IAE. Lleva más de veinte años en Shell, con puestos comerciales y de conducción en América Latina, África, Asia y Europa; llegó al cargo desde la presidencia de Shell en Kazajistán.',
     pctValor: 3.9,
     pctNacional: 2.4,
@@ -193,6 +210,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.lanacion.com.ar/economia/campo/marcos-bulgheroni-ceo-de-pae-quiere-invertir-en-biocombustibles-y-exportar-si-sale-una-ley-y-se-nid06082026/',
     desde: '2026-08-06',
+    enElCargoDesde: '2017',
     bio: 'Group CEO de Pan American Energy desde 2017. La compañía es del grupo familiar Bulgheroni, que la conduce junto con su tío Alejandro.',
     pctValor: 10.9,
     pctNacional: 10.9,
@@ -210,6 +228,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.chevron.com/who-we-are/leadership',
     desde: '2026-08-27',
+    enElCargoDesde: '2025-07',
     bio: 'Ingeniera química con más de veinticinco años en upstream. Empezó su carrera en PDVSA y entró a Chevron en 2006. Es la primera country manager de la compañía en la Argentina.',
     pctValor: 2.1,
     pctNacional: 1.5,
@@ -234,6 +253,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://ri.pampa.com/en/corporate-governance/board-of-directors/',
     desde: '2026-09-01',
+    enElCargoDesde: '2006-06',
     bio: 'Fundador de Pampa Energía e integrante de su directorio desde junio de 2006. Preside el directorio; la gerencia general está a cargo de Gustavo Mariani.',
     pctValor: 2.2,
     pctNacional: 5.8,
@@ -251,6 +271,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.tecpetrol.com/en/leadership',
     desde: '2026-03-24',
+    enElCargoDesde: '2021-04',
     bio: 'Ingeniero civil de la UBA con un Master of Science en Management de Stanford. Está en Tecpetrol desde 2005, donde condujo desarrollo de negocios, gas y comercialización; es CEO desde abril de 2021.',
     pctValor: 2.4,
     pctNacional: 7.7,
@@ -268,6 +289,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.infobae.com/economia/networking/2025/10/14/pecom-designo-a-horacio-bustillo-como-su-nuevo-ceo/',
     desde: '2025-11-01',
+    enElCargoDesde: '2025-11',
     bio: 'Ingeniero industrial de la Universidad Austral con un MBA de Harvard. Pasó por SLB y Pacific Drilling, y fue gerente general de AESA Servicios Petroleros. Asumió en PECOM en noviembre de 2025.',
     pctValor: 1.4,
     pctNacional: 0.7,
@@ -593,6 +615,7 @@ export const PERSONAS: Persona[] = [
     confirmado: false,
     fuente: 'https://brestsa.com.ar/',
     desde: '2011-01-01',
+    enElCargoDesde: '2011',
     bio: 'Empresario de Pico Truncado. Fundó Brest en 2011; es la única empresa de origen puramente santacruceño entre las premiadas del sector.',
     pctValor: 0.1,
     pctNacional: 0.1,
@@ -723,6 +746,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://econojournal.com.ar/2025/10/santa-cruz-seis-empresas-presentaron-una-sola-oferta-a-traves-de-una-ute-y-se-repartiran-las-areas-que-dejo-ypf/',
     desde: '2025-10-01',
+    enElCargoDesde: '2023',
     bio: 'Fundó Azruge en 2023 en Puerto Madryn junto con su hermano Hernán. La empresa opera el área convencional Cañadón Vasco.',
     pctValor: 0.0,
     pctNacional: 0.0,
@@ -740,6 +764,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://www.boletinoficial.gob.ar/detalleAviso/segunda/A831400/20190422',
     desde: '2018-04-17',
+    enElCargoDesde: '2018-04',
     bio: 'Preside Medanito desde el acta de directorio de abril de 2018.',
     pctValor: 0.0,
     pctNacional: 0.0,
@@ -757,6 +782,7 @@ export const PERSONAS: Persona[] = [
     confirmado: true,
     fuente: 'https://boletinoficial.jujuy.gob.ar/?p=212305',
     desde: '2021-04-26',
+    enElCargoDesde: '2021-04',
     bio: 'Preside Jujuy Hidrocarburos, la empresa provincial de hidrocarburos, según el acta de directorio de abril de 2021.',
     pctValor: 0.0,
     pctNacional: 0.0,

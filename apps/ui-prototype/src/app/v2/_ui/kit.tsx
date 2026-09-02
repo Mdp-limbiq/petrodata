@@ -307,21 +307,27 @@ export function CardHead({
   titulo: string
   nota?: ReactNode
   icono?: string
-  /** Segunda línea DEBAJO del título. Para el dato que pertenece al rótulo y
-      no a la nota: la nota se alinea a la derecha y describe la card entera,
-      esto cuelga del título. */
+  /** Segunda línea debajo del título, dentro de su misma columna. Para el dato
+      que pertenece al RÓTULO y no a la card: la nota va a la derecha y describe
+      la card entera; esto cuelga del título y arranca donde el título termina,
+      sin que lo empuje lo que haya del otro lado. */
   sub?: ReactNode
 }) {
   return (
-    /* Dos renglones cuando hay `sub`, y el sub ocupa TODO el ancho: sólo así
-       puede empujar algo contra el borde derecho de la card. Metido en la
-       columna del título quedaba limitado al ancho del rótulo.
+    /* El título y su `sub` en una columna a la izquierda, la nota a la
+       derecha. Alinea por arriba y no por línea de base: con dos piezas de
+       distinto alto —dos renglones a la izquierda, dos chips apilados a la
+       derecha— la base no significa nada y el título terminaba flotando.
 
-       Sin `sub` el renglón de arriba es exactamente lo que era —el mismo flex
-       con justify-between y align por línea de base—, así que ninguna de las
-       otras cards se entera. */
+       Sin `sub` la columna izquierda tiene un solo hijo y el renglón es
+       exactamente el de antes, así que las otras cards no se enteran. */
     <div className="border-b px-3 py-2.5" style={{ borderColor: 'var(--line)' }}>
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex items-start justify-between gap-3">
+        {/* El `sub` va DENTRO de la columna del título, no debajo del renglón
+            entero: colgado del renglón quedaba empujado por la pieza más alta
+            de la derecha —dos chips apilados— y dejaba un hueco de veinte
+            píxeles abajo del rótulo. Acá arranca donde termina el título. */}
+        <span className="flex min-w-0 flex-col gap-1">
         <span className="s-etq flex shrink-0 items-center gap-1.5 whitespace-nowrap">
           {icono && (
             /* self-center y no baseline: un svg alineado por línea de base
@@ -329,6 +335,11 @@ export function CardHead({
             <Icono d={icono} size={14} grosor={2} className="shrink-0 self-center" />
           )}
           {titulo}
+        </span>
+        {/* La segunda línea baja a .s-micro —11,5— y no hereda el cuerpo: sin
+            clase salía a 14 y pesaba MÁS que el rótulo de 12 que la encabeza,
+            que es la jerarquía al revés. */}
+        {sub && <span className="s-micro s-num">{sub}</span>}
         </span>
         {/* `flex-1 min-w-0`: sin eso la nota se encoge a su ancho de contenido
             mínimo —medido, 161px sobre los 584 de la card— y todo lo que lleve
@@ -345,7 +356,6 @@ export function CardHead({
           </span>
         )}
       </div>
-      {sub && <div className="mt-2">{sub}</div>}
     </div>
   )
 }
