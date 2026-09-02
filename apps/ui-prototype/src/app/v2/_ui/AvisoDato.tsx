@@ -196,8 +196,13 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
           )}
 
           <div className="s-pie-card s-modal-pie">
+            {/* SIN PILL. En v2 el pill se usa sólo para navegar, y la §6.3 lo
+                declara el llamado a la acción más fuerte del sistema: confirmar
+                un formulario de dos campos no lo es. Las dos acciones usan el
+                vocabulario del sitio —texto, .s-accion en acento para la que
+                avanza y ink-2 para la que sale—. */}
             {enviado ? (
-              <button type="button" className="s-pill" onClick={cerrar}>
+              <button type="button" className="s-accion ml-auto" onClick={cerrar}>
                 Cerrar
               </button>
             ) : (
@@ -205,15 +210,18 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
                 <button type="button" className="s-modal-cancel" onClick={cerrar}>
                   Cancelar
                 </button>
-                {/* Apagado hasta que haya correo Y texto. El title dice qué
-                    falta: un botón que no responde y no explica por qué se lee
-                    como que se rompió. */}
+                {/* Apagado hasta que haya correo Y detalle. Pierde el acento y
+                    baja a ink-2: se lee inactivo sin volverse ilegible, que es
+                    lo que pasaba con opacidad —2,41 de contraste—. El title
+                    dice qué falta, porque un control que no responde y no
+                    explica por qué se lee como roto. */}
                 <button
                   type="submit"
-                  className="s-pill"
+                  className="s-accion"
                   disabled={!valido}
                   title={valido ? undefined : 'Correo y detalle requeridos'}
                 >
+                  <Icono d={PATH.enlace} size={11} grosor={2.2} />
                   Enviar
                 </button>
               </>

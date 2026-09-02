@@ -1292,6 +1292,38 @@
   .s-ficha-datos { margin-top: 0; }
 }
 
+/* ── Acción en línea ────────────────────────────────────────────────────
+   El control que dispara algo sin navegar: abrir un diálogo, enviar un
+   formulario. NO es .s-pill. En v2 el pill se usa tres veces y las tres son
+   navegación —«Ver todas las noticias», «Volver»—, y la §6.3 lo declara «el
+   llamado a la acción más fuerte del sistema»: ni reportar un dato ni confirmar
+   un formulario chico lo son.
+
+   Es la gramática que el sitio ya usa para actuar en línea: 11,5 en peso 500
+   sobre --accent-ink, como «Leer →» en noticias y «Ver el mapa →» en el pie del
+   minimapa. Sin flecha, que ahí significa «vas a otra pantalla». El acento es
+   para enlaces y detalles, §3.
+
+   APAGADO BAJA A ink-2, NO A OPACIDAD. Con opacity 0.4 la tinta plena caía a
+   2,41 de contraste: ilegible. Perdiendo el acento ya se lee como inactivo, y a
+   ink-2 mide 5,5. */
+.s-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-ink);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--dur-instant);
+}
+.s-accion:hover { color: var(--accent); }
+.s-accion:disabled { color: var(--ink-2); cursor: default; }
+.s-accion:disabled:hover { color: var(--ink-2); }
+
 /* ── Campo en fila ──────────────────────────────────────────────────────
    El sitio NO usa campos en caja. Su campo real es .s-busca: una FILA de 40 de
    alto con padding 0 12 y filete abajo, sin borde ni recuadro. Es la §1.1 en un
@@ -1395,21 +1427,19 @@
 
 /* El pie alinea a la derecha y el cancelar queda a la izquierda del envío,
    que es el orden de lectura: primero la salida, después la acción. */
-.s-modal-pie { justify-content: flex-end; }
+.s-modal-pie { justify-content: space-between; }
+/* Cancelar es la salida, no una acción: va en ink-2 —5,5 de contraste sobre el
+   pie— y sin acento, que se lo queda el envío. */
 .s-modal-cancel {
-  margin-right: auto;
   border: 0;
   background: transparent;
   color: var(--ink-2);
   font-size: 11.5px;
   font-weight: 500;
   cursor: pointer;
+  transition: color var(--dur-instant);
 }
 .s-modal-cancel:hover { color: var(--ink); }
-/* Apagado mientras falte el correo o el mensaje. Se ve que existe y que no
-   responde, que es lo contrario de esconderlo. */
-.s-pill:disabled { cursor: default; opacity: 0.4; box-shadow: none; }
-.s-pill:disabled:hover { background: var(--field); }
 
 /* LA PASTILLA DE PUNTOS SOBRE LA FILA TEÑIDA. --field y el tinte tienen la
    misma luminancia —1,003 contra el verde y 1,023 contra el rojo—: la
