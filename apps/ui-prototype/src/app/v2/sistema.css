@@ -1197,55 +1197,77 @@
 .s-persona--abierta { border-bottom-color: transparent; }
 .s-persona--abierta:not(.s-persona--favor):not(.s-persona--contra) { background: var(--hover); }
 
-/* LA FICHA. Fondo --inset y filete abajo: es la receta del pie de card de la
-   §6, que es exactamente lo que esto es —un bloque que cierra lo de arriba—.
-   El padding repite el de la fila en horizontal para que la cara grande caiga
-   a plomo con la chica.
+/* LA FICHA que se abre bajo la fila. Fondo --inset y filete abajo: es la
+   receta del pie de card de la §6, que es exactamente lo que esto es —un
+   bloque que cierra lo de arriba—.
 
-   La cara arranca en la columna del puesto y no en la de la foto: en la ficha
-   no hay que mantener la grilla de cinco columnas, y alineada al borde el
-   bloque de texto gana 28px de ancho. */
+   LA COMPOSICIÓN sale de .s-placa--grande: ahí la imagen iguala el alto de la
+   columna que acompaña «para que el logo y los datos terminen a ras». Acá el
+   alto no se puede clavar —la bio cambia de largo y veintiséis fichas no
+   tienen— así que se invierte: manda la FOTO, que mide 200 fijo, y la columna
+   se estira a esa altura con los datos empujados al pie. El bloque cierra
+   parejo tenga bio o no. */
 .s-ficha {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 16px;
-  padding: 14px 12px 16px;
+  padding: 14px 12px;
   background: var(--inset);
   border-bottom: 1px solid var(--line);
 }
 .s-ficha:last-child { border-bottom: 0; }
 
-/* 96×120 mantiene la proporción de la foto (161×200), así que la cara no se
-   deforma y es la misma imagen: un archivo, dos tamaños. */
+/* La columna de la derecha, estirada al alto de la foto. `min-width: 0` para
+   que el nombre largo de una empresa trunque en vez de empujar la caja. */
+.s-ficha-col {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* La bio. 62ch es el renglón cómodo a 13px: más largo y el ojo se pierde al
+   volver. El margen de arriba es 10 y el de abajo 12, los dos de la escala de
+   bloques de la §6.1. */
+.s-ficha-bio {
+  margin: 10px 0 12px;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+/* Los datos, al pie. `margin-top: auto` es lo que los empuja contra el borde
+   de abajo de la foto: con bio quedan justo debajo, sin bio caen igual al pie
+   y la ficha no se ve a medio llenar. */
+.s-ficha-datos {
+  margin-top: auto;
+  font-size: 11.5px;
+  line-height: 17.25px;
+}
+.s-ficha-datos a { text-decoration: none; }
+.s-ficha-datos a:hover { background: var(--hover-2); }
+
+/* LA CARA GRANDE va a 161×200, que es el tamaño NATIVO del archivo: ampliar
+   una imagen de 161 a más deja el borrón que .s-placa evita con --placa-tope.
+   Y 161 ya es medida del sistema —el lado de .s-placa--grande—, así que el
+   número no se inventa acá.
+
+   Sin `object-fit: cover`: a tamaño nativo no hay nada que recortar. */
 .s-cara-gr {
   display: block;
   flex-shrink: 0;
-  width: 96px;
-  height: 120px;
+  width: 161px;
+  height: 200px;
   border-radius: var(--radius-control);
-  object-fit: cover;
   background: var(--field);
   box-shadow: var(--shadow-hairline);
 }
-.s-cara-gr.s-cara--mono { font-size: 24px; }
-
-/* El pie de la ficha: la fecha del dato y la fuente. Es la parte que hace
-   verificable la fila, así que va abajo de todo y en la tinta de metadata. */
-.s-ficha-pie {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  font-size: 11.5px;
-  color: var(--ink-2);
-}
-.s-ficha-pie a { text-decoration: none; }
-.s-ficha-pie a:hover { background: var(--hover-2); }
+.s-cara-gr.s-cara--mono { font-size: 40px; }
 
 @media (max-width: 639px) {
-  /* A 375 la cara de 96 le deja 160px al texto. Se apila. */
+  /* A 375 la card mide 287 por dentro: la foto de 161 le dejaría 110 al texto.
+     Se apila, y la columna deja de estirarse porque ya no acompaña a nada. */
   .s-ficha { flex-direction: column; gap: 12px; }
+  .s-ficha-datos { margin-top: 0; }
 }
 
 /* LA PASTILLA DE PUNTOS SOBRE LA FILA TEÑIDA. --field y el tinte tienen la

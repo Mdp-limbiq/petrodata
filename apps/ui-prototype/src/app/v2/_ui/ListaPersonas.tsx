@@ -312,7 +312,7 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
             </span>
             </span>
           </div>
-          {abre && <Ficha p={p} />}
+          {abre && <Ficha p={p} puesto={puestos[p.slug]} total={filas.length} />}
           </Fragment>
         )
       })}
@@ -320,18 +320,42 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
   )
 }
 
-/* LA FICHA. Lo que la fila no puede mostrar en 76px de alto: la cara en
-   grande, el cargo entero sin truncar, desde cuándo, y la fuente que lo
-   verifica.
+/* LA FICHA. Lo que la fila no puede mostrar en 76px de alto.
 
-   NO LLEVA CIFRAS DE LA EMPRESA, y es a propósito: producción, valor y pozos
-   son los tres insumos del índice. Ver el comentario de `PersonaFila`.
+   NO ES UN COMPONENTE NUEVO: es .s-ficha-fila, que estaba declarado en el CSS
+   y sin usar en ningún .tsx —«el desglose que se abre al clickear una fila de
+   la lista: etiqueta a la izquierda, valor a la derecha, un renglón por
+   dato»—. Estaba escrito para esto exactamente. Lo mismo que pasó con
+   .s-creditos en la cabecera.
 
-   LA FUENTE ES EL PUNTO. Es un ranking de personas con nombre y apellido
-   calculado con datos de otras fuentes; poder tocar el link y ver de dónde
-   sale el cargo es lo que separa esto de una lista de nombres. Va con
-   rel="noreferrer" porque son links a sitios de terceros. */
-function Ficha({ p }: { p: PersonaFila }) {
+   LA FOTO VA A 161×200, que es el tamaño NATIVO del archivo: no se amplía
+   nada, así que no hay borrón. Y 161 ya es una medida del sistema —el lado de
+   .s-placa--grande— así que no se inventa un número.
+
+   LA COMPOSICIÓN es la que enseña .s-placa--grande: la imagen iguala el alto
+   de la columna que acompaña para que las dos terminen a ras. Acá no se puede
+   clavar, porque la bio cambia de largo y veintiséis fichas no tienen; se
+   resuelve al revés, con la columna estirada a la altura de la foto y los
+   datos empujados al pie. El bloque cierra parejo tenga bio o no, que es la
+   condición para que la ausencia no se lea como una ficha rota.
+
+   NO LLEVA CIFRAS DE LA EMPRESA: producción, valor y pozos son los tres
+   insumos del índice. Ver el comentario de `PersonaFila`.
+
+   TAMPOCO REPITE LOS PUNTOS. Estaban como cuarto renglón y son el mismo número
+   que la fila de arriba muestra a ocho píxeles: no agregaba nada y estiraba la
+   columna 27px por encima del alto de la foto, que es justo lo que rompía el
+   cierre a ras. El puesto sí queda, porque «07 de 48» es contexto que la fila
+   sola no da. */
+function Ficha({
+  p,
+  puesto,
+  total,
+}: {
+  p: PersonaFila
+  puesto: number
+  total: number
+}) {
   const dominio = (u: string) => {
     try {
       return new URL(u).hostname.replace(/^www\./, '')
@@ -342,42 +366,68 @@ function Ficha({ p }: { p: PersonaFila }) {
   return (
     <div className="s-ficha s-entra" id={`ficha-${p.slug}`}>
       <CaraGrande slug={p.slug} nombre={p.nombre} />
-      <div className="min-w-0">
-        {/* SIN REPETIR EL NOMBRE: está ocho píxeles más arriba, en la fila que
-            acabás de tocar. Lo que sí se repite es el cargo, porque en la fila
-            va truncado y acá entra entero — que es una de las razones de que
-            la ficha exista. */}
-        <div className="s-cuerpo font-medium">{p.cargo || '—'}</div>
-        <div className="s-micro mt-0.5" style={{ color: 'var(--ink-2)' }}>
+
+      <div className="s-ficha-col">
+        {/* El cargo ENTERO, que en la fila va truncado: es una de las razones
+            de que la ficha exista. 13/600 —.s-titulo—, no más: la jerarquía la
+            hace el peso y la tinta, nunca el tamaño. */}
+        <div className="s-titulo">{p.cargo || '—'}</div>
+        <div className="s-micro" style={{ color: 'var(--ink-2)' }}>
           {p.empresa}
         </div>
 
-        {/* La bio sólo si existe. Cuarenta y ocho fichas con prosa plausible es
-            el mismo error que costó doce caras inventadas: sin fuente, no va. */}
+        {/* La bio si existe, en la prosa del sistema —13/19,5— y con el ancho
+            cortado en ch: a 380px de columna una línea de 13px entra en unos
+            60 caracteres y ahí se lee sin que el ojo se pierda al volver.
+
+            Veintiséis de las cuarenta y ocho no tienen, y no se rellena con
+            prosa plausible: es el error que ya costó doce caras inventadas.
+            Lo que sostiene la ficha cuando falta es el pie, que va siempre. */}
         {p.bio && (
-          <p className="s-cuerpo mt-2.5" style={{ color: 'var(--ink-2)', maxWidth: '62ch' }}>
+          <p className="s-cuerpo s-ficha-bio" style={{ color: 'var(--ink-2)' }}>
             {p.bio}
           </p>
         )}
 
-        <div className="s-ficha-pie">
-          {p.desde && (
-            <span>
-              Cargo registrado el <span className="s-mono">{p.desde}</span>
+        {/* El pie, empujado abajo por el margin-top:auto de .s-ficha-datos. Es
+            lo que hace verificable la fila y por eso va siempre, con bio o
+            sin ella. */}
+        <div className="s-ficha-datos">
+          <div className="s-ficha-fila">
+            <span style={{ color: 'var(--ink-2)' }}>Puesto</span>
+            <span className="s-cifra-sm ml-auto">
+              {String(puesto).padStart(2, '0')}
+              <span className="font-normal" style={{ color: 'var(--ink-3)' }}>
+                {' '}
+                de {total}
+              </span>
             </span>
+          </div>
+          {p.desde && (
+            <div className="s-ficha-fila">
+              <span style={{ color: 'var(--ink-2)' }}>Cargo registrado</span>
+              <span className="s-mono ml-auto">{p.desde}</span>
+            </div>
           )}
           {p.fuente && (
-            <a
-              className="s-chip s-chip--neutro s-chip--mini"
-              href={p.fuente}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              title={p.fuente}
-            >
-              <Icono d={PATH.enlace} size={11} grosor={2.2} />
-              {dominio(p.fuente)}
-            </a>
+            <div className="s-ficha-fila">
+              <span style={{ color: 'var(--ink-2)' }}>Fuente</span>
+              {/* El link es lo que separa esto de una lista de nombres: es un
+                  ranking de personas con nombre y apellido calculado con cifras
+                  que no son de ellas, y poder ver de dónde sale el cargo es la
+                  diferencia. rel="noreferrer" porque son sitios de terceros. */}
+              <a
+                className="s-chip s-chip--neutro s-chip--mini ml-auto"
+                href={p.fuente}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                title={p.fuente}
+              >
+                {dominio(p.fuente)}
+                <Icono d={PATH.enlace} size={11} grosor={2.2} />
+              </a>
+            </div>
           )}
         </div>
       </div>
