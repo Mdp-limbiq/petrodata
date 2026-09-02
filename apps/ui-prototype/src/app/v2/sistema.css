@@ -1246,18 +1246,27 @@
 .s-ficha-datos a { text-decoration: none; }
 .s-ficha-datos a:hover { background: var(--hover-2); }
 
-/* LA CARA GRANDE va a 161×200, que es el tamaño NATIVO del archivo: ampliar
-   una imagen de 161 a más deja el borrón que .s-placa evita con --placa-tope.
-   Y 161 ya es medida del sistema —el lado de .s-placa--grande—, así que el
-   número no se inventa acá.
+/* LA CARA GRANDE va a 161×200, que es el tamaño nativo de los archivos:
+   ampliar una imagen de 161 a más deja el borrón que .s-placa evita con
+   --placa-tope. Y 161 ya es medida del sistema —el lado de .s-placa--grande—,
+   así que el número no se inventa acá.
 
-   Sin `object-fit: cover`: a tamaño nativo no hay nada que recortar. */
+   `object-fit: cover` VA, aunque la caja mida lo mismo que el archivo. Se
+   había sacado con el argumento de que a tamaño nativo no hay nada que
+   recortar, y el argumento estaba mal: daba por sentado que los treinta
+   archivos miden igual. Cuatro no —dos de 200×200 y dos de 149×200— y sin
+   cover se estiraban dentro de la caja: la de 200 cuadrada perdía un 24% de
+   ancho y la cara salía angosta.
+
+   Los cuatro archivos se normalizaron, así que hoy no recorta nada. Queda
+   igual, porque la próxima cara que alguien agregue no va a venir medida. */
 .s-cara-gr {
   display: block;
   flex-shrink: 0;
   width: 161px;
   height: 200px;
   border-radius: var(--radius-control);
+  object-fit: cover;
   background: var(--field);
   box-shadow: var(--shadow-hairline);
 }
