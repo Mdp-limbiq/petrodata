@@ -1243,6 +1243,19 @@
   font-size: 11.5px;
   line-height: 17.25px;
 }
+/* EL VALOR DE CADA RENGLÓN va en la medida del renglón —11,5, la que fija
+   .s-ficha-datos— con el peso y la tinta subidos. Estaba en .s-cifra-sm, que
+   es 13/600: el mismo tamaño y el mismo peso que el NOMBRE que encabeza la
+   ficha, así que «20 años» pesaba igual que «Marcelo Mindlin». La jerarquía se
+   hace con peso y tinta y NUNCA con tamaño (§2): a igual medida que su rótulo,
+   el 600 y la tinta plena ya lo separan.
+
+   tabular-nums porque son cifras y se comparan de un renglón al otro. */
+.s-ficha-valor {
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
 .s-ficha-datos a { text-decoration: none; }
 .s-ficha-datos a:hover { background: var(--hover-2); }
 
@@ -1474,7 +1487,15 @@
   border-radius: var(--radius-chip);
   background: var(--field);
   color: var(--ink);
-  font-size: 13px;
+  /* 11,5 Y NO 13. A 13 con peso 600 era el texto más pesado de la fila: el
+     nombre va a 13 en peso 500, o sea que el puntaje le ganaba a la persona en
+     una lista de personas. La jerarquía es peso y tinta y nunca tamaño (§2), y
+     acá el número ya tiene DOS marcas propias que el nombre no tiene —el 600 y
+     la pastilla— así que no necesita además ser el más grande.
+
+     La pastilla se queda en 22, que es la altura de chip del sistema: lo que
+     baja es el texto de adentro, no la caja. */
+  font-size: 11.5px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }

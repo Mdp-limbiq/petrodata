@@ -414,7 +414,7 @@ function Ficha({
         <div className="s-ficha-datos">
           <div className="s-ficha-fila">
             <span style={{ color: 'var(--ink-2)' }}>Puesto</span>
-            <span className="s-cifra-sm ml-auto">
+            <span className="s-ficha-valor ml-auto">
               {String(puesto).padStart(2, '0')}
               {/* «de 48» en ink-3 medía 2,56. Es la mitad de la frase —sin eso
                   el 02 no dice de cuántos— así que sube a ink-2: 5,5. */}
@@ -458,7 +458,7 @@ function Ficha({
           {antiguedad && (
             <div className="s-ficha-fila">
               <span style={{ color: 'var(--ink-2)' }}>Años en el cargo</span>
-              <span className="s-cifra-sm ml-auto" title={antiguedad.desde}>
+              <span className="s-ficha-valor ml-auto" title={antiguedad.desde}>
                 {antiguedad.txt}
               </span>
             </div>
