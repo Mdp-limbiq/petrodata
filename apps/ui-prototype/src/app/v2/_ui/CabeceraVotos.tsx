@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Icono, PATH } from './iconos'
-import { LIMITE, proximoCorte } from './voto-reglas'
-import { useVotos } from './votos'
+import { proximoCorte } from './voto-reglas'
 
 /* LA CABECERA DE LA CARD DEL RANKING.
 
@@ -26,27 +25,11 @@ import { useVotos } from './votos'
    una hora sueltos, y lo que faltaba era justamente el sujeto: qué es lo que
    pasa cuando el reloj llega.
 
-   LOS VOTOS QUE TE QUEDAN vuelven acá (pedido de Mariano, 2026-09-01). Cuando
-   se sacó la card 01 se perdió el único lugar donde se veía el presupuesto: la
-   mecánica seguía andando —los chevrones se apagan solos al quinto voto— pero
-   el que llegaba al límite se enteraba cuando un botón dejaba de responder.
-
-   Son los puntos de `.s-creditos`, que quedaron en el CSS sin usar desde que
-   se fue el panel: cinco marcas se cuentan de un vistazo y un «3 de 5» hay que
-   leerlo. El gastado se llena con la tinta media, el que queda es el riel
-   vacío. Es la misma gramática de .s-medidor.
-
-   EL RÓTULO ES «Créditos» Y NO «tuyos». Es el nombre que el propio CSS le da
-   —«Los créditos: un punto por voto»— y es un sustantivo, que es como rotula
-   todo el sitio: El ranking, La lista, Operadores principales, Cobertura. La
-   §8.1 lo pide y la §1.5 aclara que no es opcional. «tuyos» además le hablaba
-   al lector, cosa que ningún otro rótulo de v2 hace.
-
-   El presupuesto sale del storage, así que en el servidor son cinco puntos
-   vacíos y los gastados aparecen al hidratar. `useVotos` tiene su snapshot de
-   servidor justamente para que el HTML servido y el primer render coincidan. */
+   EL PRESUPUESTO DE QUIEN MIRA NO VIVE ACÁ. Pasó a colgar del rótulo de la
+   card, en `VotosDisponibles` (pedido de Mariano, 2026-09-02). La nota
+   describe la card entera —cuántos votaron, cuándo es el corte— y el
+   presupuesto es del que mira: colgaba del rótulo equivocado. */
 export function CabeceraVotos({ votos, personas }: { votos: number; personas: number }) {
-  const { usados, restantes } = useVotos()
   const [corte, setCorte] = useState<{ txt: string; pct: number } | null>(null)
 
   useEffect(() => {
@@ -84,30 +67,6 @@ export function CabeceraVotos({ votos, personas }: { votos: number; personas: nu
             {n(personas)}
           </b>{' '}
           personas
-        </span>
-      </span>
-
-      {/* LOS VOTOS QUE TE QUEDAN. Va entre las cifras de todos y el corte,
-          que es su orden lógico: cuántos votaron, cuántos te quedan a vos,
-          cuándo se cuenta. */}
-      <span
-        className="flex items-center gap-1.5"
-        title={`${restantes} de ${LIMITE} créditos. Se renuevan el lunes.`}
-      >
-        {/* SIN EL NÚMERO AL LADO. Con el número la cabecera se iba a dos
-            renglones, que es más alta y no más ancha. Y repetía lo que los
-            puntos ya dicen: el CSS de .s-creditos lo tiene escrito —«cinco
-            marcas se cuentan de un vistazo y un 3 de 5 hay que leerlo». Queda
-            el rótulo, que es lo que los puntos no pueden decir solos. */}
-        <span style={{ color: 'var(--ink-2)' }}>Créditos</span>
-        <span className="s-creditos" aria-hidden>
-          {Array.from({ length: LIMITE }, (_, i) => (
-            <i key={i} className={i < usados ? 'usado' : undefined} />
-          ))}
-        </span>
-        {/* Para quien no ve los puntos. */}
-        <span className="sr-only">
-          Créditos: {restantes} de {LIMITE} disponibles esta semana
         </span>
       </span>
 

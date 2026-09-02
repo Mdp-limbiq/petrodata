@@ -302,16 +302,27 @@ export function CardHead({
   titulo,
   nota,
   icono,
+  sub,
 }: {
   titulo: string
   nota?: ReactNode
   icono?: string
+  /** Segunda línea DEBAJO del título. Para el dato que pertenece al rótulo y
+      no a la nota: la nota se alinea a la derecha y describe la card entera,
+      esto cuelga del título. */
+  sub?: ReactNode
 }) {
   return (
     <div
-      className="flex items-baseline justify-between gap-3 border-b px-3 py-2.5"
+      className={`flex justify-between gap-3 border-b px-3 py-2.5 ${
+        /* Con segunda línea la cabecera deja de alinear por línea de base: el
+           título y la nota tienen que quedar arriba, no repartidos contra un
+           bloque de dos renglones. */
+        sub ? 'items-start' : 'items-baseline'
+      }`}
       style={{ borderColor: 'var(--line)' }}
     >
+      <span className="flex shrink-0 flex-col gap-1.5">
       <span className="s-etq flex shrink-0 items-center gap-1.5 whitespace-nowrap">
         {icono && (
           /* self-center y no baseline: un svg alineado por línea de base
@@ -319,6 +330,8 @@ export function CardHead({
           <Icono d={icono} size={14} grosor={2} className="shrink-0 self-center" />
         )}
         {titulo}
+      </span>
+        {sub}
       </span>
       {/* `flex-1 min-w-0`: sin eso la nota se encoge a su ancho de contenido
           mínimo —medido, 161px sobre los 590 de la card— y todo lo que lleve
