@@ -165,12 +165,17 @@ export function ListaPersonas({ personas }: { personas: PersonaFila[] }) {
             <span className="flex flex-col items-start gap-0.5">
               <span
                 className="s-mono text-[11px]"
-                /* ink-3 sobre el tinte mide 2,42 en claro y 2,43 en oscuro.
-                   Sobre la card blanca ya estaba en 2,72 —es metadata y pasa—
-                   pero bajar todavía más justo en la fila que el que vota
-                   busca es al revés de lo que se quiere. Sube a ink-2, que
-                   sobre el tinte da 5,21 y 5,13. */
-                style={{ color: votado ? 'var(--ink-2)' : 'var(--ink-3)' }}
+                /* EL PUESTO VA EN ink-2, SIEMPRE. En ink-3 medía 2,72 en
+                   claro y 3,08 en oscuro: reprobado, y cuarenta y ocho veces.
+                   La §10.1 deja ink-3 sólo para «metadata que nadie precisa
+                   leer» y advierte que la referencia lo usa mal justamente
+                   así; en un ranking el puesto no es decoración, es lo que
+                   cada uno viene a buscar. En ink-2 pasa a 5,84 sobre la card
+                   y 5,21 sobre el tinte de una fila votada.
+
+                   Antes subía sólo en las filas votadas, que arreglaba cinco
+                   de cuarenta y ocho. */
+                style={{ color: 'var(--ink-2)' }}
               >
                 {/* Sin el «=» del empate y sin el espacio duro que le
                     reservaba el lugar: ese carácter corría el número tres
@@ -399,7 +404,9 @@ function Ficha({
             <span style={{ color: 'var(--ink-2)' }}>Puesto</span>
             <span className="s-cifra-sm ml-auto">
               {String(puesto).padStart(2, '0')}
-              <span className="font-normal" style={{ color: 'var(--ink-3)' }}>
+              {/* «de 48» en ink-3 medía 2,56. Es la mitad de la frase —sin eso
+                  el 02 no dice de cuántos— así que sube a ink-2: 5,5. */}
+              <span className="font-normal" style={{ color: 'var(--ink-2)' }}>
                 {' '}
                 de {total}
               </span>

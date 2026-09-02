@@ -182,8 +182,11 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
                   />
                 </span>
                 {/* Se dice el PORQUÉ, no que es obligatorio: el botón apagado
-                    ya dice que falta algo. Sustantivo y sin segunda persona. */}
-                <span className="s-micro" style={{ color: 'var(--ink-3)' }}>
+                    ya dice que falta algo. Sustantivo y sin segunda persona.
+
+                    En ink-3 medía 2,72 en claro y 3,08 en oscuro. Es una
+                    instrucción: hay que poder leerla. ink-2 la deja en 5,84. */}
+                <span className="s-micro" style={{ color: 'var(--ink-2)' }}>
                   Necesario para responder el reporte.
                 </span>
               </label>
