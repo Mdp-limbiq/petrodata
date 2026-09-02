@@ -196,13 +196,13 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
           )}
 
           <div className="s-pie-card s-modal-pie">
-            {/* SIN PILL. En v2 el pill se usa sólo para navegar, y la §6.3 lo
-                declara el llamado a la acción más fuerte del sistema: confirmar
-                un formulario de dos campos no lo es. Las dos acciones usan el
-                vocabulario del sitio —texto, .s-accion en acento para la que
-                avanza y ink-2 para la que sale—. */}
+            {/* El que confirma tiene CUERPO —.s-boton: fondo --field y anillo,
+                radio 8 por su altura de 28— y el que sale es texto. Como texto
+                los dos, medían 5,5 de contraste cada uno: misma presencia y
+                ninguna jerarquía. No es el pill: ése va a radio 999 y la §6.3
+                lo reserva para navegar. */}
             {enviado ? (
-              <button type="button" className="s-accion ml-auto" onClick={cerrar}>
+              <button type="button" className="s-boton ml-auto" onClick={cerrar}>
                 Cerrar
               </button>
             ) : (
@@ -217,11 +217,10 @@ export function AvisoDato({ nombre, empresa }: { nombre: string; empresa: string
                     explica por qué se lee como roto. */}
                 <button
                   type="submit"
-                  className="s-accion"
+                  className="s-boton"
                   disabled={!valido}
                   title={valido ? undefined : 'Correo y detalle requeridos'}
                 >
-                  <Icono d={PATH.enlace} size={11} grosor={2.2} />
                   Enviar
                 </button>
               </>
