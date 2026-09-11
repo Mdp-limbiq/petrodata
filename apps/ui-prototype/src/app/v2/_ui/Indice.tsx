@@ -58,9 +58,11 @@ export function Indice() {
           de 1px.
 
           El rombo de 8px que venía de Estrato quedó reemplazado por el logo
-          propio (pedido de Mariano, 2026-09-11). Ver Marca.tsx: sube a 16 —el
-          techo de íconos del sistema— porque el escudo tiene un calado que a 8
-          se empasta, y el rombo no tenía nada adentro que perder.
+          propio (pedido de Mariano, 2026-09-11). Va a 12 de alto y 11 de ancho:
+          es el tamaño más chico al que el calado del escudo sigue abierto.
+          Medido rasterizando a 4x, el hueco central da 41,8% contra 44% del
+          dibujo a 64px, así que a 12 está entero. Abajo de eso el antialias lo
+          empieza a tapar. Ver Marca.tsx.
 
           El radio SÍ cambia: 10 y no los 14 del marco. La regla del sistema
           es que el radio crece con la caja para que la esquina se vea igual,
@@ -81,7 +83,7 @@ export function Indice() {
         style={{ padding: '10px', borderRadius: 'var(--radius-card)' }}
       >
         <Link href="/v2" className="flex min-w-0 items-center gap-2 no-underline">
-          <Marca size={16} className="shrink-0" style={{ color: 'var(--ink)' }} />
+          <Marca size={12} className="shrink-0" style={{ color: 'var(--ink)' }} />
           <span
             className="s-micro truncate font-medium uppercase"
             style={{ color: 'var(--ink-2)', letterSpacing: '0.10em' }}

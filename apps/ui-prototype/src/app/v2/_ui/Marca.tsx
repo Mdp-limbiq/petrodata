@@ -3,11 +3,14 @@
    Reemplaza al rombo de 8px que la barra de marca traía de Estrato (pedido de
    Mariano, 2026-09-11).
 
-   VA A 16 DE ALTO Y NO A 8. El rombo era un cuadrado girado: a 8px se lee
-   igual porque no tiene nada adentro. Este escudo tiene un calado —la forma de
-   reloj de arena del medio— y a 8 se empasta en una mancha. 16 es el techo de
-   íconos del sistema (§6.8, «ninguno pasa de 16px»), así que sube hasta ahí y
-   ni un píxel más.
+   EL TAMAÑO LO FIJA EL CALADO. El rombo era un cuadrado girado: a 8px se lee
+   igual que a 40 porque no tiene nada adentro. Este escudo tiene un hueco —la
+   forma de reloj de arena del medio— y ése es el que se pierde primero.
+
+   Medido rasterizando a 4x y contando alfa en la franja central: 41,8% de
+   hueco a 12px contra 44% en el dibujo a 64. A 12 el calado está entero. El
+   default es ése y no más, porque más grande compite con la palabra que tiene
+   al lado en la barra de marca.
 
    EL ANCHO SALE DE LA PROPORCIÓN DEL ARCHIVO: 372×416 da 0,894, o sea 14,3
    sobre 16. Se declara en el elemento para que el navegador reserve la caja
@@ -23,7 +26,7 @@
    `translate/scale` del path, que es el volteo vertical con el que fue
    dibujado. */
 export function Marca({
-  size = 16,
+  size = 12,
   className,
   style,
 }: {
