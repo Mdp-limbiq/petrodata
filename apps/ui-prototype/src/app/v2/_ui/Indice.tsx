@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { Marca } from './Marca'
 import { CardCuenca } from './CardCuenca'
 import { HEADLINE } from '@/fixtures/production'
 import { formatMonth } from '@/lib/format'
@@ -52,9 +53,14 @@ export function Indice() {
       className="flex flex-col border-b px-7 pt-4 pb-7 lg:sticky lg:top-0 lg:h-dvh lg:overflow-y-auto lg:border-r lg:border-b-0"
       style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
     >
-      {/* La marca de vacamuerta.io, la misma de Estrato: rombo monocromo más
-          la palabra. Usa el marco, igual que la card de la cuenca: mismo
-          fondo de canvas y mismo anillo de 1px.
+      {/* La marca de vacamuerta.io: el escudo más la palabra. Usa el marco,
+          igual que la card de la cuenca: mismo fondo de canvas y mismo anillo
+          de 1px.
+
+          El rombo de 8px que venía de Estrato quedó reemplazado por el logo
+          propio (pedido de Mariano, 2026-09-11). Ver Marca.tsx: sube a 16 —el
+          techo de íconos del sistema— porque el escudo tiene un calado que a 8
+          se empasta, y el rombo no tenía nada adentro que perder.
 
           El radio SÍ cambia: 10 y no los 14 del marco. La regla del sistema
           es que el radio crece con la caja para que la esquina se vea igual,
@@ -75,11 +81,7 @@ export function Indice() {
         style={{ padding: '10px', borderRadius: 'var(--radius-card)' }}
       >
         <Link href="/v2" className="flex min-w-0 items-center gap-2 no-underline">
-          <span
-            aria-hidden
-            className="size-2 shrink-0 rotate-45"
-            style={{ background: 'var(--ink)' }}
-          />
+          <Marca size={16} className="shrink-0" style={{ color: 'var(--ink)' }} />
           <span
             className="s-micro truncate font-medium uppercase"
             style={{ color: 'var(--ink-2)', letterSpacing: '0.10em' }}
